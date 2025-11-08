@@ -1,0 +1,14 @@
+__pycache__
+.venv
+.vscode
+tmp
+output
+
+.DS_Store
+.env
+.env.example
+
+gemini_screenplay.md
+screenplay-prompt-analysis.md
+screenplay.json
+script.md

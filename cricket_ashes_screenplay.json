@@ -1,0 +1,396 @@
+{
+  "title": "THE ASHES 2024 - LEGENDS COLLIDE",
+  "storyline": "A high-energy cricket series promo showcasing the intensity and legacy of The Ashes. The narrative uses rapid jump cuts of different legendary players in identical batting positions, each executing powerful shots. The sequence builds momentum through the repetition of the same action (batting stance to shot) but with different players, creating a sense of timeless tradition and fierce competition. The promo culminates in a dramatic reveal of the series details with the Ashes urn coming towards camera.",
+  "caption": "Same position. Same passion. Different legends. The Ashes 2024.",
+  "video_config": {
+    "total_duration": 15,
+    "aspect_ratio": "16:9",
+    "needs_voiceover": true,
+    "needs_background_music": true,
+    "voice_characteristics": "Deep, authoritative British male voice, 40s-50s, dramatic delivery with gravitas.",
+    "music_description": "Starts with a single cricket ball impact sound (0-1s), builds with intense orchestral percussion and strings (1-12s), culminates in epic cinematic score with choir (12-15s).",
+    "camera": "50mm and 85mm lenses for shallow depth of field and cinematic compression.",
+    "lighting_consistency": "High-contrast stadium lighting, dramatic shadows, golden hour warmth mixed with cool stadium lights.",
+    "full_voiceover_script": "The stance. // The swing. // The legacy. // Five days. // Two nations. // One trophy. // The Ashes. November 10th to 20th."
+  },
+  "target_demographic": "Cricket fans, 25-55, passionate about Test cricket and The Ashes rivalry.",
+  "cultural_context": "The Ashes is the most prestigious Test cricket series between England and Australia, steeped in 140+ years of history and intense rivalry.",
+  "emotions_invoked": "Anticipation, pride, intensity, respect for tradition, competitive fire.",
+  "visual_style": "Epic sports promo aesthetic, high-contrast, dramatic lighting, fast-paced editing with jump cuts.",
+  "character_description": [
+    {
+      "id": 1,
+      "physical_appearance": "Steve Smith, 35-year-old man, Caucasian, short blonde hair, athletic build, focused expression.",
+      "style": "Australian cricket whites with baggy green cap, batting pads and gloves.",
+      "target_alignment": "Legendary Australian batsman, known for unorthodox technique.",
+      "voice_characterstics": "N/A (no dialogue)"
+    },
+    {
+      "id": 2,
+      "physical_appearance": "Joe Root, 33-year-old man, Caucasian, short brown hair, athletic build, determined expression.",
+      "style": "England cricket whites with helmet, batting pads and gloves.",
+      "target_alignment": "England's batting maestro, elegant technique.",
+      "voice_characterstics": "N/A (no dialogue)"
+    },
+    {
+      "id": 3,
+      "physical_appearance": "Pat Cummins, 31-year-old man, Caucasian, short dark hair, athletic build, intense expression.",
+      "style": "Australian cricket whites, batting pads and gloves.",
+      "target_alignment": "Australian captain and pace bowler who can bat.",
+      "voice_characterstics": "N/A (no dialogue)"
+    },
+    {
+      "id": 4,
+      "physical_appearance": "Ben Stokes, 33-year-old man, Caucasian, ginger hair, muscular build, fierce expression.",
+      "style": "England cricket whites with helmet, batting pads and gloves.",
+      "target_alignment": "England's all-rounder, aggressive batting style.",
+      "voice_characterstics": "N/A (no dialogue)"
+    }
+  ],
+  "energy_mood": "high_energy",
+  "audio_track": {
+    "full_voiceover_script": "The stance. // The swing. // The legacy. // Five days. // Two nations. // One trophy. // The Ashes. November 10th to 20th.",
+    "voice_characteristics": "Deep, authoritative British male voice, 40s-50s, dramatic delivery with gravitas.",
+    "music_description": "Starts with a single cricket ball impact sound (0-1s), builds with intense orchestral percussion and strings (1-12s), culminates in epic cinematic score with choir (12-15s).",
+    "audio_segments": [
+      {
+        "start": 1.0,
+        "end": 2.0,
+        "text": "The stance.",
+        "type": "dialogue"
+      },
+      {
+        "start": 4.0,
+        "end": 5.0,
+        "text": "The swing.",
+        "type": "dialogue"
+      },
+      {
+        "start": 7.0,
+        "end": 8.5,
+        "text": "The legacy.",
+        "type": "dialogue"
+      },
+      {
+        "start": 9.0,
+        "end": 10.0,
+        "text": "Five days. Two nations. One trophy.",
+        "type": "dialogue"
+      },
+      {
+        "start": 12.5,
+        "end": 15.0,
+        "text": "The Ashes. November 10th to 20th.",
+        "type": "dialogue"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "scene_id": "S1_JumpCut_Batting_Montage",
+      "duration": 9.0,
+      "timing": "00:00-00:09",
+      "scene_composition": "montage_sequence",
+      "scene_type": "hook",
+      "context": "Rapid jump cuts of four different legendary cricketers in identical batting positions, each executing a powerful shot. The camera position, framing, and player position on screen remain constant, creating a rhythmic visual pattern that emphasizes the timeless nature of the sport and the intensity of competition.",
+      "scene_flow": {
+        "previous_scene": "N/A",
+        "next_scene": "S2_Ashes_Urn_Reveal",
+        "transition_technique": "jump_cut",
+        "visual_bridge_element": "Identical player position in center frame, same batting stance.",
+        "narrative_purpose": "Establish the intensity and legacy of The Ashes through visual repetition and different legendary players."
+      },
+      "voiceover_text": "The stance. // The swing. // The legacy. // Five days. Two nations. One trophy.",
+      "voiceover_character": "Narrator",
+      "lip_sync": false,
+      "audio_details": {
+        "dialogue_timing": "00:01:00-00:02:00; 00:04:00-00:05:00; 00:07:00-00:10:00",
+        "dialogue_character": "Narrator (V.O.)",
+        "voice_characteristics": "Deep, authoritative, dramatic.",
+        "dialogue_text": "The stance. // The swing. // The legacy. // Five days. Two nations. One trophy.",
+        "sfx_description": "Cricket ball impact (leather on willow), crowd roar building with each cut, intense orchestral percussion.",
+        "sfx_timing": "00:00:00-00:09:00 (building intensity)",
+        "ambient_soundscape": "Stadium atmosphere, crowd anticipation, orchestral score building.",
+        "ambient_mood": "Intense, anticipatory, epic."
+      },
+      "image_prompt": "",
+      "action_prompt": "",
+      "cinematography": {
+        "camera_setup": {
+          "shot_type": "medium shot",
+          "camera_angle": "eye-level",
+          "camera_position": "Side-on to batsman, positioned at square leg, looking towards off-side.",
+          "focal_length": "85mm",
+          "depth_of_field": "shallow f/2.8",
+          "focus_point": "Batsman's upper body and bat."
+        },
+        "camera_movement": {
+          "movement_type": "static",
+          "speed": "N/A",
+          "direction": "N/A",
+          "purpose": "Maintain consistent framing across all jump cuts to emphasize the repetition and rhythm."
+        },
+        "camera_consistency": {
+          "critical_visual_anchors": "Batsman positioned in center frame, batting stance identical across all cuts.",
+          "eye_line": "horizontal center",
+          "lighting_direction": "High-contrast stadium lighting from above and side, creating dramatic shadows.",
+          "compositional_notes": "CRITICAL: Player must be in EXACT same position in frame for all 4 cuts. Batting stance (feet position, bat lift) must be identical. Only the player's face and uniform colors change."
+        }
+      },
+      "generation_strategy": {
+        "generation_method": "montage_cut",
+        "reason": "Requires 4 separate generations with identical framing but different players. Each cut is 2-2.5s, perfect for jump cut technique showing passage of time and different legends.",
+        "duration_generate": null,
+        "duration_trim": null,
+        "veo_features_used": [
+          "reference images (each player)",
+          "precise composition control"
+        ],
+        "audio_handling": "ambient_only",
+        "post_production_required": true,
+        "post_production_notes": "Stitch 4 separate shots with hard jump cuts. Cut 1 (2.0s): Steve Smith. Cut 2 (2.5s): Joe Root. Cut 3 (2.0s): Pat Cummins. Cut 4 (2.5s): Ben Stokes. Total: 9.0s. Each cut shows: stance (0.5s) → swing (1.0s) → follow-through (0.5-1.0s)."
+      },
+      "keyframe_description": {
+        "needs_keyframes": true,
+        "first_frame_prompt": "Cinematic medium shot, 85mm lens, shallow depth of field (f/2.8). Steve Smith (35, Caucasian, blonde, Australian cricket whites, baggy green cap) in batting stance at cricket crease. Side-on camera angle from square leg. Player positioned in exact center of frame. High-contrast stadium lighting creates dramatic shadows. Blurred cricket pitch and stumps in background. Player's feet in batting stance, bat raised behind shoulder, eyes focused forward. CRITICAL: Player must be centered in frame, batting stance must be replicable for other players. Photorealistic, 4K. Aspect ratio: 16:9.",
+        "last_frame_prompt": null,
+        "transition_frame_prompt": null
+      },
+      "visual_continuity": {
+        "consistent_element": "Batting position, camera angle, framing, lighting setup.",
+        "character_id": "Multiple (1, 2, 3, 4)",
+        "color_palette": "Cricket whites, green pitch, warm stadium lights, dramatic shadows.",
+        "lighting": "High-contrast stadium lighting, golden hour warmth mixed with cool lights.",
+        "critical_match_points": "Player position in center frame, identical batting stance across all cuts."
+      },
+      "video_prompt": "This scene requires 4 SEPARATE video generations, each 2-2.5 seconds:\n\nCUT 1 (2.0s): Medium shot, 85mm lens, f/2.8. Steve Smith (35, blonde, Australian whites, baggy green) in batting stance at crease. Side-on angle. He lifts bat, executes powerful cover drive, follows through. High-contrast stadium lighting. Static camera. Player centered in frame.\n\nCUT 2 (2.5s): IDENTICAL framing and camera position. Joe Root (33, brown hair, England whites, helmet) in EXACT same batting stance position. He lifts bat, executes elegant straight drive, follows through. Same lighting and composition as Cut 1.\n\nCUT 3 (2.0s): IDENTICAL framing and camera position. Pat Cummins (31, dark hair, Australian whites) in EXACT same batting stance position. He lifts bat, executes aggressive pull shot, follows through. Same lighting and composition.\n\nCUT 4 (2.5s): IDENTICAL framing and camera position. Ben Stokes (33, ginger hair, England whites, helmet) in EXACT same batting stance position. He lifts bat, executes powerful hook shot, follows through. Same lighting and composition.\n\nCRITICAL: All 4 cuts must have identical camera position, framing, and player position in frame. Only the player and shot type change. This creates the jump cut effect.",
+      "negative_prompt": "cartoon, low quality, different camera angles, inconsistent framing, player in different positions, unrealistic cricket technique, visible wires, CGI",
+      "has_product": false,
+      "characters": {
+        "primary_character_id": null
+      },
+      "transition_to_next": "smash_cut",
+      "energy_mood": "high_energy"
+    },
+    {
+      "scene_id": "S2_Ashes_Urn_Reveal",
+      "duration": 3.0,
+      "timing": "00:09-00:12",
+      "scene_composition": "single_shot",
+      "scene_type": "benefit",
+      "context": "Dramatic reveal of the iconic Ashes urn rotating slowly on a pedestal, with atmospheric smoke and dramatic lighting. This transitions from the high-energy batting montage to the symbolic heart of the rivalry.",
+      "scene_flow": {
+        "previous_scene": "S1_JumpCut_Batting_Montage",
+        "next_scene": "S3_Title_Card_CTA",
+        "transition_technique": "smash_cut",
+        "visual_bridge_element": "Abrupt cut from action to stillness, from players to trophy.",
+        "narrative_purpose": "Reveal the prize and symbol of the rivalry."
+      },
+      "voiceover_text": "N/A",
+      "voiceover_character": null,
+      "lip_sync": false,
+      "audio_details": {
+        "dialogue_timing": null,
+        "dialogue_character": null,
+        "voice_characteristics": null,
+        "dialogue_text": null,
+        "sfx_description": "Deep orchestral note, subtle whoosh as urn rotates, atmospheric reverb.",
+        "sfx_timing": "00:09:00-00:12:00",
+        "ambient_soundscape": "Epic orchestral score building to climax.",
+        "ambient_mood": "Reverent, dramatic, anticipatory."
+      },
+      "image_prompt": "",
+      "action_prompt": "",
+      "cinematography": {
+        "camera_setup": {
+          "shot_type": "close-up",
+          "camera_angle": "eye-level",
+          "camera_position": "Directly facing the urn on pedestal.",
+          "focal_length": "100mm",
+          "depth_of_field": "ultra-shallow f/1.8",
+          "focus_point": "The Ashes urn."
+        },
+        "camera_movement": {
+          "movement_type": "dolly shot",
+          "speed": "slow",
+          "direction": "forward",
+          "purpose": "Slow push-in to emphasize the importance and detail of the urn."
+        },
+        "camera_consistency": {
+          "critical_visual_anchors": "The Ashes urn centered in frame, rotating slowly.",
+          "eye_line": "horizontal center",
+          "lighting_direction": "Dramatic spotlight from above, rim lighting from sides.",
+          "compositional_notes": "Urn must be perfectly centered. Atmospheric smoke adds drama. Deep black background."
+        }
+      },
+      "generation_strategy": {
+        "generation_method": "first_last_frame_interpolation",
+        "reason": "Requires slow, controlled rotation and camera push-in over 3 seconds.",
+        "duration_generate": 4.0,
+        "duration_trim": 3.0,
+        "veo_features_used": [
+          "first+last frame",
+          "reference images (Ashes urn)"
+        ],
+        "audio_handling": "ambient_only",
+        "post_production_required": true,
+        "post_production_notes": "Trim to 3.0s. Smash cut from S1 at 9.0s. Flow into S3 at 12.0s."
+      },
+      "keyframe_description": {
+        "needs_keyframes": true,
+        "first_frame_prompt": "Cinematic close-up, 100mm lens, ultra-shallow depth of field (f/1.8). The iconic Ashes urn (small terracotta urn, 15cm tall, with faded inscription) sits centered on a dark wooden pedestal. Dramatic spotlight from above creates high contrast. Atmospheric smoke swirls around the base. Deep black background. Camera positioned at start of slow push-in. Photorealistic, 4K. Aspect ratio: 16:9.",
+        "last_frame_prompt": "Cinematic extreme close-up, 100mm lens, ultra-shallow depth of field (f/1.8). The Ashes urn has rotated 45 degrees, showing the inscription side. Camera has pushed in closer, filling more of the frame. Dramatic spotlight emphasizes the texture and age of the terracotta. Atmospheric smoke continues to swirl. Deep black background. Photorealistic, 4K. Aspect ratio: 16:9.",
+        "transition_frame_prompt": null
+      },
+      "visual_continuity": {
+        "consistent_element": "The Ashes urn",
+        "character_id": null,
+        "color_palette": "Terracotta brown, deep blacks, warm spotlight glow.",
+        "lighting": "Dramatic spotlight, high-contrast, rim lighting.",
+        "critical_match_points": "N/A (smash cut from S1)"
+      },
+      "video_prompt": "Slow cinematic dolly-in shot, 100mm lens, ultra-shallow depth of field (f/1.8). The iconic Ashes urn (small terracotta urn with faded inscription) sits centered on a dark wooden pedestal, slowly rotating. Dramatic spotlight from above creates high contrast against deep black background. Atmospheric smoke swirls around the base. Camera slowly pushes in over 3 seconds, ending in extreme close-up showing urn detail and texture. Epic orchestral score builds. Professional commercial aesthetic.",
+      "negative_prompt": "cartoon, low quality, modern urn, shiny new urn, incorrect proportions, visible support wires, unrealistic smoke, bright background",
+      "has_product": true,
+      "characters": null,
+      "transition_to_next": "flow_cut",
+      "energy_mood": "dramatic"
+    },
+    {
+      "scene_id": "S3_Title_Card_CTA",
+      "duration": 3.0,
+      "timing": "00:12-00:15",
+      "scene_composition": "single_shot",
+      "scene_type": "cta",
+      "context": "Final title card with series information. The Ashes urn continues to be visible in the background (slightly out of focus) while bold text appears in the foreground announcing the series dates and details.",
+      "scene_flow": {
+        "previous_scene": "S2_Ashes_Urn_Reveal",
+        "next_scene": "N/A",
+        "transition_technique": "flow_cut",
+        "visual_bridge_element": "Urn remains visible, text overlays appear.",
+        "narrative_purpose": "Call to action with series details and dates."
+      },
+      "voiceover_text": "The Ashes. November 10th to 20th.",
+      "voiceover_character": "Narrator",
+      "lip_sync": false,
+      "audio_details": {
+        "dialogue_timing": "00:12:50-00:15:00",
+        "dialogue_character": "Narrator (V.O.)",
+        "voice_characteristics": "Deep, authoritative, final declaration.",
+        "dialogue_text": "The Ashes. November 10th to 20th.",
+        "sfx_description": "Final orchestral crescendo with choir, deep bass note at end.",
+        "sfx_timing": "00:12:00-00:15:00",
+        "ambient_soundscape": "Epic cinematic score with choir reaching climax.",
+        "ambient_mood": "Epic, conclusive, anticipatory."
+      },
+      "image_prompt": "",
+      "action_prompt": "",
+      "cinematography": {
+        "camera_setup": {
+          "shot_type": "close-up",
+          "camera_angle": "eye-level",
+          "camera_position": "Continuation from S2, slightly pulled back.",
+          "focal_length": "85mm",
+          "depth_of_field": "shallow f/2.8",
+          "focus_point": "Foreground text, urn slightly out of focus in background."
+        },
+        "camera_movement": {
+          "movement_type": "static",
+          "speed": "N/A",
+          "direction": "N/A",
+          "purpose": "Hold on title card for readability."
+        },
+        "camera_consistency": {
+          "critical_visual_anchors": "Ashes urn visible in background, text in foreground.",
+          "eye_line": "horizontal center",
+          "lighting_direction": "Dramatic spotlight continues, text is illuminated.",
+          "compositional_notes": "Text must be clearly readable. Urn provides context in background."
+        }
+      },
+      "generation_strategy": {
+        "generation_method": "image_to_video",
+        "reason": "Minimal motion required, primarily a static title card with subtle urn rotation in background.",
+        "duration_generate": 4.0,
+        "duration_trim": 3.0,
+        "veo_features_used": [
+          "reference images (Ashes urn)"
+        ],
+        "audio_handling": "ambient_only",
+        "post_production_required": true,
+        "post_production_notes": "Trim to 3.0s. Add text overlays in post: 'THE ASHES 2024' (12.5s-13.5s), 'ENGLAND vs AUSTRALIA' (13.5s-14.5s), 'NOVEMBER 10-20' (14.5s-15.0s). Fade to black at 15.0s."
+      },
+      "keyframe_description": {
+        "needs_keyframes": true,
+        "first_frame_prompt": "Cinematic shot, 85mm lens, shallow depth of field (f/2.8). The Ashes urn is visible in the background center, slightly out of focus, continuing to rotate slowly. Dramatic spotlight creates atmospheric lighting. Deep black background. Foreground is clear for text overlay. Atmospheric smoke continues. Photorealistic, 4K. Aspect ratio: 16:9.",
+        "last_frame_prompt": null,
+        "transition_frame_prompt": null
+      },
+      "visual_continuity": {
+        "consistent_element": "The Ashes urn, dramatic lighting.",
+        "character_id": null,
+        "color_palette": "Deep blacks, warm spotlight, white/gold text.",
+        "lighting": "Dramatic spotlight, high-contrast.",
+        "critical_match_points": "Urn position from S2."
+      },
+      "video_prompt": "Static cinematic shot, 85mm lens, shallow depth of field (f/2.8). The Ashes urn continues to rotate slowly in the background center, slightly out of focus. Dramatic spotlight creates atmospheric lighting against deep black background. Atmospheric smoke swirls. Foreground is clear for text overlay (added in post-production). Camera is static, holding the composition. Epic orchestral score with choir reaches climax. Professional commercial aesthetic.",
+      "negative_prompt": "cartoon, low quality, distracting motion, text baked into video, bright background, cluttered composition",
+      "has_product": true,
+      "characters": null,
+      "transition_to_next": null,
+      "energy_mood": "dramatic"
+    }
+  ],
+  "generation_manifest": {
+    "S1_Video_0-9s_Cut1": {
+      "method": "text_to_video",
+      "keyframes": [
+        "S1_JumpCut_Batting_Montage_Cut1_FirstFrame"
+      ],
+      "duration": 2.0,
+      "post_edit": "First jump cut. Steve Smith batting."
+    },
+    "S1_Video_0-9s_Cut2": {
+      "method": "text_to_video",
+      "keyframes": [
+        "S1_JumpCut_Batting_Montage_Cut2_FirstFrame"
+      ],
+      "duration": 2.5,
+      "post_edit": "Second jump cut. Joe Root batting. CRITICAL: Identical framing to Cut 1."
+    },
+    "S1_Video_0-9s_Cut3": {
+      "method": "text_to_video",
+      "keyframes": [
+        "S1_JumpCut_Batting_Montage_Cut3_FirstFrame"
+      ],
+      "duration": 2.0,
+      "post_edit": "Third jump cut. Pat Cummins batting. CRITICAL: Identical framing to Cut 1."
+    },
+    "S1_Video_0-9s_Cut4": {
+      "method": "text_to_video",
+      "keyframes": [
+        "S1_JumpCut_Batting_Montage_Cut4_FirstFrame"
+      ],
+      "duration": 2.5,
+      "post_edit": "Fourth jump cut. Ben Stokes batting. CRITICAL: Identical framing to Cut 1. Smash cut to S2 at 9.0s."
+    },
+    "S2_Video_9-12s": {
+      "method": "first_last_frame_interpolation",
+      "keyframes": [
+        "S2_Ashes_Urn_Reveal_FirstFrame",
+        "S2_Ashes_Urn_Reveal_LastFrame"
+      ],
+      "duration": 4.0,
+      "trim_to": 3.0,
+      "post_edit": "Slow push-in on Ashes urn. Flow cut to S3 at 12.0s."
+    },
+    "S3_Video_12-15s": {
+      "method": "image_to_video",
+      "keyframes": [
+        "S3_Title_Card_CTA_FirstFrame"
+      ],
+      "duration": 4.0,
+      "trim_to": 3.0,
+      "post_edit": "Static title card. Add text overlays: 'THE ASHES 2024', 'ENGLAND vs AUSTRALIA', 'NOVEMBER 10-20'. Fade to black at 15.0s."
+    }
+  }
+}

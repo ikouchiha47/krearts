@@ -1,0 +1,619 @@
+script_writer:
+    expected_output: >
+        The characters, video storyline and industry standard screenplay script
+
+    description: |
+        ## Context
+
+        Provided Character Descriptions:
+        {characters}
+
+        Provided Image Urls:
+        {images}
+
+        User Request:
+        {script}
+
+        ---
+
+        ## CORE TASK
+
+        1. Analyse Inputs:
+        - Extract the core product insight and audience context (who, what, why).
+        - Use the ImageAnalyzer gather more details, from the image url, about the image, objects, texts, colors, specific details
+        - Identify creative direction (storyline tone, pacing, emotional anchor).
+        - Detect executional or stylistic cues (visual style, cinematography, transitions, editing style).
+
+        2. Synthesize a Creative Concept:
+        This is the most critical step to control the script's "behavior" and "nature". 
+        You MUST first define:
+
+        - Persona & Tone: The video's "voice." (e.g., "Calm & Intelligent," "Energetic & Bold," "Quirky & Fun," "Warm & Trustworthy").
+        - Pacing & Editing Style: The video's "rhythm." (e.g., "Fast-paced with quick cuts," "Smooth and cinematic with dissolves," "Rhythmic with cuts on audio beats").
+        This will guide the use of transitions.
+        - Visual Style: The look and feel. (e.g., "Bright and airy," "Moody and cinematic," "Gritty and real," "UGC-style").
+
+        3. Develop a Video Storyline: Summarize the 1-2 sentence narrative that follows the Storytelling Arc.
+        4. Generate Outputs: Produce the final Character List and the complete Screenplay based entirely on the Creative Concept you defined.
+
+        ---
+
+        ## CREATIVE INSTRUCTIONS
+
+        The flow of your screenplay must follow this 5-part narrative structure.
+        The defined Persona & Tone must be evident in every beat.
+
+        - Hook (0-2s): Authentic, unique opener.
+        - Problem/Need (2-5s): Relatable challenge or observation.
+        - Solution/Product (5-8s): Genuine discovery.
+        - Benefits (8-12s): Honest reactions.
+        - CTA (12-15s+): Invitation to try/buy/share.
+
+        ---
+
+        ## CHARACTER CONSISTENCY GUIDELINES
+
+        - **MANDATORY**: Generate any missing characters if not provided in character description.
+        - **MANDATORY:** For each character, create a concise description including: **age, gender, race/ethnicity, skin tone, hair, and build** (keep to 6-7 words max).
+        - **MANDATORY:** Add details on clothing, accessories, and overall style that match the product and brand. Clothing, hairstyle, and expression may change as appropriate for the scene.
+        - **MANDATORY:** Character **core appearance** (age, gender, race/ethnicity, skin tone, build, and facial features) must stay **identical across all scenes and prompts**; do not alter these elements.
+        - **IMPORTANT:** Characters do **not** need to appear in every scene; assess scene focus before including them.
+        
+        ### Character Reference Image Specifications
+        
+        For each character, you MUST also provide cinematography specifications for generating reference images:
+        
+        - **Front View Reference**:
+          - Shot Type: "Close-up studio portrait photograph"
+          - Lens: "50mm lens"
+          - Depth of Field: "shallow depth of field f/2.8"
+          - Additional: "Neutral expression, looking directly at camera, clean white background, professional studio lighting, centered, photorealistic"
+          
+        - **Side View Reference**:
+          - Shot Type: "Close-up studio portrait photograph"
+          - Lens: "50mm lens"
+          - Depth of Field: "shallow depth of field f/2.8"
+          - Additional: "Neutral expression, side profile, clean white background, professional studio lighting, centered, photorealistic"
+          
+        - **Full Body Reference**:
+          - Shot Type: "Full body studio photograph"
+          - Lens: "35mm lens"
+          - Depth of Field: "deep focus f/8"
+          - Additional: "Standing naturally in neutral pose, clean white background, professional studio lighting, centered, photorealistic"
+        
+        These specifications will be used to generate consistent character reference images that can be used across all video generations.
+
+
+        ### Examples
+
+        **Correct Character Description:**
+
+        - "Mina, a 25-year-old woman with shoulder-length curly brown hair,
+        slim build and fair skin, wearing a vintage denim jacket over black
+        t-shirt, comfortable dark trousers"
+
+        **Incorrect Character Description:**
+
+        - "Young female photographer in art studio" (missing key details)
+        - "25-year-old photographer with brown hair" (incomplete)
+        - "Mina in denim jacket holding camera" (abbreviated)
+
+        ---
+
+        ## SCRIPT GENERATION GUIDELINES
+
+        - Format: You MUST adhere strictly to the industry-standard ELEMENTS OF SCREENPLAY format provided below.
+        - Stylistic Execution: The Creative Concept (Persona, Tone, Pacing) MUST be reflected in every line you write.
+        - Action Descriptions: Write action in the present tense. The style of the writing must match the tone (e.g., short, punchy sentences for a fast-paced script; more descriptive, flowing sentences for a cinematic one).
+        - Dialogue (V.O.): Scripts may or maynot require a voiceover. This must be written using the CHARACTER (V.O.) format. The dialogue must sound natural, organic, and perfectly match the defined Persona.
+        - Duration: The entire screenplay (all scenes combined) should be written to be approximately 10-15 seconds in total length. This means all action and dialogue must be extremely concise.
+        - Scene Count: The script must have 3-5 distinct scenes (i.e., 3-5 INT./EXT. sluglines).
+        - Environment Consistency: The location, time of day, and lighting must be purposefully chosen to support the story and remain logically consistent. Do not jump from night to day without a strong narrative reason.
+
+        ---
+
+        ## Scene Transitions
+
+        - **MANDATORY**: Scenic consistency is top priority. There should not be abrupt changes in scene's environment and lighting.
+        - BAD EXAMPLE: First scene night time, Second scene day time.
+        - **MANDATORY**: Scene environment setting should serve the storyline.
+        
+        **IMPORTANT**: Transition definitions (match cuts, jump cuts, flow cuts, etc.) are ALREADY in your knowledge base. 
+        You do NOT need to use FileReadTool to read them. They are loaded automatically.
+        
+        Reference your existing knowledge about:
+        - Match cuts (graphic, action)
+        - Jump cuts
+        - Flow cuts
+        - Smash cuts
+        - Action cuts
+        - Montage cuts
+
+        ---
+
+        ## KNOWLEDGE BASE USAGE
+
+        **IMPORTANT**: Transitions vocabulary is ALREADY loaded in your knowledge base. You do NOT need to read it from files.
+
+        You have access to two additional knowledge base directories. Use the DirectoryReadTool and FileReadTool to explore them ONLY when they serve the creative concept and storyline.
+
+        ### 1. Cinematic Styles (knowledge/cinematic-styles/)
+        **What it contains**: Visual techniques (lighting, camera movements, color palettes)
+        **Does NOT contain**: Transitions (already in your knowledge base)
+        
+        **When to use**:
+        - User requests specific visual style (e.g., "film noir lighting", "shallow depth of field")
+        - Creative concept requires specific cinematography (e.g., "moody and cinematic")
+        - Need technical guidance for camera work or lighting
+        
+        **How to use**:
+        1. Use DirectoryReadTool to see available style files (tool already knows the directory)
+        2. Use FileReadTool with the full file path to read specific files
+        3. Apply techniques ONLY if they enhance the story and match the brand
+        
+        **Don't use if**: The creative concept doesn't call for specific visual techniques
+
+        ---
+
+        ### 2. Narrative Structures (knowledge/narrative-structures/)
+        **What it contains**: Story organization patterns (linear, non-linear, problem-solution, etc.)
+        
+        **When to use**:
+        - User requests specific storytelling approach (e.g., "start with the result", "flashback")
+        - Creative concept benefits from non-linear structure
+        - Need guidance on organizing scenes for maximum impact
+        
+        **How to use**:
+        1. Use DirectoryReadTool to see available structure files (tool already knows the directory)
+        2. Use FileReadTool with full file path to read index.md first
+        3. Use FileReadTool to read specific structure that fits your storyline
+        4. Apply structure ONLY if it serves the message and audience
+        
+        **Don't use if**: Simple linear storytelling is sufficient (most 15-30s ads)
+        
+        **Default approach**: Use Problem-Solution structure unless creative concept requires otherwise
+
+        ---
+
+        ### 3. Director Styles (knowledge/cinematic-styles/director-styles/)
+        **What it contains**: Signature styles of famous directors (Tarantino, Edgar Wright, Wes Anderson)
+        **File paths**: Use DirectoryReadTool first to see available directors, then FileReadTool to read specific files
+        
+        **When to use**:
+        - User explicitly requests director style (e.g., "Tarantino-style", "Edgar Wright energy")
+        - Creative concept matches a director's signature (e.g., "rapid-fire editing" = Edgar Wright)
+        - Brand personality aligns with director aesthetic
+        
+        **How to use**:
+        1. Use DirectoryReadTool to see available director files (tool already knows the directory)
+        2. Use FileReadTool with full file path to read specific director file
+        3. Apply signature techniques ONLY if they match brand and message
+        4. Adapt for short-form (most director styles are for feature films)
+        
+        **Don't use if**: 
+        - User didn't request it
+        - Brand is conservative or traditional
+        - Style would overshadow the product
+        - Not enough time to execute properly (< 30s)
+        
+        **Warning**: Director styles are complex. Use sparingly and only when appropriate.
+
+        ---
+
+        ## KNOWLEDGE BASE DECISION TREE
+
+        ```
+        START: Analyze user request and creative concept
+        
+        ├─ Does user request specific visual style?
+        │  ├─ YES → Explore cinematic-styles/
+        │  └─ NO → Continue
+        │
+        ├─ Does user request specific storytelling approach?
+        │  ├─ YES → Explore narrative-structures/
+        │  └─ NO → Use default Problem-Solution
+        │
+        ├─ Does user request director style OR does creative concept strongly match one?
+        │  ├─ YES → Explore director-styles/ (use cautiously)
+        │  └─ NO → Skip director styles
+        │
+        └─ Generate screenplay using:
+           - Transitions vocabulary (always available in your knowledge)
+           - Selected cinematic techniques (if any)
+           - Selected narrative structure (or default)
+           - Selected director influences (if any)
+        ```
+
+        ---
+
+        ## IMPORTANT RULES
+
+        1. **Don't over-complicate**: Most ads work best with simple, clear storytelling
+        2. **Serve the product**: Style should enhance, not overshadow the message
+        3. **Match the brand**: Conservative brands need conservative approaches
+        4. **Consider duration**: Complex techniques need time (30s+)
+        5. **When in doubt, keep it simple**: Problem-Solution + good cinematography works for 90% of ads
+
+        ## ELEMENTS OF SCREENPLAY
+
+        ------------------------------------------------------------
+
+        TITLE: <Title of Screenplay>
+        WRITTEN BY: <Author Name>
+
+        [Optional metadata: Draft, Date, etc.]
+        ------------------------------------------------------------
+
+        INT. / EXT. <LOCATION> - <TIME OF DAY>
+        (Scene Heading / Slugline)
+        - Always uppercase
+        - Format: [INT./EXT.] [LOCATION] - [DAY/NIGHT/etc.]
+        - Marks the start of a new scene
+
+        Action:
+        <Describe what happens visually.>
+        - Written in present tense
+        - No dialogue or camera directions unless necessary
+        - Each paragraph = one beat or moment of action
+
+        CHARACTER NAME (optional EXTENSION)
+        (Centered, UPPERCASE)
+        - Extension examples: (V.O.), (O.S.), (CONT'D)
+
+        (parenthetical)
+        (Optional, short direction about how dialogue is delivered)
+        Example: (whispering), (sarcastic), (beat)
+
+        Dialogue line
+        (Indented under character name)
+        Example:
+        I told you not to come here.
+
+        [Repeat CHARACTER + DIALOGUE as needed]
+
+        Transition:
+        (Optional, right-aligned, uppercase)
+        Examples:
+        CUT TO:
+        DISSOLVE TO:
+        FADE OUT:
+
+        ------------------------------------------------------------
+        # Optional Elements
+        ------------------------------------------------------------
+
+        Subheader:
+        (Used for mini location/time breaks within a scene)
+        Example: LATER / SAME TIME / KITCHEN
+
+        Shot direction:
+        (Optional, for directors)
+        Example: CLOSE ON - SARAH'S HAND TREMBLES.
+
+        Montage / Series of Shots:
+        (Used to describe multiple short visuals)
+        Example:
+        MONTAGE - SARAH'S TRAINING
+        - Sarah runs up the hill.
+        - She punches a heavy bag.
+        - Sweat pours down her face.
+
+        Title page:
+        Should contain:
+        - Title centered
+        - Written by <Name>
+        - Contact info (optional)
+
+        ## Examples of Screenplays:
+        {examples}
+
+        Answer in the format:
+
+        ## Storyline
+        **storyline that aligns with the creative instructions**
+
+        ## Screenplay Script
+        **the screenplay in the above mentioned script format**
+
+
+gemini:
+  enhancer:
+    expected_output: |
+      The enhanced screenplay in structured format
+
+    description: |
+      Tasks:
+      - Understand the script/screenplay.
+      - Follow the prompting structure guidelines for gemini and use the knowledgebase to understand,
+        how to describe the image and action and scene details. 
+      - Add details to the screenplay, describing the scene, camera, action, cinematogrpahy styles,
+        to be able to generate images and videos, to bring the sceenplay to life.
+      - Once done, structure the screenplay as expeceted in the output.
+
+      ## User Request
+      {script}
+
+      ## Original Screenplay
+      {screenplay}
+
+      ---
+      
+      Use the knowledgebase to understand how to best construct the image and video prompts.
+      
+      **CRITICAL**: Reference knowledge/gemini/transitions-vocabulary.md for:
+      - When to use each transition type
+      - How to generate each transition (separate videos, image stitch, etc.)
+      - Prompt requirements for each technique
+      - Generation method decision logic
+
+      ## Image Prompting Guidelines
+
+      Images can be of two types
+      - Keyframe, which acts as a scene setup
+      - Transition, which helps bridge time or scene consistency, preventing abrupt changes in environment
+
+      Image prompt has 3 major parts:
+
+      - Subject: The first thing to think about with any prompt is the subject: the object, person, animal, or scenery we want an image of.
+      - Context and background: Just as important is the background or context in which the subject will be placed.
+      For example, a studio with a white background, outdoors, or indoor environments.
+      - Style: Finally, add the style of image you want.
+      Styles can be general (painting, photograph, sketches) or very specific (pastel painting, charcoal drawing, isometric 3D).
+      You can also combine styles.
+
+      Additional Guidelines:
+      - Use descriptive language: Employ detailed adjectives and adverbs to paint a clear picture for Imagen.
+      - Provide context: If necessary, include background information to aid the AI's understanding.
+      - Reference specific artists or styles: If you have a particular aesthetic in mind, referencing specific artists or art movements can be helpfu
+      - Enhance the facial details in your personal and group images: Specify facial details as a focus of the photo (for example, use the word "portrait" in the prompt).
+
+      Examples:
+
+      Captivating photo of a woman in her 20s utilizing a street photography style.
+      The image should look like a movie still with muted orange warm tones. 
+
+      Less detail:
+      Close-up photo of a woman in her 20s, street photography, movie still, muted orange warm tones 
+
+      More detail:
+      Captivating photo of a woman in her 20s utilizing a street photography style. The image should look like a movie still with muted orange warm tones. 
+
+      **IMPORTANT: More detail is prefered**
+
+      ---
+
+      ## Action Prompting Guidelines
+
+      Action prompt describes what happens in the video.
+
+      The following elements should be included in your prompt:
+
+      - Subject: The object, person, animal, or scenery that you want in your video, such as cityscape, nature, vehicles, or puppies.
+      - Context: The background or environment (context).
+      - Action: What the subject is doing (for example, walking, running, or turning their head).
+      - Style: Specify creative direction using specific film style keywords, such as sci-fi, horror film, film noir, or animated styles like cartoon.
+      - Camera positioning and motion: [Optional] Control the camera's location and movement using terms like aerial view, eye-level, top-down shot, dolly shot, or worms eye.
+      - Composition: [Optional] How the shot is framed, such as wide shot, close-up, single-shot or two-shot.
+      - Focus and lens effects: [Optional] Use terms like shallow focus, deep focus, soft focus, macro lens, and wide-angle lens to achieve specific visual effects.
+      - Ambiance: [Optional] How the color and light contribute to the scene, such as blue tones, night, or warm tones.
+
+      Formula: [Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance]
+
+      Examples:
+      Close up shot (composition) of melting icicles (subject) on a frozen rock wall (context) with cool blue tones (ambiance), zoomed in (camera motion) maintaining close-up detail of water drips (action). 
+
+      More Writing Tips:
+      - Use descriptive language: Use adjectives and adverbs to paint a clear picture for Veo.
+      - Enhance the facial details: Specify facial details as a focus of the photo like using the word portrait in the prompt.
+
+      Less detail
+      The camera dollies to show a close up of a desperate man in a green trench coat.
+      He's making a call on a rotary-style wall phone with a green neon light.
+      It looks like a movie scene.
+
+      More detail
+      A close-up cinematic shot follows a desperate man in a weathered green trench coat as he dials a rotary phone mounted on a gritty brick wall, bathed in the eerie glow of a green neon sign.
+      The camera dollies in, revealing the tension in his jaw and the desperation etched on his face as he struggles to make the call.
+      The shallow depth of field focuses on his furrowed brow and the black rotary phone, blurring the background into a sea of neon colors and indistinct shadows, creating a sense of urgency and isolation.
+
+      **MANDATORY: Prefer the more detail version.**
+      
+      ## Structured Script Component Definitions
+
+      ### Video Context
+      
+      - Title: (title of the video)
+      - Who is this video for:
+        - Target Demographic
+        - Cultural Context
+        - Emotions Invoked
+      - Duration: in seconds
+      - Overall Energy: (mood of the entire video)
+      - Styles of the video: (musical, action, electic, gloomy, serene)
+      - Lighting Consistency Guidelines: (lighting controls for the entire video, to prevent abrupt mood and color change)
+      - Camera: (which camera is used, e.g., 35mm, 50mm, wide-angle)
+      - Aspect Ratio: (9:16 or 16:9)
+        
+      ## Scene 1
+
+      ### Scene Metadata
+      - Scene ID: (unique identifier, e.g., S1_Hook)
+      - Scene Type: (hook | problem | solution | benefit | cta)
+      - Duration: (total duration in seconds, e.g., 2.0s)
+      - Timing: (start-end in video, e.g., 00:00-00:02)
+      - Composition: (single_shot | montage_sequence)
+      - Energy: (high_energy | moderate | calm | dramatic)
+
+      ### Context
+      (Describes the environment, the why behind the scene, narrative purpose)
+      (Can reference previous scene if semantically consistent)
+      
+      ### Scene Flow
+      - Previous Scene: (scene ID or "N/A" if opening)
+      - Next Scene: (scene ID or "N/A" if closing)
+      - Transition Technique: (match_cut_graphic | match_cut_action | jump_cut | flow_cut | smash_cut | action_cut | montage_cut)
+      - Visual Bridge Element: (specific element that connects scenes, e.g., "headphone position", "hand gesture", "lighting color")
+      - Narrative Purpose: (what this scene achieves in the story)
+
+      ### Characters
+      (List all characters present in this scene)
+      
+      #### Character: <Character Name> (ID: CHAR_XXX)
+      - Physical Appearance: (age, gender, race/ethnicity, skin tone, hair, build - 6-7 words max)
+      - Clothing/Style: (outfit description for this scene)
+      - Character State: (emotional/physical state in this scene)
+      - Character Action: (what they're doing)
+
+      ### Cinematography
+      
+      #### Camera Setup (First Frame)
+      - Shot Type: (wide shot | medium shot | close-up | extreme close-up | POV)
+      - Camera Angle: (eye-level | low-angle | high-angle | dutch angle | aerial)
+      - Camera Position: (specific position description)
+      - Focal Length: (35mm | 50mm | 85mm | 24mm wide-angle | 100mm telephoto)
+      - Depth of Field: (shallow f/2.8 | deep f/8 | etc.)
+      - Focus Point: (what's in focus)
+
+      #### Camera Movement
+      - Movement Type: (static | dolly shot | tracking shot | pan | tilt | crane shot | handheld | zoom)
+      - Speed: (slow | medium | fast | gradual)
+      - Direction: (forward | backward | left | right | up | down | circular)
+      - Purpose: (why this movement - build tension, reveal, follow action, etc.)
+
+      #### Camera Consistency Guardrails
+      - Critical Visual Anchors: (elements that MUST stay in same position for match cuts)
+      - Eye-line: (horizontal center | offset left | offset right)
+      - Lighting Direction: (front-left | side | backlit | etc.)
+      - Compositional Notes: (specific framing requirements for transitions)
+
+      ### Generation Strategy
+      
+      #### Method Decision
+      - Generation Method: (first_last_frame_interpolation | image_to_video | text_to_video | image_stitch_ffmpeg)
+      - Reason: (why this method - e.g., "camera movement requires video", "static shot under 2s", "match cut needs precise composition")
+      - Veo Features Used: (first+last frame | reference images | timestamp prompting | none)
+      - Post-Production Required: (yes | no)
+      - Post-Production Notes: (what editing is needed - hard cut, crossfade, color grade, etc.)
+
+      ### Keyframe Image Descriptions
+      
+      **IMPORTANT**: Only generate keyframes when needed for:
+      1. **Match cuts** between scenes (need last frame of scene i + first frame of scene i+1)
+      2. **First/last frame interpolation** within a single scene (camera movement or transformation)
+      3. **Transition frames** for abrupt lighting/environment changes
+      
+      **DO NOT** generate keyframes for simple text-to-video scenes.
+      
+      Set `needs_keyframes: true` only when one of the above applies.
+
+      #### First Frame - Imagen Prompt (only if needs_keyframes=true)
+      ```
+      [Detailed image generation prompt following this structure:]
+      [Photography type] of [subject with detailed description] [doing what] in [environment/context]. 
+      [Camera specs: focal length, aperture, angle]. 
+      [Lighting description]. 
+      [Style/mood/aesthetic]. 
+      [Quality modifiers: photorealistic, 4K, etc.]. 
+      Aspect ratio: [9:16 or 16:9].
+      
+      [If match cut: CRITICAL - specify exact position of matching element]
+      ```
+      
+      #### Last Frame - Imagen Prompt (only if needs_keyframes=true OR has transition to next scene)
+      ```
+      [Same structure as first frame, but describing end state]
+      [For match cuts: MUST maintain exact position of matching element]
+      [For interpolation: describe the transformation/movement endpoint]
+      [For transitions: this becomes the first frame of the transition to next scene]
+      ```
+      
+      ### Transition Frame (if needed)
+      - When Needed: (only for abrupt lighting/environment changes between scenes)
+      - Transition Type: (from vocabulary.txt)
+      - Visual Bridge: (what element connects the scenes)
+      
+      #### Transition Frame - Imagen Prompt
+      ```
+      [Intermediate frame that bridges Scene X to Scene Y]
+      [Maintains visual continuity while shifting environment/lighting]
+      ```
+      
+      ### Video Generation Prompt (video_prompt field)
+      
+      **CRITICAL**: The `video_prompt` field must be a SINGLE COMPLETE prompt string that compiles ALL the cinematography, audio, and scene details together.
+      
+      **Prompt Structure**: [Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance]
+
+      **Example of COMPLETE video_prompt**:
+      ```
+      Slow dolly-in close-up shot, 35mm lens with shallow depth of field (f/2.8). A 30-year-old mixed-race man wearing matte black over-ear headphones sits at a minimalist office desk. He furrows his brow and shifts slightly, trying to concentrate despite audible office distractions. The modern office environment is bright with cool-toned artificial lighting, blurred in the background. The camera slowly pushes in from close-up to extreme close-up over 2 seconds, increasing tension. The black headphone earcup remains prominently visible in the bottom-right quadrant throughout. Eye-level camera position, front-left key lighting. Cinematic, professional aesthetic, shot on 35mm.
+
+      Voiceover (male, confident, punchy): "Noise. Distraction. Always fighting for..."
+
+      Ambient noise: Office chatter, keyboard typing, phone ringing in distance.
+
+      Photorealistic, high-quality commercial aesthetic, 4K.
+      ```
+
+      **DO NOT** leave cinematography details in separate structured fields - compile everything into the single `video_prompt` string.
+
+      **Negative Prompt**:
+      ```
+      [What to avoid: cartoon, low quality, specific unwanted elements]
+      ```
+
+      ### Audio Details
+      
+      #### Dialogue (if present)
+      - Timing: [00:00:00-00:00:02]
+      - Character: [Character Name]
+      - Voice Characteristics: (confident, whispered, excited, etc.)
+      - Dialogue: "[exact words]"
+      
+      #### Sound Effects
+      - SFX Description: (specific sounds needed)
+      - Timing Notes: (when sounds occur)
+      
+      #### Ambient Audio
+      - Soundscape: (background audio environment)
+      - Mood: (how audio contributes to scene mood)
+
+      ### Visual Continuity Anchors
+      - Consistent Element: (product, character, object that persists)
+      - Character: (character ID if present)
+      - Color Palette: (dominant colors in this scene)
+      - Lighting: (lighting characteristics)
+      - Critical Match Points: (for transitions to next scene)
+
+      ---
+
+      ## IMPORTANT NOTES
+
+      ### On Transitions
+      - Transitions are WITHIN scenes, not between scenes
+      - Each scene's Video Generation Caption must describe the transition/cut technique being used
+      - Reference vocabulary.txt for transition types and when to use them
+      - Match cuts require EXACT positioning of visual elements in both scenes
+
+      ### On Generation Methods
+      - Duration < 2s + minimal motion = image_stitch_ffmpeg
+      - Duration < 4s + camera movement = first_last_frame_interpolation (generate 4s, trim)
+      - Duration >= 4s = text_to_video or first_last_frame_interpolation
+      - Match cuts = separate videos with precise composition control
+      - Montage sequences = multiple separate generations, edited in post
+      
+      ### On Keyframe Generation Logic
+      - **Simple scenes**: Use text_to_video, no keyframes needed
+      - **Match cut transitions**: Generate last_frame for scene i, first_frame for scene i+1
+      - **Interpolation scenes**: Generate first_frame and last_frame for the same scene
+      - **Transition frames**: Only when lighting/environment changes abruptly between scenes
+      - The transition uses: scene[i].last_frame → transition_frame → scene[i+1].first_frame
+
+      ### On Prompt Detail
+      - ALWAYS prefer detailed prompts over brief ones
+      - Include specific camera specs, lighting details, subject descriptions
+      - For characters: maintain core appearance (age, race, build) across all scenes
+      - For products: maintain exact appearance and positioning
+
+      Make sure the storyline between first and last frames (if present) and consecutive scenes is consistent.
+

@@ -1,0 +1,682 @@
+## Transition Types Available
+
+- **match_cut_action**: Continuous action across cuts (e.g., hand movement continues)
+- **match_cut_graphic**: Visual element stays in same position (e.g., logo position)
+- **jump_cut**: Same subject, different moment (quick time jump for energy)
+- **flow_cut**: Smooth emotional/visual continuity (gentle transitions)
+- **smash_cut**: Abrupt energy shift (dramatic impact)
+- **action_cut**: Cut on movement for energy (dynamic pacing)
+- **montage_cut**: Rapid sequence showing progression (multiple moments)
+
+## Transitions and Cuts Definitions
+
+**Transitions are applied inside a scene, not across multiple scenes**
+
+#### Smash Cut
+
+- **What it is**: A sudden and abrupt cut from one scene to another, often used to create a jarring or surprising effect.
+- **How to use**: Use it to create a dramatic shift in tone or to emphasize a sudden change in the narrative.
+- **How not to use**: Avoid using it too frequently, as it can become jarring and disrupt the flow of the story.
+- **When to use**: When you want to create a strong emotional impact or to highlight a significant change in the story.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. DAVE'S APARTMENT - NIGHT
+
+Dave sits at his desk, typing furiously on his laptop. The room is dimly lit, and the only sound is the clacking of the keyboard.
+
+SMASH CUT TO:
+
+EXT. DESERTED STREET - NIGHT
+
+A car screeches to a halt, and the sound of footsteps echoes through the empty street. The camera focuses on a shadowy figure approaching Dave's apartment building.
+```
+
+**Explanation**: The smash cut effectively transitions from a quiet, indoor scene to a tense, outdoor scene, creating a dramatic shift in tone and building suspense.
+
+- **Bad Example**:
+
+```plaintext
+INT. COFFEE SHOP - MORNING
+
+Sarah sips her coffee, chatting with her friend. The atmosphere is light and cheerful.
+
+SMASH CUT TO:
+
+INT. OFFICE - DAY
+
+Sarah is now at her desk, working on a project. The transition feels abrupt and disorienting.
+```
+
+**Explanation**: The smash cut here is too jarring and doesn't add any significant emotional or narrative impact. It disrupts the flow of the story.
+
+#### Jump Cut
+
+- **What it is**: A cut that appears to jump forward in time by showing the same subject in the same setting but at a different moment. **Within a single scene**, this can also mean rapid changes in background/context while keeping the main subject constant.
+- **How to use**: Use it to show the passage of time quickly, create a sense of disorientation, or demonstrate versatility by rapidly changing contexts around a constant subject.
+- **How not to use**: Avoid using it in scenes where continuity is crucial, as it can confuse the audience.
+- **When to use**: When you want to show a quick progression of events, create a sense of urgency, or showcase a product in multiple settings rapidly.
+- **Single-scene application**: "Same watch position, quick jump cuts through different backgrounds: office, café, car, dinner table"
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. HIGH SCHOOL TRACK - DAY
+
+The camera follows the runner as she sprints down the track. The scene jumps forward, showing her crossing the finish line, sweat pouring down her face.
+
+JUMP CUT TO:
+
+EXT. HIGH SCHOOL TRACK - LATER
+
+The runner is now sitting on the grass, catching her breath. The jump cut shows the passage of time and the intensity of her effort.
+```
+
+**Explanation**: The jump cut effectively shows the passage of time and the runner's progression, adding a sense of urgency and accomplishment.
+
+- **Bad Example**:
+
+```plaintext
+INT. CLASSROOM - DAY
+
+The teacher is writing on the blackboard. The camera jumps to a different angle, showing the same scene but with the teacher in a different position.
+
+JUMP CUT TO:
+
+INT. CLASSROOM - SAME DAY
+
+The teacher is now erasing the blackboard. The transition feels disjointed and confusing.
+```
+
+**Explanation**: The jump cut here is used without a clear purpose, making the scene feel disjointed and confusing.
+
+#### Flow Cut
+
+- **What it is**: A cut that transitions between scenes by matching actions across different environments.
+- **How to use**: Use it to create a seamless transition between scenes, often to show a continuous action.
+- **How not to use**: Avoid using it if the actions don't logically connect, as it can feel forced.
+- **When to use**: When you want to maintain the flow of an action across different settings.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. ART CLASS - DAY
+
+The artist is painting a landscape on a canvas. The camera follows her hand as she adds the final touches.
+
+FLOW CUT TO:
+
+EXT. PARK - DAY
+
+The artist steps back to admire her finished painting, which is now displayed on an easel in the park.
+```
+
+**Explanation**: The flow cut smoothly transitions from the artist working in the classroom to her displaying the finished piece in the park, maintaining the continuity of her action.
+
+- **Bad Example**:
+
+```plaintext
+INT. KITCHEN - DAY
+
+The chef is chopping vegetables. The camera follows his hand as he slices a carrot.
+
+FLOW CUT TO:
+
+EXT. MARKET - DAY
+
+The chef is now shopping for ingredients. The transition feels forced and doesn't logically connect the actions.
+```
+
+**Explanation**: The flow cut here doesn't logically connect the actions of chopping vegetables and shopping for ingredients, making the transition feel forced.
+
+#### Action Cut
+
+- **What it is**: A cut that changes the shot while maintaining the same action in the same environment.
+- **How to use**: Use it to show different aspects of the same action, often to build tension or provide more detail.
+- **How not to use**: Avoid using it if the action doesn't logically connect between shots, as it can feel disjointed.
+- **When to use**: When you want to show a single action from multiple angles or to build suspense.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. GYM - DAY
+
+The boxer throws a punch. The camera cuts from a wide shot of the ring to a close-up of his fist connecting with the punching bag.
+
+ACTION CUT TO:
+
+INT. GYM - DAY
+
+The camera now shows the boxer's face, sweat dripping down as he continues his training.
+```
+
+**Explanation**: The action cut effectively shows the same action from different angles, building tension and providing more detail.
+
+- **Bad Example**:
+
+```plaintext
+INT. OFFICE - DAY
+
+The employee is typing on her computer. The camera cuts to a shot of her looking out the window.
+
+ACTION CUT TO:
+
+INT. OFFICE - DAY
+
+The camera now shows her picking up a phone. The transition feels disjointed and doesn't logically connect the actions.
+```
+
+**Explanation**: The action cut here doesn't logically connect the actions of typing, looking out the window, and picking up the phone, making the transition feel disjointed.
+
+#### Match Cut
+
+- **What it is**: A cut that links moments in time or place by matching the position of a subject or shape.
+- **How to use**: Use it to create a seamless transition between scenes, often to show a connection or contrast.
+- **How not to use**: Avoid using it if the match is too obvious or forced, as it can feel contrived.
+- **When to use**: When you want to show a connection or contrast between two scenes.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. LIVING ROOM - NIGHT
+
+The character throws a ball into the air. The camera focuses on the ball as it reaches its peak.
+
+MATCH CUT TO:
+
+EXT. BASEBALL FIELD - DAY
+
+The ball is now caught by a player on the baseball field. The match cut creates a seamless transition and a thematic link between the two scenes.
+```
+
+**Explanation**: The match cut effectively links the two scenes by matching the position of the ball, creating a seamless transition and a thematic link.
+
+- **Bad Example**:
+
+```plaintext
+INT. KITCHEN - DAY
+
+The character is slicing an apple. The camera focuses on the knife.
+
+MATCH CUT TO:
+
+EXT. PARK - DAY
+
+The character is now playing with a frisbee. The match cut feels forced and doesn't create a logical connection.
+```
+
+**Explanation**: The match cut here feels forced and doesn't create a logical connection between slicing an apple and playing with a frisbee.
+
+#### Shape Cut
+
+- **What it is**: A cut that tracks a shape across different frames, maintaining the same position.
+- **How to use**: Use it to create a visual connection between scenes.
+- **How not to use**: Avoid using it if the shape doesn't logically connect the scenes, as it can feel contrived.
+- **When to use**: When you want to create a visual link between two scenes.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. CITY STREET - DAY
+
+The camera focuses on a circular traffic light.
+
+SHAPE CUT TO:
+
+EXT. PARKING LOT - DAY
+
+The camera now shows a no parking sign with a circular logo. The shape cut creates a visual link between the two scenes.
+```
+
+**Explanation**: The shape cut effectively links the two scenes by focusing on the circular shape, creating a visual connection.
+
+- **Bad Example**:
+
+```plaintext
+INT. OFFICE - DAY
+
+The character is looking at a circular clock on the wall.
+
+SHAPE CUT TO:
+
+EXT. BEACH - DAY
+
+The character is now looking at a circular shell. The shape cut feels forced and doesn't create a logical connection.
+```
+
+**Explanation**: The shape cut here feels forced and doesn't create a logical connection between looking at a clock and a shell.
+
+#### Wide Medium Close or Wide Close or Close Wide
+
+- **What it is**: A transition between wide, medium, and close shots to create different emotional effects.
+- **How to use**: Use it to build tension, relieve tension, or create surprises.
+- **How not to use**: Avoid using it if the transition doesn't serve a clear emotional or narrative purpose.
+- **When to use**: When you want to create a specific emotional effect or to highlight important details.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. CASTLE - DAY
+
+The camera shows a wide shot of the castle, establishing the setting.
+
+WIDE TO CLOSE:
+
+EXT. CASTLE - DAY
+
+The camera now shows a close-up of the castle's gate, highlighting the detail and creating tension as the gate creaks open.
+```
+
+**Explanation**: The transition from wide to close effectively builds tension by focusing on the gate's detail.
+
+- **Bad Example**:
+
+```plaintext
+INT. LIVING ROOM - DAY
+
+The camera shows a wide shot of the room, establishing the setting.
+
+WIDE TO CLOSE:
+
+INT. LIVING ROOM - DAY
+
+The camera now shows a close-up of a potted plant. The transition feels unnecessary and doesn't serve a clear purpose.
+```
+
+**Explanation**: The transition here feels unnecessary and doesn't serve a clear emotional or narrative purpose.
+
+#### Zoom Push
+
+- **What it is**: A transition that zooms in or out to emphasize or de-emphasize elements.
+- **How to use**: Use it to focus on important details or to reveal larger contexts.
+- **How not to use**: Avoid using it if the zoom feels forced or doesn't add to the narrative.
+- **When to use**: When you want to emphasize or de-emphasize elements for dramatic effect.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. CLASSROOM - DAY
+
+The camera shows a wide shot of the classroom, with students sitting at their desks.
+
+ZOOM PUSH:
+
+INT. CLASSROOM - DAY
+
+The camera now zooms in on the teacher's face, showing her expression as she announces an important announcement.
+```
+
+**Explanation**: The zoom push effectively focuses on the teacher's expression, adding dramatic effect.
+
+- **Bad Example**:
+
+```plaintext
+INT. PARK - DAY
+
+The camera shows a wide shot of the park, with people walking around.
+
+ZOOM PUSH:
+
+INT. PARK - DAY
+
+The camera now zooms in on a dog playing with a ball. The zoom feels forced and doesn't add to the narrative.
+```
+
+**Explanation**: The zoom here feels forced and doesn't add to the narrative, making it feel unnecessary.
+
+#### Change Cut
+
+- **What it is**: A cut used for emotional resets, to shift the emotional tone of a scene.
+- **How to use**: Use it to create a smooth transition between emotional states.
+- **How not to use**: Avoid using it if the transition feels abrupt or doesn't serve a clear emotional purpose.
+- **When to use**: When you want to create a smooth transition between different emotional states.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. THERAPIST'S OFFICE - DAY
+
+The character is crying, overwhelmed with emotion. The camera shows her face, tears streaming down.
+
+CHANGE CUT TO:
+
+INT. THERAPIST'S OFFICE - LATER
+
+The character is now sitting calmly, a serene expression on her face. The change cut effectively shows her emotional reset.
+```
+
+**Explanation**: The change cut smoothly transitions from a state of distress to calmness, showing the character's emotional reset.
+
+- **Bad Example**:
+
+```plaintext
+INT. CAFETERIA - DAY
+
+The character is laughing with friends, enjoying a light-hearted moment.
+
+CHANGE CUT TO:
+
+INT. CAFETERIA - LATER
+
+The character is now sitting alone, looking sad. The transition feels abrupt and doesn't serve a clear emotional purpose.
+```
+
+**Explanation**: The change cut here feels abrupt and doesn't serve a clear emotional purpose, making the transition feel forced.
+
+#### Slow Down or Speed Up, Variable Speed Cuts
+
+- **What it is**: A cut that changes the speed of the action to create different emotional effects.
+- **How to use**: Use it to build tension, create urgency, or to show the passage of time.
+- **How not to use**: Avoid using it if the speed change feels forced or doesn't add to the narrative.
+- **When to use**: When you want to create a specific emotional effect or to show the passage of time.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. RACE TRACK - DAY
+
+The camera shows a wide shot of the race cars speeding around the track.
+
+SLOW DOWN:
+
+EXT. RACE TRACK - DAY
+
+The camera now shows a close-up of the lead car, slowing down the action to build tension as the driver navigates a tight turn.
+```
+
+**Explanation**: The slow-down effectively builds tension by focusing on the lead car's action.
+
+- **Bad Example**:
+
+```plaintext
+INT. KITCHEN - DAY
+
+The character is chopping vegetables quickly.
+
+SLOW DOWN:
+
+INT. KITCHEN - DAY
+
+The camera now shows a close-up of the character's hand, chopping in slow motion. The transition feels forced and doesn't add to the narrative.
+```
+**Explanation**: The slow-down here feels forced and doesn't add to the narrative, making it feel unnecessary.
+
+#### Montage Cut
+
+- **What it is**: A series of quick cuts that show a progression of events or the passage of time. **Within a single scene**, this means rapid visual changes (backgrounds, contexts, angles) while maintaining subject consistency.
+- **How to use**: Use it to show a series of actions, passage of time quickly, or demonstrate versatility/multiple use cases. Keep the main subject (product/character) in consistent position/framing while elements around it change rapidly.
+- **How not to use**: Avoid using it if the montage feels disjointed or if the actions don't logically connect.
+- **When to use**: When you want to show a progression of events, passage of time, or showcase a product's versatility across multiple contexts.
+- **Single-scene application**: "Quick montage of watch in different settings: office desk, gym locker, dinner table, car dashboard - watch position constant, backgrounds shift rapidly"
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. TRAIN STATION - DAY
+
+The character is shown boarding a train. Quick cuts show her looking out the window, passing through different landscapes, and finally arriving at her destination.
+
+MONTAGE CUT:
+
+EXT. TRAIN STATION - LATER
+
+The character steps off the train, having completed her journey. The montage effectively shows the passage of time and the journey.
+```
+
+**Explanation**: The montage cut effectively shows the passage of time and the journey, providing a quick overview of the character's trip.
+
+- **Bad Example**:
+
+```plaintext
+INT. GYM - DAY
+
+The character is shown lifting weights. Quick cuts show her running on a treadmill, doing yoga, and then lifting weights again.
+
+MONTAGE CUT:
+
+INT. GYM - LATER
+
+The character is now stretching. The montage feels disjointed and doesn't logically connect the actions.
+```
+
+**Explanation**: The montage here feels disjointed and doesn't logically connect the actions, making it feel confusing.
+
+---
+
+## Types of Shots
+
+#### Wide Shots
+
+- **What it is**: A shot that shows a broad view of the scene, often used to establish setting or context.
+- **How to use**: Use it to show the environment and to establish the scene.
+- **How not to use**: Avoid using it if the scene doesn't benefit from showing the environment.
+- **When to use**: When you want to establish the setting or context.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. BEACH - DAY
+
+The camera shows a wide shot of the beach, with people enjoying the sun and waves crashing on the shore. The wide shot establishes the setting and context.
+```
+
+**Explanation**: The wide shot effectively establishes the setting and context, showing the beach environment.
+
+- **Bad Example**:
+
+```plaintext
+INT. BATHROOM - DAY
+
+The camera shows a wide shot of the bathroom, showing the sink, mirror, and bathtub. The wide shot feels unnecessary and doesn't add to the narrative.
+```
+
+**Explanation**: The wide shot here feels unnecessary and doesn't add to the narrative, making it feel redundant.
+
+#### Medium Shots
+
+- **What it is**: A shot that frames the subject from the waist up, showing some of the environment.
+- **How to use**: Use it to show the subject in context, often used for dialogue scenes.
+- **How not to use**: Avoid using it if the scene requires a closer or wider view.
+- **When to use**: When you want to show the subject in context or for dialogue scenes.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. COFFEE SHOP - DAY
+
+The camera shows a medium shot of two characters sitting at a table, talking. The medium shot shows their expressions and the coffee shop environment.
+```
+
+**Explanation**: The medium shot effectively shows the characters in context, highlighting their expressions and the environment.
+
+- **Bad Example**:
+
+```plaintext
+EXT. CITY STREET - DAY
+
+The camera shows a medium shot of a character walking down the street. The medium shot feels too close and doesn't show the environment effectively.
+```
+
+**Explanation**: The medium shot here feels too close and doesn't show the environment effectively, making it feel out of place.
+
+#### Close Shots
+
+- **What it is**: A shot that focuses on the subject's face or a specific detail, often used to show emotions or important actions.
+- **How to use**: Use it to show emotions or important actions, often to build tension or focus on details.
+- **How not to use**: Avoid using it if the scene doesn't benefit from focusing on the subject's face or a specific detail.
+- **When to use**: When you want to show emotions or important actions.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. INTERROGATION ROOM - NIGHT
+
+The camera shows a close-up of the suspect's face, sweat dripping down. The close shot effectively shows his tension and fear.
+```
+
+**Explanation**: The close shot effectively shows the suspect's tension and fear, highlighting his emotional state.
+
+- **Bad Example**:
+
+```plaintext
+EXT. PARK - DAY
+
+The camera shows a close-up of a character walking her dog. The close shot feels too close and doesn't show the environment effectively.
+```
+
+**Explanation**: The close shot here feels too close and doesn't show the environment effectively, making it feel out of place.
+
+#### POV and Opposite POV
+
+- **What it is**: A shot that shows the perspective of a character (POV) or the perspective of another character (opposite POV).
+- **How to use**: Use it to show what a character sees or to show another character's reaction.
+- **How not to use**: Avoid using it if the perspective doesn't add to the narrative or if it feels forced.
+- **When to use**: When you want to show a character's perspective or another character's reaction.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. LIVING ROOM - DAY
+
+The camera shows a POV shot of the character looking at a mobile screen. The camera then cuts to an opposite POV shot of the person on the other end of the call.
+
+POV SHOT:
+
+INT. LIVING ROOM - DAY
+
+The character looks at the mobile screen, showing her reaction.
+
+OPPOSITE POV SHOT:
+
+INT. LIVING ROOM - DAY
+
+The person on the other end of the call looks at the screen, showing his reaction.
+```
+
+**Explanation**: The POV and opposite POV shots effectively show the characters' reactions, adding depth to the scene.
+
+- **Bad Example**:
+
+```plaintext
+INT. CLASSROOM - DAY
+
+The camera shows a POV shot of the character looking at the blackboard. The camera then cuts to an opposite POV shot of the teacher writing on the board. The transition feels forced and doesn't add to the narrative.
+```
+
+**Explanation**: The POV and opposite POV shots here feel forced and don't add to the narrative, making the transition feel unnecessary.
+
+#### Tracking Shot
+
+- **What it is**: A shot where the camera follows the subject, often used to show movement or to maintain a continuous action.
+- **How to use**: Use it to show movement or to maintain a continuous action.
+- **How not to use**: Avoid using it if the movement doesn't add to the narrative or if it feels forced.
+- **When to use**: When you want to show movement or to maintain a continuous action.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+EXT. CITY STREET - DAY
+
+The camera follows the character as she walks down the street, showing her movement and the environment around her. The tracking shot effectively maintains the continuous action.
+```
+
+**Explanation**: The tracking shot effectively shows the character's movement and the environment, maintaining the continuous action.
+
+- **Bad Example**:
+
+```plaintext
+INT. KITCHEN - DAY
+
+The camera follows the character as she moves from the stove to the sink. The tracking shot feels forced and doesn't add to the narrative.
+```
+
+**Explanation**: The tracking shot here feels forced and doesn't add to the narrative, making it feel unnecessary.
+
+#### Movement in Frame
+
+- **What it is**: A shot where the camera stays still, and the subject moves in, out, or through the frame.
+- **How to use**: Use it to show movement within the frame or to create a sense of space.
+- **How not to use**: Avoid using it if the movement doesn't add to the narrative or if it feels forced.
+- **When to use**: When you want to show movement within the frame or to create a sense of space.
+- **Examples**:
+- **Good Example**:
+
+```plaintext
+INT. LIVING ROOM - DAY
+
+The camera shows a static shot of the living room. Characters move in and out of the frame, showing their interactions. The movement in frame effectively shows the space and the characters' actions.
+```
+
+**Explanation**: The movement in frame effectively shows the space and the characters' actions, adding depth to the scene.
+
+- **Bad Example**:
+
+```plaintext
+INT. OFFICE - DAY
+
+The camera shows a static shot of the office. Characters move in and out of the frame, but the movement feels forced and doesn't add to the narrative.
+```
+
+**Explanation**: The movement in frame here feels forced and doesn't add to the narrative, making it feel out of place.
+
+---
+
+### IMPORTANT NOTES ON TRANSITIONS
+
+- **MANDATORY**: Every scene's `action_prompt` MUST include a transition or cut effect
+- **MANDATORY**: Transitions are self-contained WITHIN each scene, not between scenes
+- **MANDATORY**: Do NOT create a `transition_to_next` field in the JSON output
+- **Examples of good action_prompts with transitions**:
+- "Wide tracking shot as stage lights flicker, band tunes up"
+- "Medium shot, band walks toward venue, city reflections shimmer, action cut highlights movement"
+- "Lead singer raises arm, camera flow cut follows from crowd to stage"
+- "Slow tracking shot around van, smash cut as headlights flare"
+- "Wide shot, band bows together, flow cut with confetti falling"
+- "Slow pan across watch gears"
+- "Raises wrist, glances at watch"
+- "David talking directly to camera, gestures with wrist"
+- "Fingers fasten watch"
+- "Slow zoom toward watch"
+- "Quick montage of watch features, fast wide-medium-close up shots"
+- "Jump cuts as watch shifts through settings: office desk, café table, car dashboard, dinner setting - position constant"
+- "Rapid montage showing product versatility: gym, work, evening out - quick background changes"
+- "Quick jump cuts demonstrate watch in action: morning routine, business meeting, evening event"
+## Energy/Mood Guidelines
+- **high_energy**: Use jump_cut, action_cut, montage_cut (fast pacing, 150-250ms transitions)
+- **moderate**: Mix of flow_cut, action_cut, jump_cut (balanced pacing, 250-400ms transitions)
+- **calm**: Use flow_cut, match_cut_graphic (slow pacing, 400-700ms transitions)
+- **dramatic**: Use smash_cut, match_cut_action (impactful pacing, 200-500ms transitions)
+
+## Action Prompt Improvement Rules
+
+The following elements should be included in your prompt:
+
+- Subject: The object, person, animal, or scenery that you want in your video, such as cityscape, nature, vehicles, or puppies.
+- Context: The background or environment (context).
+- Action: What the subject is doing (for example, walking, running, or turning their head).
+- Style: Specify creative direction using specific film style keywords, such as sci-fi, horror film, film noir, or animated styles like cartoon.
+- Camera positioning and motion: [Optional] Control the camera's location and movement using terms like aerial view, eye-level, top-down shot, dolly shot, or worms eye.
+- Composition: [Optional] How the shot is framed, such as wide shot, close-up, single-shot or two-shot.
+- Focus and lens effects: [Optional] Use terms like shallow focus, deep focus, soft focus, macro lens, and wide-angle lens to achieve specific visual effects.
+- Ambiance: [Optional] How the color and light contribute to the scene, such as blue tones, night, or warm tones.
+
+Examples:
+Close up shot (composition) of melting icicles (subject) on a frozen rock wall (context) with cool blue tones (ambiance), zoomed in (camera motion) maintaining close-up detail of water drips (action). 
+
+More Writing Tips:
+- Use descriptive language: Use adjectives and adverbs to paint a clear picture for Veo.
+- Enhance the facial details: Specify facial details as a focus of the photo like using the word portrait in the prompt.
+
+Less detail
+The camera dollies to show a close up of a desperate man in a green trench coat.
+He's making a call on a rotary-style wall phone with a green neon light.
+It looks like a movie scene.
+
+More detail
+A close-up cinematic shot follows a desperate man in a weathered green trench coat as he dials a rotary phone mounted on a gritty brick wall, bathed in the eerie glow of a green neon sign.
+The camera dollies in, revealing the tension in his jaw and the desperation etched on his face as he struggles to make the call.
+The shallow depth of field focuses on his furrowed brow and the black rotary phone, blurring the background into a sea of neon colors and indistinct shadows, creating a sense of urgency and isolation.
+
+**MANDATORY: Prefer the more detail version.**
+
