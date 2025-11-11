@@ -1,0 +1,109 @@
+stripper:
+  examples: |
+    <example>
+      {
+          "characters": [
+              {
+                  "name": "Detective Morgan",
+                  "physical_traits": "Tall, weathered face, sharp gray eyes, graying hair at temples",
+                  "ethnicity": "Irish-American",
+                  "age": 52,
+                  "quirks": [
+                      "Always carries a worn notebook",
+                      "Drinks black coffee obsessively",
+                      "Quotes Shakespeare",
+                  ],
+                  "backstory": "Detective Morgan is a calculating individual with a dark secret. He was once a corrupt cop who took bribes, but reformed after his partner was killed. He knew Victor Ashford from his days on the force when Ashford was a witness in a major case.",
+                  "role": "detective",
+                  "actions_and_locations": [
+                      {
+                          "timestamp": "2024-01-15 08:00 AM",
+                          "action": "Received call about the murder",
+                          "location": "Police Station",
+                          "role_played": "Lead investigator",
+                          "alibi": "On duty, multiple witnesses",
+                          "panel": {
+                              "shot_type": "medium",
+                              "visual_description": "Detective Morgan sits at his cluttered desk in a dimly lit police station. Rain streaks the window behind him. He holds a rotary phone to his ear, his expression grave. Coffee cup steams on the desk. Harsh fluorescent lighting casts shadows.",
+                              "dialogue": "Another body. I'll be right there.",
+                              "sound_effects": "RING RING",
+                              "emotional_tone": "tense, foreboding",
+                              "orientation": "Landscape",
+                          },
+                      },
+                      {
+                          "timestamp": "2024-01-15 09:30 AM",
+                          "action": "Arrived at crime scene, examined body",
+                          "location": "Ashford Manor - Study",
+                          "role_played": "Crime scene investigator",
+                          "alibi": null,
+                          "panel": {
+                              "shot_type": "wide",
+                              "visual_description": "Wide shot of an opulent study. Victor Ashford's body lies on a Persian rug, blood pooling beneath his head. Detective Morgan kneels beside the body, examining it with a flashlight. Mahogany bookshelves line the walls. A grandfather clock shows 9:30. Rain pounds the windows.",
+                              "dialogue": "Blunt force trauma. Time of death: approximately 11:30 PM.",
+                              "sound_effects": null,
+                              "emotional_tone": "grim, investigative",
+                              "orientation": "Landscape",
+                          },
+                      },
+                  ],
+                  "motivations": "Driven by guilt over his past corruption, Morgan is determined to solve this case cleanly and restore his reputation. His obsessive attention to detail stems from his fear of missing something crucial again.",
+              },
+              {
+                  "name": "Victor Ashford",
+                  "physical_traits": "Distinguished gentleman, silver hair, piercing blue eyes, always impeccably dressed",
+                  "ethnicity": "British",
+                  "age": 65,
+                  "quirks": [
+                      "Collected rare books",
+                      "Smoked expensive cigars",
+                      "Distrusted everyone",
+                  ],
+                  "backstory": "Victor Ashford was a wealthy and influential figure in high society. He made his fortune through ruthless business dealings, crushing competitors and exploiting workers. He had many enemies, including his own staff whom he treated with contempt.",
+                  "role": "victim",
+                  "actions_and_locations": [
+                      {
+                          "timestamp": "2024-01-14 10:00 PM",
+                          "action": "Retired to study to review documents",
+                          "location": "Ashford Manor - Study",
+                          "role_played": "Victim preparing for bed",
+                          "alibi": null,
+                          "panel": {
+                              "shot_type": "medium",
+                              "visual_description": "Victor Ashford sits at his ornate desk, reviewing documents by lamplight. He wears a silk smoking jacket and holds a cigar. His expression is stern and calculating. Shadows dance on the walls. Rain begins to fall outside.",
+                              "dialogue": "These fools think they can challenge me.",
+                              "sound_effects": null,
+                              "emotional_tone": "arrogant, ominous",
+                              "orientation": "Landscape",
+                          },
+                      },
+                      {
+                          "timestamp": "2024-01-14 11:30 PM",
+                          "action": "Murdered by blunt force trauma",
+                          "location": "Ashford Manor - Study",
+                          "role_played": "Murder victim",
+                          "alibi": null,
+                          "panel": {
+                              "shot_type": "close-up",
+                              "visual_description": "Extreme close-up of Ashford's shocked face as a shadow looms over him. His eyes widen in terror. A candlestick is raised in the foreground, silhouetted against the lamplight. High contrast, dramatic shadows.",
+                              "dialogue": "You! But why—",
+                              "sound_effects": "CRACK!",
+                              "emotional_tone": "shocking, violent",
+                              "orientation": "Portrait",
+                          },
+                      },
+                  ],
+                  "motivations": "Ashford's greed and cruelty created the circumstances of his own death. His refusal to treat his staff with dignity led to their resentment and ultimately his murder.",
+              },
+          ],
+          "storyline": "The story unfolds in a non-linear fashion, beginning with the discovery of Victor Ashford's body in his locked study. Detective Morgan arrives at the rain-soaked manor, where he encounters a household of suspects, each with their own secrets. Through flashbacks, we learn of Ashford's cruel treatment of his staff, particularly James Butler, who had served the family for thirty years. The narrative weaves between present-day investigation and past events, revealing how Butler's resentment grew over years of humiliation. The climax comes when Morgan pieces together the timeline, realizing that only Butler had the opportunity and means to commit the murder. The resolution shows Butler's confession, driven not by Morgan's evidence, but by his own guilt and the weight of his actions.",
+          "narrative_structure": "non-linear",
+          "killer": "James Butler",
+          "victim": "Victor Ashford",
+          "accomplices": [],
+          "witnesses": [
+              "Dr. Helen Price"
+          ],
+          "betrayals": []
+      }
+    </example>

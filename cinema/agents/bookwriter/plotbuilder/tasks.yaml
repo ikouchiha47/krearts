@@ -1,0 +1,441 @@
+detective:
+  expected_output: >
+    A comprehensive list of character profiles, their backstory,
+    and the story connecting the plotline
+
+  description: |
+    Given this FIXED plot structure (you cannot change the logic, only describe it)
+
+    Your task is to:
+    - Generate character personas and backstories, their motivations, and quirks
+    - Narrative descriptions for each relationship
+
+    You MAY add:
+    - Vivid descriptions
+    - Character personalities
+    - Atmospheric details
+    - Emotional depth
+
+    ---
+
+    ## Knowledge
+    Present In memory
+
+    - Story Writing Principles (knowledge/storywriting/detective/principles.md)
+
+    - Narrative Patterns:
+      - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
+      - File: storywriting/detective/narrative-techniques.md
+    - Available Narrative Structures:
+      - Intent: HOW to organize the story timeline
+      - File: knowledge/narrative-structures/index.md
+
+    ## Tool USAGE
+    - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
+    - Use the DirectoryReadTool to understand the file structure in narrative-structures
+    - And the FileReadTool to read the detailed narrative structure.
+    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+    ---
+
+    ## Plot Structure
+
+    ### CHARACTERS
+    {characters}
+
+    ### RELATIONSHIPS (FIXED):
+    {relationships}
+
+    ### Roles (FIXED):
+    - Killer: {killer}
+    - Victim: {victim}
+    - Accomplices: {accomplices}
+    - Witnesses: {witnesses}
+    - Betrayals: {betrayals}
+
+    ---
+    Respond in the markdown heirarchical format
+
+    ## Characters
+
+    ### Character 1
+    Name:
+    Physical Traits:
+    Ethnicity:
+    Age:
+    Quirks:
+
+    #### Backstory
+    (in details)
+    <name> is a calculating individual with a dark secret.
+    <name>  was a wealthy and influential figure.
+    (and how they met or knew or are related to the main victim)
+    
+    #### Role
+    IMPORTANT: Use EXACTLY ONE of these role names (do not invent new roles):
+    - killer: The person who committed the murder
+    - victim: The person who was killed
+    - accomplice: Helped the killer before/during/after the crime
+    - witness: Saw something suspicious (may be eliminated later)
+    - betrayal: Betrayed an ally or accomplice
+    - detective: Investigates the crime
+    - framed_suspect: Falsely implicated by planted evidence (red herring)
+
+    #### Actions & Locations
+    A date and time wise breakdown of:
+    - what the person did
+    - where the person was
+    - what role the person played
+    - allibies
+
+    All the actions before, during and after the discovery of the crime has to be accounted for.
+
+    ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
+
+    #### Motivations
+    The actions commited by the person, and the reasons for doing so. It has to come from
+    the backstory, their role and their actions.
+
+    
+    ## Storyline
+
+    The entire storyline told using one of the narrative-styles in knowledgebase.
+    Use the DirectoryReadTool and FileReadTool to understand wether a linear or non-linear fits best.
+
+    ---
+    
+    ## MANDATORY GUIDELINES
+    
+    - You MUST NOT change:
+    - Who did what
+    - Timeline order
+    - Relationships
+    - Logic structure
+    - Use the knowledgebase to have a better understading on writer better detective plotline
+    - Use a Tree of Thought to create two storylines
+    - Critique the plotline, for improvement, and yield a single engaging followable plotline.
+    ---
+
+
+stripper:
+  expected_output: >
+    A complete ComicStripStoryboard with enhanced prompts for each panel,
+    following the specified art style guidelines
+
+  description: |
+    Given a narrative structure from the detective agent, transform it into
+    a visual comic strip storyboard.
+
+    Your task is to:
+    1. Break the narrative into comic pages (each page has 1-3 panels max)
+    2. For each panel, create a detailed visual description
+    3. Enhance each panel with art-style specific prompts using (knowledge/art-styles/styles.md)
+    4. Ensure visual continuity across panels
+    5. Add appropriate dialogue, captions, and sound effects
+
+    ---
+
+    ## Knowledge
+    Present In memory.
+
+    - Art Styles:
+      - knowledge/art-styles/styles.md
+  
+    - Movie Making Practices and Rules from:
+      - knowledge/moviemaking/storytelling.md
+      - knowledge/moviemaking/storyboarding.md
+      - knowledge/moviemaking/continuity.md
+
+
+    ## Tool USAGE
+    - Use the DirectoryReadTool to understand the file docs for gemini prompting guides at (knowledge/gemini)
+    - And the FileReadTool to read the detailed image-prompting.md and video-prompting.md
+    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+    ---
+    ## MANDATORY GUIDELINES
+
+    ### Panel Structure
+    - Maximum 3 panels per page
+    - Each panel must have: shot_type, action_description, location, emotional_tone
+    - Use varied shot types: establishing, wide, medium, close-up, extreme close-up
+    - First panel of each page should establish location/context
+
+    ### Art Style Application
+    - Use the art style knowledgebase at (knowledge/art-styles/styles.md)
+    - Default style: {art_style}
+    - Apply style-specific elements:
+      * Noir: High-contrast black and white, rain-slicked streets, harsh shadows
+      * Cyberpunk: Neon lights, holographic screens, dystopian urban settings
+      * Print Comics: Halftone dots, bold outlines, Ben-Day dot patterns
+      * Anime: Speed lines, expressive faces, dynamic motion blur
+
+    ### Prompt Enhancement Format
+    Each enhanced_prompt should follow this structure:
+    ```
+    "A single comic book panel in [ART_STYLE]. [SHOT_TYPE] of [SUBJECT/ACTION].
+    [DETAILED VISUAL DESCRIPTION]. [LIGHTING/ATMOSPHERE]. [COMPOSITION NOTES].
+    Caption box: '[DIALOGUE/CAPTION]'. [ORIENTATION: Landscape/Portrait]."
+    ```
+
+    ### Example Enhanced Prompt (Noir style):
+    ```
+    "A single comic book panel in a gritty, noir art style with high-contrast black and white inks.
+    Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a
+    flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a
+    desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows.
+    Caption box at the top reads 'The city was a tough place to keep secrets.' Landscape."
+    ```
+
+    ### Character Consistency
+    - Generate character reference sheets first
+    - Use consistent physical descriptions across all panels
+    - Reference character traits in visual descriptions
+
+    ### Visual Continuity
+    - Maintain consistent lighting within scenes
+    - Track character positions across panels
+    - Use establishing shots when location changes
+
+    ### Knowledge Base
+    - Understand the art-styles to produce the image prompts
+    - Understand the process of storytelling, continuity and storyboarding 
+      to understand what the keyframes should be
+
+    ### Tool USAGE
+    - Use the DirectoryReadTool and FileReadTool to understand how to create
+      detailed image prompts with camera angles
+    - Details of the camera angles are in video-prompting
+
+    From the knowledgebase and prompting guide understanding:
+    - Find out the keyframe images
+    - Then generate the breakdown pose
+    - Ultimately create the in-betweens.
+    - Respect the requested art_style
+
+    ---
+    
+    ## Storyline
+    {storyline}
+
+    ---
+
+    ## Art Style
+    {art_style}
+
+    ---
+
+    ## Example
+    {examples}
+
+    **MANDATORY**: DO NOT RETURN THE EXAMPLE, ONLY USE IT FOR UNDERSTANDING OF STRUCTURE.
+
+    ---
+
+    Answer:
+
+
+critique:
+  expected_output: >
+    A detailed critique report in markdown format with:
+    1. PASS/FAIL verdict for each principle check
+    2. Severity-ranked list of violations (CRITICAL, HIGH, MEDIUM, LOW)
+    3. Specific actionable fixes for each violation
+    4. Evidence density score and recommendations
+
+  description: |
+    You are critiquing a detective storyline against established detective story principles.
+    
+    Your task is to validate the storyline against these MANDATORY checks:
+    
+    ## EVIDENCE DISTRIBUTION CHECKLIST (MUST PASS)
+    
+    ### 1. Evidence Density Check
+    - Count total clues mentioned in the storyline
+    - REQUIREMENT: ≥ 5 clues total
+    - REQUIREMENT: ≥ 2 clues that directly implicate the killer
+    - REQUIREMENT: ≥ 1 clue that directly exonerates the framed suspect
+    - FAIL if any requirement not met
+    
+    ### 2. Red Herring Balance
+    - Count red herrings vs. true clues
+    - REQUIREMENT: Red herrings ≤ 40% of total clues
+    - FAIL if red herrings dominate
+    
+    ### 3. Motivation Tie-In (Concrete Stakes)
+    - For EACH alliance/betrayal, verify there is concrete proof:
+      * Financial transaction (ledger, bank transfer, receipt)
+      * Reputational threat (document, email, recording, witness statement)
+      * Physical evidence (contract, letter, photograph)
+    - CRITICAL FAIL if any alliance/betrayal lacks concrete proof
+    
+    ### 4. Temporal Plausibility
+    - Verify killer has opportunity (timestamped presence or gap in logs)
+    - Check alibi contradictions are documented
+    - FAIL if killer's presence at crime scene is not established
+    
+    ### 5. Forensic Corroboration (Multilayered Evidence)
+    - REQUIREMENT: At least ONE physical clue connecting killer to scene:
+      * DNA/blood type
+      * Fiber (clothing, glove, carpet)
+      * Fingerprints or glove marks
+      * Tool marks or weapon trace
+      * Unique physical marks (cleaning patterns, polishing abrasions)
+    - FAIL if only circumstantial evidence exists
+    
+    ## SPECIFIC CRITIQUE POINTS
+    
+    ### A. Accomplice/Witness Motivations
+    - **Dr. Price's motive/complicity**: Is Victor's leverage explicit?
+      * Does the story show proof of illegal pharma ties?
+      * Is there a promised testimony or financial extortion document?
+      * CRITICAL if alliance with Butler is "thin" (no concrete stakes)
+    
+    - **Butler's risk calculus**: Why involve a doctor who could implicate him?
+      * Is there mutual leverage shown? (Butler has dirt on Price, Price has dirt on Butler)
+      * Is the alliance transactional with explicit proof?
+      * CRITICAL if alliance seems illogical
+    
+    ### B. Forensic Evidence Quality
+    - **Stationery match**: Good start, but is it enough?
+      * Add: Fingerprints on planted evidence
+      * Add: Glove fibers at scene
+      * Add: Timestamped phone calls/visits
+      * Add: Unique physical marks (Butler's cleaning patterns, polishing traces)
+      * Add: Ledger entries showing financial motive
+    - MEDIUM severity if only one type of evidence exists
+    
+    ### C. Framing Plausibility
+    - **Margaret's framing**: Does it feel plausible or perfunctory?
+      * How did Butler ensure Margaret's scarf/clothing appeared at the scene?
+      * Is there a small slip (Butler's fingerprint on the scarf) discovered later?
+      * Does the framing have internal logic (Margaret could conceivably have been there)?
+    - HIGH severity if framing feels contrived
+    
+    ### D. Clue Provenance
+    - **Every claim needs a clue**: For each deduction the detective makes:
+      * Is there a referenced clue? (paper, ledger, fiber, timestamp, witness statement)
+      * Can the reveal chain be reconstructed by following clue IDs?
+    - CRITICAL if detective makes leaps without evidence
+    
+    ### E. Red Herring Explainability
+    - **Red herrings must be plausible**: For each red herring:
+      * Is it explainable by routine causes? (cleaning habit, misdelivered letter, coincidence)
+      * Is it never mystical or unexplained?
+    - LOW severity but note if red herrings are weak
+    
+    ## OUTPUT FORMAT
+    
+    ```markdown
+    # Detective Storyline Critique Report
+    
+    ## Executive Summary
+    - Overall Verdict: PASS / FAIL
+    - Critical Issues: [count]
+    - High Priority Issues: [count]
+    - Medium Priority Issues: [count]
+    - Low Priority Issues: [count]
+    
+    ## Evidence Distribution Checklist
+    
+    ### 1. Evidence Density: PASS/FAIL
+    - Total clues found: [X]
+    - Clues implicating killer: [X]
+    - Clues exonerating framed suspect: [X]
+    - **Verdict**: [PASS/FAIL with explanation]
+    
+    ### 2. Red Herring Balance: PASS/FAIL
+    - Red herrings: [X]
+    - True clues: [X]
+    - Ratio: [X%]
+    - **Verdict**: [PASS/FAIL with explanation]
+    
+    ### 3. Motivation Tie-In: PASS/FAIL
+    - Butler-Price alliance: [concrete proof present? Y/N]
+    - [Other alliances]: [concrete proof present? Y/N]
+    - **Verdict**: [PASS/FAIL with explanation]
+    
+    ### 4. Temporal Plausibility: PASS/FAIL
+    - Killer opportunity established: [Y/N]
+    - Timeline gaps documented: [Y/N]
+    - **Verdict**: [PASS/FAIL with explanation]
+    
+    ### 5. Forensic Corroboration: PASS/FAIL
+    - Physical evidence types: [list]
+    - Multilayered: [Y/N]
+    - **Verdict**: [PASS/FAIL with explanation]
+    
+    ## Detailed Critique
+    
+    ### CRITICAL Issues (Must Fix)
+    1. **[Issue Title]**
+       - **Problem**: [Specific description]
+       - **Evidence**: [Quote from storyline or "MISSING"]
+       - **Fix**: [Actionable recommendation]
+       - **Priority**: CRITICAL
+    
+    ### HIGH Priority Issues
+    [Same format as above]
+    
+    ### MEDIUM Priority Issues
+    [Same format as above]
+    
+    ### LOW Priority Issues
+    [Same format as above]
+    
+    ## Recommended Fixes (Prioritized)
+    
+    1. [Most critical fix]
+    2. [Second most critical fix]
+    3. [etc.]
+    
+    ## Strengths
+    - [What the storyline does well]
+    
+    ## Final Recommendation
+    [Overall assessment and next steps]
+    ```
+    
+    ---
+
+    ## Storyline
+
+    {storyline}
+
+    ---
+    
+    ## Knowledge
+    Present in Memory
+
+    - Story Writing Principles (knowledge/storywriting/detective/principles.md)
+
+    - Narrative Patterns:
+      - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
+      - File: storywriting/detective/narrative-techniques.md
+    - Available Narrative Structures:
+      - Intent: HOW to organize the story timeline
+      - File: knowledge/narrative-structures/index.md
+
+    ## Tool USAGE
+    - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
+    - Use the DirectoryReadTool to understand the file structure in narrative-structures
+    - And the FileReadTool to read the detailed narrative structure.
+    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+    ---
+
+    ## Answer Structure
+    
+    **MANDATOR**: When critique doesn't find any CRITICAL, HIGHT, MEDIUM issues,
+    or any issues that affect the plot's logical or tension 
+    always add None at the end
+    
+    Example:
+
+    ## Full Analysis
+    (full critique analyis)
+
+    ## Final Binary Verdict
+    - PASS / FAIL
+    
+    ---

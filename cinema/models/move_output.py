@@ -1,6 +1,121 @@
+"""
+Cinema Models - Screenplay Output Schema
+
+This module defines the expected output format for the screenplay generation crew.
+
+EXAMPLE RESPONSE:
+================
+
+{
+    "title": "Tokyo Nights: A Travel Journey",
+    "storyline": "A traveler explores iconic locations through seamless transitions",
+    "caption": "Experience the world through cinematic match cuts",
+    "video_config": {
+        "total_duration": 15,
+        "aspect_ratio": "16:9",
+        "needs_voiceover": true,
+        "needs_background_music": true,
+        "voice_characteristics": "Calm, inspiring narrator",
+        "music_description": "Upbeat travel music",
+        "camera": "35mm",
+        "lighting_consistency": "Natural lighting with warm tones"
+    },
+    "character_description": [
+        {
+            "id": 1,
+            "physical_appearance": "Male, 28 years old, athletic build, short dark hair",
+            "style": "Casual travel wear - comfortable but stylish",
+            "target_alignment": "Universal appeal"
+        }
+    ],
+    "scenes": [
+        {
+            "scene_id": "S1_Tokyo_Crossing",
+            "duration": 3.5,
+            "context": "Traveler walks through Shibuya crossing at night",
+            "voiceover_text": "Every journey begins with a single step",
+            "video_prompt": "Medium shot, Steadicam following. Traveler walks across Shibuya Crossing in Tokyo at night. Vibrant neon blue and pink lights reflecting off rain-slicked asphalt. Cinematic, photorealistic, 4K.",
+            "negative_prompt": "low quality, cartoon, blurry",
+            "characters": {"primary_character_id": 1},
+            "keyframe_description": {
+                "needs_keyframes": true,
+                "first_frame_prompt": "Medium shot of traveler at Shibuya crossing, neon lights, night",
+                "last_frame_prompt": "Close-up of traveler's foot mid-stride on wet pavement"
+            },
+            "generation_strategy": {
+                "generation_method": "image_to_video",
+                "reason": "Single keyframe with motion",
+                "audio_handling": "ambient_only"
+            }
+        }
+    ]
+}
+
+ACCEPTABLE VALUES:
+==================
+
+VideoConfig.aspect_ratio:
+  - "9:16"  (vertical/mobile)
+  - "16:9"  (horizontal/landscape)
+  - "1:1"   (square)
+
+Scene.generation_strategy.generation_method:
+  - "text_to_video"                    (no keyframes, just prompt)
+  - "image_to_video"                   (single keyframe + motion)
+  - "first_last_frame_interpolation"  (two keyframes, interpolate between)
+  - "image_stitch_ffmpeg"              (static images stitched together)
+
+Scene.generation_strategy.audio_handling:
+  - "veo_native"     (include dialogue in video generation prompt)
+  - "silent"         (no audio at all)
+  - "ambient_only"   (only environmental sounds, no dialogue)
+
+CameraSetup.shot_type:
+  - "wide shot", "medium shot", "close-up", "extreme close-up", "POV"
+
+CameraSetup.camera_angle:
+  - "eye-level", "low-angle", "high-angle", "dutch angle", "aerial"
+
+CameraMovement.movement_type:
+  - "static", "dolly shot", "tracking shot", "pan", "tilt", "crane shot", "handheld", "zoom"
+
+Scene.energy_mood:
+  - "high_energy", "moderate", "calm", "dramatic"
+
+SceneFlow.transition_technique:
+  - "match_cut_graphic"  (shape/composition match)
+  - "match_cut_action"   (motion/action match)
+  - "jump_cut"           (abrupt time/space jump)
+  - "flow_cut"           (smooth continuation)
+  - "smash_cut"          (dramatic contrast)
+  - "action_cut"         (cut on action)
+  - "montage_cut"        (series of quick cuts)
+
+IMPORTANT NOTES:
+================
+
+1. KeyframeDescription.needs_keyframes should be TRUE only when:
+   - Using first_last_frame_interpolation method
+   - Scene has complex transitions requiring precise framing
+   - Otherwise, set to FALSE and use text_to_video or image_to_video
+
+2. Scene.video_prompt should be COMPLETE and include:
+   - Camera setup (shot type, angle, lens)
+   - Subject description (with character reference if applicable)
+   - Action/motion description
+   - Environment/context
+   - Style keywords (cinematic, photorealistic, 4K, etc.)
+
+3. Character IDs should be consistent across all scenes
+
+4. Duration values are in seconds (float)
+
+5. For character consistency, always reference character by ID in scenes
+"""
+
 from typing import Any, List, Literal, Optional, TypedDict
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class VideoConfig(BaseModel):
@@ -37,8 +152,8 @@ class CharacterDescription(BaseModel):
     id: int
     physical_appearance: str
     style: str
-    target_alignment: str | None = None
-    voice_characterstics: str | None = None
+    target_alignment: Optional[str] = None
+    voice_characterstics: Optional[str] = None
 
 
 class SceneCharacterMapping(TypedDict):
@@ -279,8 +394,8 @@ class Scene(BaseModel):
     audio_details: Optional[AudioDetails] = None
 
     # Visual prompts (legacy fields, kept for backward compatibility)
-    image_prompt: Optional[str] = ""
-    action_prompt: Optional[str] = ""
+    # image_prompt: Optional[str] = ""
+    # action_prompt: Optional[str] = ""
 
     # New structured fields
     cinematography: Optional[Cinematography] = None
@@ -291,7 +406,7 @@ class Scene(BaseModel):
     # Video generation prompt fields
     video_prompt: Optional[str] = Field(
         default=None,
-        description="COMPLETE compiled video generation prompt for Veo. This should include ALL details from cinematography, audio, action, context, style in a single formatted prompt following Veo's structure: [Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance]",
+        description="COMPLETE compiled video generation prompt for. This should include ALL details from cinematography, audio, action, context, style in a single formatted prompt following Veo's structure: [Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance]",
     )
     negative_prompt: Optional[str] = Field(
         default=None, description="Negative prompt for video generation"
@@ -352,9 +467,9 @@ class AudioTrack(BaseModel):
     music_description: str = Field(
         ..., description="Background music description and progression"
     )
-    audio_segments: Optional[List[dict[str, Any]]] = Field(
+    audio_segments: Optional[List[str]] = Field(
         default=None,
-        description="List of audio segments with timing: [{start: 0, end: 2, text: '...', type: 'dialogue'}, ...]",
+        description="List of audio segments with timing as JSON strings",
     )
 
 
@@ -402,7 +517,7 @@ class CinematgrapherCrewOutput(BaseModel):
     scenes: List[Scene]
 
     # Generation manifest (optional, for tracking)
-    generation_manifest: Optional[dict[str, Any]] = Field(
+    generation_manifest: Optional[str] = Field(
         default=None,
-        description="Manifest of all assets to be generated and their dependencies",
+        description="Manifest of all assets to be generated and their dependencies as JSON string",
     )

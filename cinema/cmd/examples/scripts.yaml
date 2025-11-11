@@ -1,0 +1,33 @@
+travel_vlog:
+  script: |
+    A 15-second travel vlog showcasing seamless transitions through iconic locations using graphic match cuts.
+
+    Scene 1 : TOKYO CROSSING
+    A traveler walks through the famous Shibuya crossing in Tokyo.
+    Transition: Graphic match on the walking motion
+
+    Scene 2 : PARIS STREET
+    The same walking motion continues seamlessly - now the traveler walks down a charming cobblestone street
+    Transition: Graphic match on a doorway/archway
+
+    Scene 3 : MOROCCAN ARCHWAY
+    The traveler walks through an ornate Moroccan archway in Marrakech. Intricate Islamic geometric patterns
+    Transition: Graphic match on circular shapes
+
+    Scene 4 : SANTORINI SUNSET
+    The circular archway transitions to the iconic white-domed churches of Santorini against a stunning sunset.
+    The traveler stands at the edge, arms spread wide, silhouetted against the orange and pink sky. Camera pulls
+    back to reveal the breathtaking vista.
+    Text Overlay: "Safe Travels" fades in
+
+    Character: THE TRAVELER
+    - Age: 25-30
+    - Style: Casual travel wear - comfortable but stylish
+    - Backpack visible in shots
+    - Silhouette should be consistent across all scenes for match cuts
+    - Male with wolf cut hair and a light stuble
+
+    Technical Requirements:
+    - Match cuts must align perfectly (walking stride, archway shapes, circular elements)
+    - Color grading transitions: cool blues → warm golds → rich saturates → soft pastels
+    - Upbeat, inspiring travel music with ambient location sounds

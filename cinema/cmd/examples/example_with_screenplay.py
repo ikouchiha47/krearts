@@ -53,7 +53,7 @@ async def generate_from_screenplay_json():
     # Generate movie from screenplay JSON (skips screenplay generation)
     state = await maker.generate_from_screenplay(
         screenplay_json=screenplay_json,
-        movie_id="vibeflow_headphones",
+        movie_id="d40db751",  # Resume from failed state
         base_dir="./output",
     )
 

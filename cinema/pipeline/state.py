@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from cinema.models import CinematgrapherCrewOutput
+from cinema.models.move_output import CinematgrapherCrewOutput
 
 
 class JobStatus(str, Enum):
@@ -44,6 +44,8 @@ class Job(BaseModel):
     character_id: Optional[int] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
+    retry_count: int = 0
+    max_retries: int = 3
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     output_path: Optional[str] = None

@@ -247,7 +247,7 @@ style: smooth, traditional
 - Grabbing attention quickly
 - Social media (hook in first 3 seconds)
 - Products with dramatic results
-- Storytelling ads
+- Storytelling videos
 - Transformation narratives
 
 **Avoid for**:

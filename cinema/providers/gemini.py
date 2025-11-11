@@ -1,12 +1,15 @@
+import asyncio
 import logging
-import time
 from io import BytesIO
 from pathlib import Path
 from typing import Optional, Union
 
 from google import genai
 from google.genai import types
+from google.genai.types import Image as RefImage
 from PIL import Image
+
+from cinema.utils.rate_limiter import RateLimiterManager
 
 logger = logging.getLogger(__name__)
 
@@ -15,16 +18,17 @@ ImageInput = Union[Image.Image, bytes, bytearray, str, types.ImageDict]
 
 
 class GeminiMediaGen:
-    def __init__(self):
+    def __init__(self, rate_limiter: Optional[RateLimiterManager] = None):
         self.client: genai.Client = genai.Client()
+        self.rate_limiter = rate_limiter or RateLimiterManager()
 
     # generators
 
-    def generate_content(
+    async def generate_content(
         self,
         prompt: str,
         reference_image: Optional[ImageInput] = None,
-    ):
+    ) -> types.GenerateContentResponse:
         """
         Generate image content with optional reference image for consistency.
 
@@ -35,6 +39,9 @@ class GeminiMediaGen:
         Returns:
             Response from Gemini image generation
         """
+        # Rate limit
+        await self.rate_limiter.acquire("gemini-2.5-flash-image")
+
         logger.info("🎨 Generating image with Gemini")
         logger.debug(f"Prompt length: {len(prompt)} chars")
         logger.debug(f"Reference image provided: {reference_image is not None}")
@@ -67,24 +74,30 @@ class GeminiMediaGen:
             # contents is list[PartUnionDict] where PartUnionDict = str | PIL_Image | ...
             # So we pass [str, PIL_Image] as list of parts
             logger.info("📸 Calling Gemini with reference image for consistency")
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model="gemini-2.5-flash-image",
                 contents=[prompt, ref_img],
+                config={"response_modalities": ["IMAGE"]},
             )
             logger.info("✅ Image generated successfully with reference")
 
         else:
             # Generate without reference - single string is also valid PartUnionDict
             logger.info("📸 Calling Gemini without reference (seed generation)")
-            response = self.client.models.generate_content(
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
                 model="gemini-2.5-flash-image",
                 contents=prompt,
+                config={"response_modalities": ["IMAGE"]},
             )
             logger.info("✅ Image generated successfully without reference")
 
         return response
 
     def _normalize_duration(self, dur: float) -> int:
+        if dur < 3.0:
+            return 2
         if dur < 5.0:
             return 4
         if dur < 7.0:
@@ -138,39 +151,69 @@ class GeminiMediaGen:
         logger.warning(f"Unrecognized image type: {type(img).__name__}")
         return None
 
-    def generate_video(
+    async def generate_video(
         self,
         prompt: str,
-        image: Optional[ImageInput],
+        image: Optional[ImageInput] = None,
         last_image: Optional[ImageInput] = None,
+        reference_images: Optional[list[ImageInput]] = None,
         duration: Optional[float] = None,
     ):
+        # Rate limit
+        await self.rate_limiter.acquire("veo-3.1-generate-preview")
+
+        logger.info(f"🐟🐟🐟🐟 dsfsfsfsfd {image}")
         logger.info("🎬 Generating video with Gemini Veo")
         logger.debug(f"Prompt: {prompt[:100]}...")
         logger.debug(f"Duration: {duration}s")
+        logger.debug(f"Has image: {image is not None}")
         logger.debug(f"Has last_image: {last_image is not None}")
+        logger.debug(f"Has reference_images: {reference_images is not None}")
 
-        config: types.GenerateVideosConfigDict = {
-            # "generate_audio": False,
-        }
+        # Normalize image inputs
+        image_payload = self.to_api_image(image) if image else None
+        last_image_payload = self.to_api_image(last_image) if last_image else None
 
-        # Normalize image inputs to the expected API payload (for both image and last_frame)
-        image_payload = self.to_api_image(image)
-        last_image_payload = (
-            self.to_api_image(last_image) if last_image is not None else None
-        )
+        # Build config
+        config_kwargs = {}
 
         if last_image_payload:
-            config["last_frame"] = last_image_payload
+            config_kwargs["last_frame"] = last_image_payload
+            logger.debug("Added last_frame to config for interpolation")
+
+        if reference_images:
+            ref_list = []
+            for ref_img in reference_images:
+                ref_payload = self.to_api_image(ref_img)
+                assert ref_payload is not None, "RefImageLoadFailed"
+
+                ref_list.append(
+                    types.VideoGenerationReferenceImage(
+                        image=RefImage(**ref_payload),
+                        reference_type=types.VideoGenerationReferenceType.ASSET,
+                    )
+                )
+            config_kwargs["reference_images"] = ref_list
+            logger.debug(f"Added {len(ref_list)} reference images")
 
         if duration:
             normalized_duration = self._normalize_duration(duration)
-            config["duration_seconds"] = normalized_duration
+            config_kwargs["duration_seconds"] = normalized_duration
             logger.debug(f"Normalized duration: {duration}s -> {normalized_duration}s")
 
+        config = types.GenerateVideosConfig(**config_kwargs) if config_kwargs else None
+
         logger.info("📹 Calling Gemini Veo API...")
-        response = self.client.models.generate_videos(
-            model="veo-3.1-fast-generate-preview",
+        logger.debug("Model: veo-3.1-generate-preview")
+        logger.debug(f"Has image: {image_payload is not None}")
+        logger.debug(f"Has last_frame: {last_image_payload is not None}")
+        logger.debug(
+            f"Has reference_images: {len(config_kwargs.get('reference_images', [])) if 'reference_images' in config_kwargs else 0}"
+        )
+
+        response = await asyncio.to_thread(
+            self.client.models.generate_videos,
+            model="veo-3.1-generate-preview",
             prompt=prompt,
             image=image_payload,
             config=config,
@@ -196,19 +239,21 @@ class GeminiMediaGen:
         logger.error("Failed to render image")
         raise Exception("render_failed")
 
-    def render_video(self, out_file: str, response):
+    async def render_video(self, out_file: str, response):
         logger.debug(f"Rendering video to: {out_file}")
 
         while not response.done:
             logger.info("Waiting for video generation to complete...")
-            time.sleep(10)
-            response = self.client.operations.get(response)
+            await asyncio.sleep(10)
+            response = await asyncio.to_thread(self.client.operations.get, response)
 
         video = response.response.generated_videos[0]
 
         logger.info(f"Downloading video to: {out_file}")
         # Download the video file using the client
-        video_data = self.client.files.download(file=video.video)
+        video_data = await asyncio.to_thread(
+            self.client.files.download, file=video.video
+        )
 
         # Write the downloaded data to file
         with open(out_file, "wb") as f:

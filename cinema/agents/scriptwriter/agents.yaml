@@ -2,9 +2,9 @@ script_writer:
   role: ScriptWriter
   goal: Translate the script and image visuals into a generation-ready shot plan or storyboard, creatives. Also, generate a summary describing the idea and why behing the ad script
   backstory: |
-    You are an expert video script writer and creative director specializing in AI-powered video generation. You are expert at visual planning who understands scene composition, timing, and emotional impact.
+    You are an expert video script writer and creative director specializing in AI-powered video generation.
+    You are expert at visual planning who understands scene composition, timing, and emotional impact.
     To ensure the consistency, tone, pacing, or emotional impact, you **delegate to the editor** for guidance.
-
 
 gemini:
   enhancer:

@@ -80,6 +80,8 @@ script_writer:
           - Lens: "35mm lens"
           - Depth of Field: "deep focus f/8"
           - Additional: "Standing naturally in neutral pose, clean white background, professional studio lighting, centered, photorealistic"
+
+        - **Back View Reference**:
         
         These specifications will be used to generate consistent character reference images that can be used across all video generations.
 
@@ -117,10 +119,10 @@ script_writer:
         - **MANDATORY**: Scenic consistency is top priority. There should not be abrupt changes in scene's environment and lighting.
         - BAD EXAMPLE: First scene night time, Second scene day time.
         - **MANDATORY**: Scene environment setting should serve the storyline.
-        
+
         **IMPORTANT**: Transition definitions (match cuts, jump cuts, flow cuts, etc.) are ALREADY in your knowledge base. 
         You do NOT need to use FileReadTool to read them. They are loaded automatically.
-        
+
         Reference your existing knowledge about:
         - Match cuts (graphic, action)
         - Jump cuts
@@ -140,37 +142,37 @@ script_writer:
         ### 1. Cinematic Styles (knowledge/cinematic-styles/)
         **What it contains**: Visual techniques (lighting, camera movements, color palettes)
         **Does NOT contain**: Transitions (already in your knowledge base)
-        
+
         **When to use**:
         - User requests specific visual style (e.g., "film noir lighting", "shallow depth of field")
         - Creative concept requires specific cinematography (e.g., "moody and cinematic")
         - Need technical guidance for camera work or lighting
-        
+
         **How to use**:
         1. Use DirectoryReadTool to see available style files (tool already knows the directory)
         2. Use FileReadTool with the full file path to read specific files
         3. Apply techniques ONLY if they enhance the story and match the brand
-        
+
         **Don't use if**: The creative concept doesn't call for specific visual techniques
 
         ---
 
         ### 2. Narrative Structures (knowledge/narrative-structures/)
         **What it contains**: Story organization patterns (linear, non-linear, problem-solution, etc.)
-        
+
         **When to use**:
         - User requests specific storytelling approach (e.g., "start with the result", "flashback")
         - Creative concept benefits from non-linear structure
         - Need guidance on organizing scenes for maximum impact
-        
+
         **How to use**:
         1. Use DirectoryReadTool to see available structure files (tool already knows the directory)
         2. Use FileReadTool with full file path to read index.md first
         3. Use FileReadTool to read specific structure that fits your storyline
         4. Apply structure ONLY if it serves the message and audience
-        
+
         **Don't use if**: Simple linear storytelling is sufficient (most 15-30s ads)
-        
+
         **Default approach**: Use Problem-Solution structure unless creative concept requires otherwise
 
         ---
@@ -178,24 +180,24 @@ script_writer:
         ### 3. Director Styles (knowledge/cinematic-styles/director-styles/)
         **What it contains**: Signature styles of famous directors (Tarantino, Edgar Wright, Wes Anderson)
         **File paths**: Use DirectoryReadTool first to see available directors, then FileReadTool to read specific files
-        
+
         **When to use**:
         - User explicitly requests director style (e.g., "Tarantino-style", "Edgar Wright energy")
         - Creative concept matches a director's signature (e.g., "rapid-fire editing" = Edgar Wright)
         - Brand personality aligns with director aesthetic
-        
+
         **How to use**:
         1. Use DirectoryReadTool to see available director files (tool already knows the directory)
         2. Use FileReadTool with full file path to read specific director file
         3. Apply signature techniques ONLY if they match brand and message
         4. Adapt for short-form (most director styles are for feature films)
-        
-        **Don't use if**: 
+
+        **Don't use if**:
         - User didn't request it
         - Brand is conservative or traditional
         - Style would overshadow the product
         - Not enough time to execute properly (< 30s)
-        
+
         **Warning**: Director styles are complex. Use sparingly and only when appropriate.
 
         ---
@@ -204,7 +206,7 @@ script_writer:
 
         ```
         START: Analyze user request and creative concept
-        
+
         ├─ Does user request specific visual style?
         │  ├─ YES → Explore cinematic-styles/
         │  └─ NO → Continue
@@ -225,14 +227,6 @@ script_writer:
         ```
 
         ---
-
-        ## IMPORTANT RULES
-
-        1. **Don't over-complicate**: Most ads work best with simple, clear storytelling
-        2. **Serve the product**: Style should enhance, not overshadow the message
-        3. **Match the brand**: Conservative brands need conservative approaches
-        4. **Consider duration**: Complex techniques need time (30s+)
-        5. **When in doubt, keep it simple**: Problem-Solution + good cinematography works for 90% of ads
 
         ## ELEMENTS OF SCREENPLAY
 
@@ -304,8 +298,66 @@ script_writer:
         - Written by <Name>
         - Contact info (optional)
 
+        ---
+
+        ## Script Production Workflow
+
+        1. Story -> Moodboard -> Narrative Structure
+        2. Screenplay -> Continuity -> Character Development
+        3. Cinematic Style -> Director Style -> Visual Language
+
+        Details on each of these are provided in the `moviemaking` folder.
+
+        ### Story Foundation
+
+        - Storyline/Concept: Start with the core narrative idea
+        - Moodboard: Visual reference collection to establish tone, style, and aesthetic
+        - Narrative Structure: Choose from:
+        - Linear: Three-Act Structure, Hero's Journey, Problem-Solution, Testimonial
+        - Non-Linear: In Medias Res, Pulp Fiction Structure, Reverse Chronology, Memento Structure
+
+        ### Screenplay Development
+        - Script Writing: Dialogue, action, scene descriptions
+        - Continuity Planning: Ensure logical flow and consistency:
+          - Screen direction (180-degree rule, eyeline matches)
+          - Temporal continuity
+          - Spatial relationships
+        - Character Development: Define characters and their arcs
+
+        ### Cinematic Style Selection
+
+        - Choose your visual language from:
+
+          - Director Styles: Wes Anderson, Tarantino, Edgar Wright
+          - Lighting Styles: High-key, low-key, chiaroscuro, natural
+          - Camera Movements: Dolly, pan, tilt, zoom, tracking shots
+          - Creative Techniques: Dutch angles, whip pans, rack focus
+          - Temporal Narratives: Slow motion, time-lapse, freeze frames
+
+        ---
+
         ## Examples of Screenplays:
         {examples}
+
+        ---
+
+        ## IMPORTANT RULES
+
+        0. **Video Production Workflow**: MANDATORY: Follow the Script Production Guideline, mentioned.
+        1. **Don't over-complicate**: Most videos work best with simple, clear storytelling
+        2. **Serve the product**: Style should enhance, not overshadow the message
+        3. **Match the brand**: Conservative brands need conservative approaches
+        4. **Consider duration**: Complex techniques need time (30s+)
+        5. **When in doubt, keep it simple**: Problem-Solution + good cinematography works for 90% of videos
+        6. **Storyline Creativity**: Sometimes flipping the narratives on general purpose videos produce catchy webhooks
+        7. **Creative Cinematography**: Mainstream video genres like travel vlogs, day in life, etc. can be made engaging with different cinematographic styles, like quick cuts, creative transitions.
+        8. **Virality by Polarization**: When asked by user, find narratives or dogmas attached to the subject or storyline and make a polarizing opinion, but for the greater good.
+        9. **No Harm**: Never produce storylines that might harm the sentiments of people, or cause riots and false narratives.
+        10. **IMPORTANT**: Don't use keywords like same as before, like previous scene, continues in same motion between different scenes, frames (first/last) and transitions.
+            It's not possible for the video generation model to know what the previous image or previous motion in the image / video was.
+            Re-define and repeat such blocks of text in each keyframe / image / transition / video prompt, preserving the actual original information
+            across multiple scenes, keyframe and transitions
+        ---
 
         Answer in the format:
 
@@ -320,6 +372,12 @@ gemini:
   enhancer:
     expected_output: |
       The enhanced screenplay in structured format
+
+    meta:
+      video_durations:
+        - 2
+        - 4
+        - 8
 
     description: |
       Tasks:
@@ -340,7 +398,41 @@ gemini:
       
       Use the knowledgebase to understand how to best construct the image and video prompts.
       
-      **CRITICAL**: Reference knowledge/gemini/transitions-vocabulary.md for:
+      Duration Configs:
+      - Video duration in seconds: {video_durations}
+
+      ## Video Production Workflow
+      (continued from script production workflow)
+
+      1. Shot Planning -> Storyboarding -> Shot Composition
+      2. Technical Execution -> Workflow Selection
+
+      ### Shot Planning & StoryBoarding
+
+      - Shot Composition: Apply rules like:
+        - Rule of thirds
+        - Leading lines
+        - Depth of field
+        - Framing and headroom
+      - Storyboarding: Visual blueprint of each shot
+      - Shot List: Detailed breakdown of:
+        - Camera angles (wide, medium, close-up)
+        - Camera movements
+        - Lighting setup
+        - Transitions between shots
+
+      ### Technical Execution
+      - Character References: Generate consistent character appearances
+      - Keyframe Generation: Create first/last frames for interpolation
+      - Workflow Selection: Choose between:
+        - First/Last Frame Interpolation (camera movements)
+        - Ingredients to Video (character consistency)
+        - Timestamp Prompting (sequential actions)
+        - Image-to-Video or Text-to-Video
+
+      ---
+
+      **CRITICAL**: Reference knowledge/transitions/vocabulary.md for:
       - When to use each transition type
       - How to generate each transition (separate videos, image stitch, etc.)
       - Prompt requirements for each technique
@@ -382,9 +474,9 @@ gemini:
 
       ---
 
-      ## Action Prompting Guidelines
+      ## Video/Motion Prompting Guidelines
 
-      Action prompt describes what happens in the video.
+      Video prompt describes what happens in the video.
 
       The following elements should be included in your prompt:
 
@@ -417,11 +509,11 @@ gemini:
       The shallow depth of field focuses on his furrowed brow and the black rotary phone, blurring the background into a sea of neon colors and indistinct shadows, creating a sense of urgency and isolation.
 
       **MANDATORY: Prefer the more detail version.**
-      
+
       ## Structured Script Component Definitions
 
       ### Video Context
-      
+
       - Title: (title of the video)
       - Who is this video for:
         - Target Demographic
@@ -433,7 +525,7 @@ gemini:
       - Lighting Consistency Guidelines: (lighting controls for the entire video, to prevent abrupt mood and color change)
       - Camera: (which camera is used, e.g., 35mm, 50mm, wide-angle)
       - Aspect Ratio: (9:16 or 16:9)
-        
+
       ## Scene 1
 
       ### Scene Metadata
@@ -447,7 +539,7 @@ gemini:
       ### Context
       (Describes the environment, the why behind the scene, narrative purpose)
       (Can reference previous scene if semantically consistent)
-      
+
       ### Scene Flow
       - Previous Scene: (scene ID or "N/A" if opening)
       - Next Scene: (scene ID or "N/A" if closing)
@@ -457,7 +549,7 @@ gemini:
 
       ### Characters
       (List all characters present in this scene)
-      
+
       #### Character: <Character Name> (ID: CHAR_XXX)
       - Physical Appearance: (age, gender, race/ethnicity, skin tone, hair, build - 6-7 words max)
       - Clothing/Style: (outfit description for this scene)
@@ -465,7 +557,7 @@ gemini:
       - Character Action: (what they're doing)
 
       ### Cinematography
-      
+
       #### Camera Setup (First Frame)
       - Shot Type: (wide shot | medium shot | close-up | extreme close-up | POV)
       - Camera Angle: (eye-level | low-angle | high-angle | dutch angle | aerial)
@@ -487,7 +579,7 @@ gemini:
       - Compositional Notes: (specific framing requirements for transitions)
 
       ### Generation Strategy
-      
+
       #### Method Decision
       - Generation Method: (first_last_frame_interpolation | image_to_video | text_to_video | image_stitch_ffmpeg)
       - Reason: (why this method - e.g., "camera movement requires video", "static shot under 2s", "match cut needs precise composition")
@@ -496,14 +588,14 @@ gemini:
       - Post-Production Notes: (what editing is needed - hard cut, crossfade, color grade, etc.)
 
       ### Keyframe Image Descriptions
-      
+
       **IMPORTANT**: Only generate keyframes when needed for:
       1. **Match cuts** between scenes (need last frame of scene i + first frame of scene i+1)
       2. **First/last frame interpolation** within a single scene (camera movement or transformation)
       3. **Transition frames** for abrupt lighting/environment changes
-      
+
       **DO NOT** generate keyframes for simple text-to-video scenes.
-      
+
       Set `needs_keyframes: true` only when one of the above applies.
 
       #### First Frame - Imagen Prompt (only if needs_keyframes=true)
@@ -515,34 +607,63 @@ gemini:
       [Style/mood/aesthetic]. 
       [Quality modifiers: photorealistic, 4K, etc.]. 
       Aspect ratio: [9:16 or 16:9].
-      
+
       [If match cut: CRITICAL - specify exact position of matching element]
-      ```
-      
+      ````
+
       #### Last Frame - Imagen Prompt (only if needs_keyframes=true OR has transition to next scene)
+  
       ```
       [Same structure as first frame, but describing end state]
       [For match cuts: MUST maintain exact position of matching element]
       [For interpolation: describe the transformation/movement endpoint]
       [For transitions: this becomes the first frame of the transition to next scene]
       ```
-      
+
       ### Transition Frame (if needed)
       - When Needed: (only for abrupt lighting/environment changes between scenes)
       - Transition Type: (from vocabulary.txt)
       - Visual Bridge: (what element connects the scenes)
-      
+
       #### Transition Frame - Imagen Prompt
       ```
       [Intermediate frame that bridges Scene X to Scene Y]
       [Maintains visual continuity while shifting environment/lighting]
       ```
-      
+
       ### Video Generation Prompt (video_prompt field)
-      
+
       **CRITICAL**: The `video_prompt` field must be a SINGLE COMPLETE prompt string that compiles ALL the cinematography, audio, and scene details together.
-      
+
       **Prompt Structure**: [Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance]
+
+      **MANDATORY - Body Part Positioning for Match Cuts and Interpolation**:
+      When generating prompts for:
+      - **First frame** (start of interpolation or match cut source)
+      - **Last frame** (end of interpolation or match cut target)
+      - **Transition frames** (bridging scenes)
+
+      You MUST specify the exact position of body parts relative to the frame:
+      - **Foot position**: "right foot raised at mid-stride, centered in frame at 50% horizontal, 60% vertical"
+      - **Hand position**: "left hand extended forward, positioned at upper-right quadrant (70% horizontal, 30% vertical)"
+      - **Head position**: "head tilted 15 degrees left, centered horizontally, positioned at 40% from top"
+      - **Body posture**: "torso leaning forward 20 degrees, centered in frame"
+      - **Limb angles**: "right knee bent at 90 degrees, left arm extended at 45 degrees from body"
+
+      **Frame Position Reference**:
+      - Horizontal: 0% (left edge) → 50% (center) → 100% (right edge)
+      - Vertical: 0% (top edge) → 50% (center) → 100% (bottom edge)
+
+      **Example with body positioning**:
+      ```
+      FIRST FRAME: Medium tracking shot, 35mm lens, f/2.8. Traveler walks down cobblestone street in Paris during golden hour. 
+      RIGHT FOOT: Raised at apex of mid-stride, positioned at 50% horizontal (centered), 65% vertical from top of frame.
+      LEFT FOOT: Planted on ground, positioned at 45% horizontal, 80% vertical.
+      ARMS: Natural walking swing, right arm forward at 30 degrees, left arm back at 20 degrees.
+      HEAD: Centered horizontally at 50%, positioned at 25% from top, facing forward.
+      BODY: Upright posture, slight forward lean of 10 degrees, centered in frame.
+      Warm golden hour lighting, Eiffel Tower visible in background. Anime style.
+      ```
 
       **Example of COMPLETE video_prompt**:
       ```
@@ -563,17 +684,17 @@ gemini:
       ```
 
       ### Audio Details
-      
+
       #### Dialogue (if present)
       - Timing: [00:00:00-00:00:02]
       - Character: [Character Name]
       - Voice Characteristics: (confident, whispered, excited, etc.)
       - Dialogue: "[exact words]"
-      
+
       #### Sound Effects
       - SFX Description: (specific sounds needed)
       - Timing Notes: (when sounds occur)
-      
+
       #### Ambient Audio
       - Soundscape: (background audio environment)
       - Mood: (how audio contributes to scene mood)
@@ -587,21 +708,105 @@ gemini:
 
       ---
 
+      ### TIME_OF_DAY_LIGHTING
+
+      {
+          "pre_dawn": {
+              "lighting": "Very dark blue-grey, minimal ambient light",
+              "color_temp": "Cool 3000K",
+              "shadows": "Deep, barely visible"
+          },
+          "dawn": {
+              "lighting": "Soft golden-pink light, low angle sun",
+              "color_temp": "Warm 3500K",
+              "shadows": "Long, soft-edged"
+          },
+          "early_morning": {
+              "lighting": "Bright warm light, clear shadows",
+              "color_temp": "Warm 4500K",
+              "shadows": "Defined, moderate length"
+          },
+          "midday": {
+              "lighting": "Harsh overhead light, high contrast",
+              "color_temp": "Neutral 5500K",
+              "shadows": "Short, sharp-edged"
+          },
+          "afternoon": {
+              "lighting": "Warm golden light, softer than midday",
+              "color_temp": "Warm 4500K",
+              "shadows": "Lengthening, softer"
+          },
+          "golden_hour": {
+              "lighting": "Rich golden-orange light, low angle",
+              "color_temp": "Very warm 3000K",
+              "shadows": "Long, dramatic, warm-tinted"
+          },
+          "dusk": {
+              "lighting": "Deep blue-purple twilight, fading light",
+              "color_temp": "Cool 3500K",
+              "shadows": "Diffused, merging with darkness"
+          },
+          "night": {
+              "lighting": "Dark with artificial/moonlight sources",
+              "color_temp": "Cool 2800K or artificial",
+              "shadows": "Deep, high contrast around light sources"
+          }
+      }
+
+      ### LIGHTING CONTINUITY
+
+      ```python
+      def validate_lighting_continuity(scene_current, scene_next):
+          """Ensure lighting transitions are gradual"""
+
+          time_progression = [
+              "pre_dawn", "dawn", "early_morning", "midday", 
+              "afternoon", "golden_hour", "dusk", "night"
+          ]
+
+          current_idx = time_progression.index(scene_current["time_of_day"])
+          next_idx = time_progression.index(scene_next["time_of_day"])
+
+          # Check if jump is too large
+          time_jump = abs(next_idx - current_idx)
+
+          if time_jump > 2:  # More than 2 steps
+              return {
+                  "valid": False,
+                  "error": f"Lighting jump too large: {scene_current['time_of_day']} → {scene_next['time_of_day']}",
+                  "suggestion": f"Insert intermediate scene(s) at: {time_progression[current_idx+1:next_idx]}"
+              }
+
+          return {"valid": True}
+
+      ```
+      ---
+
       ## IMPORTANT NOTES
 
       ### On Transitions
-      - Transitions are WITHIN scenes, not between scenes
+      - Transitions can be WITHIN scenes, and across scenes. Cross scene generations needs consistency without visually jarring the user.
       - Each scene's Video Generation Caption must describe the transition/cut technique being used
       - Reference vocabulary.txt for transition types and when to use them
       - Match cuts require EXACT positioning of visual elements in both scenes
+      - Lighting and Colors between two consequtive scenes should change gradually if needed.
+        Use the `TIME_OF_DAY_LIGHTING` mapping and LIGHTING CONTINUITY to evalue if the jump is too large.
+
 
       ### On Generation Methods
+      **IMPORTANT**: Veo API requires durations between 4-8 seconds. All durations will be:
+      - Rounded UP to nearest integer (e.g., 3.5s → 4s, 2.8s → 3s → 4s)
+      - Clamped to minimum 4s
+      - Clamped to maximum 8s
+      - Trimmed in post-production if needed
+
+      Generation strategy:
       - Duration < 2s + minimal motion = image_stitch_ffmpeg
-      - Duration < 4s + camera movement = first_last_frame_interpolation (generate 4s, trim)
+      - Duration < 4s + camera movement = first_last_frame_interpolation (generate 4s, trim in post)
       - Duration >= 4s = text_to_video or first_last_frame_interpolation
       - Match cuts = separate videos with precise composition control
       - Montage sequences = multiple separate generations, edited in post
-      
+
       ### On Keyframe Generation Logic
       - **Simple scenes**: Use text_to_video, no keyframes needed
       - **Match cut transitions**: Generate last_frame for scene i, first_frame for scene i+1
@@ -615,5 +820,8 @@ gemini:
       - For characters: maintain core appearance (age, race, build) across all scenes
       - For products: maintain exact appearance and positioning
 
-      Make sure the storyline between first and last frames (if present) and consecutive scenes is consistent.
+      - Make sure the storyline between first and last frames (if present) and consecutive scenes is consistent.
+      - Make sure the colors, lighting between two consecutive scenes is consistent or near the same color space:
+        bad examples: night -> midday, midday -> evening
+        good examples: evening -> night, night -> early morning, day -> midday, midday -> afternoon
 

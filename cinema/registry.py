@@ -90,10 +90,12 @@ class LLMStore(ABC):
 LLMExecutorIntent = "executor"
 LLMPlannerIntent = "planner"
 LLMThinkerIntent = "thinker"
+LLMCritiqueIntent = "critique"
 LLMSubScenePlannerIntent = "sub_scene_planner"
 LLMVideoGenIntent = "video_gen"
 LLMImageGenIntent = "image_gen"
 LLMASRIntent = "asr"
+LLMEmbedderIntent = "embedder"
 
 
 class GenerationHerd(LLMStore):
@@ -303,6 +305,14 @@ GeminiHerd = (
         LLMImageGenIntent,
         ModelConfig(
             name="gemini/gemini-2.5-flash-image-preview",
+            loader=LLM,
+            is_hosted=False,
+        ),
+    )
+    .register_model(
+        LLMCritiqueIntent,
+        ModelConfig(
+            name="openai/gpt-4.1",
             loader=LLM,
             is_hosted=False,
         ),

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Optional, Type
+from typing import Any, List, Optional, Type
 
 import yaml
 from crewai import Agent, Crew, CrewOutput, Task
@@ -26,6 +26,9 @@ class ScriptWriterSchema(BaseModel):
     examples: Optional[str] = ""
     transition_definitons: str = Field(default="")
 
+    def load_examples(self):
+        pass
+    
     def to_crew(self):
         return {
             "characters": to_md_list(self.characters),
@@ -50,22 +53,29 @@ class ScriptWriter:
     ctx: Optional[DirectorsContext] = None
 
     role_name: str = "script_writer"
+    outfile: str = "script.md"
 
     def __init__(
         self,
         ctx: DirectorsContext,
         medialib: MediaLib,
+        outfile: Optional[str] = None,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
 
+        if outfile:
+            self.outfile = outfile
+
         # Load transitions vocabulary as knowledge source (always available)
         self.transitions_source = TextFileKnowledgeSource(
-            file_paths=["transitions/vocabulary.txt"]
+            file_paths=[
+                "moviemaking/storytelling.md",
+                "moviemaking/continuity.md",
+                "moviemaking/screen_direction.md",
+                "transitions/vocabulary.md",
+            ]
         )
-
-        with open(Path(__file__).parent / "examples.yaml", "r+") as f:
-            self.examples_config = yaml.safe_load(f)
 
         # Initialize tools for additional knowledge exploration
         knowledge_dir = Path(__file__).parent.parent.parent.parent / "knowledge"
@@ -73,7 +83,9 @@ class ScriptWriter:
         self.config.tools = [
             AnalyzeImagesTool(medialib=medialib),
             # Agent can explore director styles ONLY when they serve the cinematic purpose
-            DirectoryReadTool(directory=str(knowledge_dir / "cinematic-styles" / "director-styles")),
+            DirectoryReadTool(directory=str(knowledge_dir / "moviemaking")),
+            DirectoryReadTool(directory=str(knowledge_dir / "cinematic-styles")),
+            DirectoryReadTool(directory=str(knowledge_dir / "director-styles")),
             # Agent can explore narrative structures when planning story
             DirectoryReadTool(directory=str(knowledge_dir / "narrative-structures")),
             # Agent can read any specific file when needed
@@ -127,7 +139,7 @@ class ScriptWriter:
         task = Task(
             config=self.tasks_config[self.role_name],  # type: ignore[index]
             agent=agent,
-            output_file="script.md",
+            output_file=self.outfile,
             markdown=True,
         )
 
@@ -152,6 +164,7 @@ class ScriptWriter:
 class EnhancerInputSchema(BaseModel):
     script: str
     screenplay: str
+    video_durations: List[int] = Field(default=[])
 
     def to_crew(self):
         return self.model_dump()
@@ -168,14 +181,21 @@ class Enhancer:
     ctx: Optional[DirectorsContext] = None
 
     role_name: str = "gemini/enhancer"
+    outfile: str = "gemini_screenplay.json"
 
-    def __init__(self, ctx: DirectorsContext):
+    def __init__(self, ctx: DirectorsContext, outfile: Optional[str] = None):
         self.ctx = ctx
         self.config = CrewConfig()
+
+        if outfile:
+            self.outfile = outfile
 
         # Load Gemini docs and transitions as knowledge sources (always available)
         self.gemini_prompting_docs = TextFileKnowledgeSource(
             file_paths=[
+                "moviemaking/depth_of_field.md",
+                "moviemaking/shot_composition_rules.md",
+                "moviemaking/storyboarding.md",
                 "gemini/image-prompting.md",
                 "gemini/video-prompting.md",
                 "gemini/video-gen-workflow.md",
@@ -188,7 +208,8 @@ class Enhancer:
         
         self.config.tools = [
             # Allow agent to explore cinematic styles directory when needed
-            DirectoryReadTool(directory=str(knowledge_dir / "cinematic-styles")),
+            DirectoryReadTool(directory=str(knowledge_dir / "gemini")),
+            FileReadTool(),
         ]
 
     @classmethod
@@ -203,6 +224,13 @@ class Enhancer:
 
         return output_model.model_validate(result.pydantic)
 
+    def get_meta_config(self):
+        provider, role = self.role_name.split("/", 1)
+        cfg = {**self.tasks_config[provider][role]} # type: ignore[index]
+
+        meta = cfg.pop('meta')
+        return cfg, meta
+
     def bootstrap(self):
         assert self.ctx is not None, "EmptyCtx"
 
@@ -216,10 +244,12 @@ class Enhancer:
             tools=self.config.tools,
         )
 
+        task_cfg, _ = self.get_meta_config()
+
         task = Task(
-            config=self.tasks_config[provider][role],  # type: ignore[index]
+            config=task_cfg,  # type: ignore[index]
             agent=agent,
-            output_file="gemini_screenplay.md",
+            output_file=self.outfile,
             # markdown=True,
             output_pydantic=CinematgrapherCrewOutput,
         )
@@ -240,3 +270,4 @@ class Enhancer:
             verbose=self.ctx.debug,
             knowledge_sources=[self.gemini_prompting_docs],
         )
+

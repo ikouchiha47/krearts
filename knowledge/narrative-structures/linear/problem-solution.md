@@ -140,7 +140,7 @@ S6 (5s): Product shot + logo + "Dinner solved"
 **Best for**:
 - Clear pain points
 - Functional products
-- Direct response ads
+- Direct response videos
 - B2B products
 - Problem-solving services
 - Household products

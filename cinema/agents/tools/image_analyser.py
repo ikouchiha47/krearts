@@ -126,6 +126,6 @@ class AnalyzeImagesTool(BaseTool):
         )
 
         chain = prompt | llm
-        response = chain.invoke({"image_urls": image_urls})
+        response = chain.invoke({"image_urls": urls})
 
         return response.text()

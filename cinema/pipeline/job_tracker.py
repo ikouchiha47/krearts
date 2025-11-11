@@ -44,6 +44,8 @@ class JobTracker:
                     character_id INTEGER,
                     metadata TEXT,
                     error TEXT,
+                    retry_count INTEGER DEFAULT 0,
+                    max_retries INTEGER DEFAULT 3,
                     output_path TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL

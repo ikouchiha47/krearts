@@ -6,7 +6,7 @@ Joseph Campbell's universal story structure found across cultures. Character goe
 
 ---
 
-## 12 Stages (Simplified for Ads)
+## 12 Stages (Simplified for Videos)
 
 ### 1. Ordinary World
 Character in normal life before adventure
