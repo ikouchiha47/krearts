@@ -19,27 +19,29 @@ from dotenv import load_dotenv
 
 # Prompt templates as constants
 MAIN_PROMPT_TEMPLATE = """
-You are an expert technical documentation processor. Extract and format the main documentation content from the provided HTML, following these requirements:
+You are an expert technical documentation processor. Extract and format the ACTUAL CONTENT from the provided HTML.
+
+**CRITICAL INSTRUCTION: DO NOT MAKE UP OR HALLUCINATE CONTENT. Extract ONLY what is actually present in the HTML.**
 
 **STRUCTURE REQUIREMENTS:**
-1. Create a comprehensive Table of Contents within the first 200-500 lines
-2. Add section numbers to all headings (1., 1.1, 1.2, 2., 2.1, etc.)
-3. Include line/section references in the TOC
-4. Add a document summary after the TOC
+1. Start with a clear, descriptive H1 heading that describes the topic (e.g., "Continuity Editing in Film", "Screen Direction Techniques")
+2. Create a comprehensive Table of Contents after the H1
+3. Add section numbers to all headings (1., 1.1, 1.2, 2., 2.1, etc.)
+4. Add a brief document summary after the TOC
 
 **CONTENT REQUIREMENTS:**
-1. Extract ONLY the main documentation content - exclude navigation, headers, footers, social media links
-2. Preserve all technical information, code examples, and procedural steps
+1. Extract ONLY the main article/documentation content from the HTML
+2. Preserve ALL technical information, definitions, rules, techniques, and examples that are actually in the HTML
 3. Maintain the original hierarchical structure of headings and sections
 4. Keep all links, but format them properly for {output_format}
+5. Preserve any embedded videos, images, or code examples mentioned in the content
+6. **IMPORTANT**: If the HTML is about filmmaking, cinematography, or editing techniques, extract that content - do NOT replace it with generic software documentation
 
 {format_instructions}
 
 **NAVIGATION HELPERS:**
 1. Number all sections consistently throughout the document
-2. Add anchor links for major sections
-3. Include "See also" references where relevant
-4. Make the document easily parseable by both humans and AI systems
+2. Make the document easily parseable by both humans and AI systems
 
 **EXCLUSIONS:**
 - Navigation menus and breadcrumbs
@@ -54,7 +56,7 @@ You are an expert technical documentation processor. Extract and format the main
 **HTML CONTENT TO PROCESS:**
 {html_content}
 
-Please extract and format the documentation following all the above requirements. Start with the Table of Contents, then the document summary, followed by the main content with proper section numbering.
+**REMINDER: Extract the ACTUAL content from the HTML above. Do not invent or hallucinate content. If the HTML is about filmmaking techniques like continuity editing or the 180 degree rule, that's what you should extract. Start with a clear, descriptive H1 heading.**
 """
 
 CHUNK_PROMPT_TEMPLATE = """
@@ -486,14 +488,18 @@ class HTMLDocExtractor:
         """Process HTML content using LLM."""
         print(f"Processing {source_file} (size: {len(html_content)} chars)")
 
+        # Extract just the body content to reduce size but keep all text
+        body_content = self._extract_body_text(html_content)
+        print(f"Body content size: {len(body_content)} chars")
+
         # Check if content is too large and needs chunking
-        if len(html_content) > 150000:  # Conservative threshold for better reliability
+        if len(body_content) > 400000:  # More generous threshold since we're using body text
             print("File is large, using smart chunked processing...")
             return self._process_large_html(
-                html_content, source_file, custom_instructions
+                body_content, source_file, custom_instructions
             )
 
-        prompt = self._build_prompt(html_content, custom_instructions)
+        prompt = self._build_prompt(body_content, custom_instructions)
 
         try:
             response = self._call_openai_api(prompt)
@@ -504,7 +510,7 @@ class HTMLDocExtractor:
             ):
                 print("Context length exceeded, switching to chunked processing...")
                 return self._process_large_html(
-                    html_content, source_file, custom_instructions
+                    body_content, source_file, custom_instructions
                 )
             raise Exception(f"LLM processing failed for {source_file}: {e}")
 
@@ -551,6 +557,35 @@ class HTMLDocExtractor:
             response = self._call_openai_api(prompt)
             return self._format_response(response, source_file)
 
+    def _extract_body_text(self, html_content: str) -> str:
+        """Extract body content with minimal cleaning - just remove scripts and styles."""
+        try:
+            soup = BeautifulSoup(html_content, "html.parser")
+
+            # Remove only scripts and styles
+            for element in soup(["script", "style"]):
+                element.decompose()
+
+            # Get the body element
+            body = soup.find("body")
+            if body:
+                print("Extracted body content")
+                return str(body)
+            else:
+                print("No body found, using entire document")
+                return str(soup)
+
+        except Exception as e:
+            print(f"BeautifulSoup parsing failed: {e}, using raw HTML")
+            # Fallback: just remove script and style tags with regex
+            cleaned = re.sub(
+                r"<script[^>]*>.*?</script>", "", html_content, flags=re.DOTALL | re.IGNORECASE
+            )
+            cleaned = re.sub(
+                r"<style[^>]*>.*?</style>", "", cleaned, flags=re.DOTALL | re.IGNORECASE
+            )
+            return cleaned
+
     def _extract_main_content_area(self, html_content: str) -> str:
         """Extract the main content area from HTML using Beautiful Soup."""
         try:
@@ -558,24 +593,20 @@ class HTMLDocExtractor:
 
             # Remove unwanted elements
             for element in soup(
-                ["script", "style", "nav", "header", "footer", "aside"]
+                ["script", "style", "nav", "aside"]
             ):
                 element.decompose()
 
-            # Remove elements with navigation-related classes/ids
+            # Remove elements with navigation-related classes/ids (but be more selective)
             nav_selectors = [
-                '[class*="nav"]',
-                '[class*="menu"]',
+                '[class*="navigation"]',
+                '[class*="menu-"]',
                 '[class*="sidebar"]',
                 '[class*="breadcrumb"]',
-                '[class*="header"]',
-                '[class*="footer"]',
-                '[id*="nav"]',
+                '[id*="navigation"]',
                 '[id*="menu"]',
                 '[id*="sidebar"]',
                 '[id*="breadcrumb"]',
-                '[id*="header"]',
-                '[id*="footer"]',
             ]
 
             for selector in nav_selectors:
@@ -588,14 +619,13 @@ class HTMLDocExtractor:
                 "article",
                 '[role="main"]',
                 '[role="article"]',
-                ".content",
-                ".main-content",
+                ".entry-content",
+                ".post-content",
                 ".article-content",
+                ".main-single-post",
+                ".content-area",
                 "#content",
                 "#main-content",
-                "#article-content",
-                ".post-content",
-                ".entry-content",
                 ".page-content",
             ]
 
@@ -603,12 +633,17 @@ class HTMLDocExtractor:
                 main_element = soup.select_one(selector)
                 if main_element:
                     print(f"Found main content using selector: {selector}")
+                    # Get text preview to verify we have real content
+                    text_preview = main_element.get_text()[:200].strip()
+                    print(f"Content preview: {text_preview[:100]}...")
                     return str(main_element)
 
             # If no main content found, return the body or the whole cleaned document
             body = soup.find("body")
             if body:
                 print("Using body content")
+                text_preview = body.get_text()[:200].strip()
+                print(f"Content preview: {text_preview[:100]}...")
                 return str(body)
             else:
                 print("Using entire cleaned document")
@@ -920,19 +955,63 @@ class HTMLDocExtractor:
         """Format the LLM response."""
         filename = Path(source_file).name
 
-        # Add source file header
-        if self.config.output_format == "markdown":
-            header = f"# Documentation extracted from {filename}\n\n"
-        else:
-            header = f"NAME\n    {filename} - Documentation\n\n"
-
         # Clean up the response
         cleaned_response = response.strip()
 
         # Apply format-specific formatting
         formatted_content = self.formatter.format_content(cleaned_response)
 
-        return header + formatted_content
+        # Extract the first H1 heading from the content to use as title
+        # If the LLM already created a good H1, use it; otherwise create one
+        lines = formatted_content.split('\n')
+        has_h1 = False
+        for line in lines[:10]:  # Check first 10 lines
+            if line.strip().startswith('# ') and not line.lower().startswith('# table of contents'):
+                has_h1 = True
+                break
+
+        if not has_h1:
+            # Create a descriptive header from filename
+            # Convert "studiobinder-continuity.html" -> "Continuity Editing in Film"
+            title = self._generate_title_from_filename(filename)
+            if self.config.output_format == "markdown":
+                header = f"# {title}\n\n"
+            else:
+                header = f"NAME\n    {title}\n\n"
+            return header + formatted_content
+        
+        return formatted_content
+
+    def _generate_title_from_filename(self, filename: str) -> str:
+        """Generate a human-readable title from filename."""
+        # Remove extension
+        name = Path(filename).stem
+        
+        # Remove common prefixes
+        name = name.replace('studiobinder-', '')
+        
+        # Convert hyphens to spaces and title case
+        title = name.replace('-', ' ').replace('_', ' ').title()
+        
+        # Add context for filmmaking docs
+        filmmaking_terms = {
+            'continuity': 'Continuity Editing in Film',
+            'screen direction': 'Screen Direction in Film',
+            'depth of field': 'Depth of Field in Cinematography',
+            'shot composition': 'Shot Composition Rules',
+            'shotcomposition rules': 'Shot Composition Rules',
+            'storyboarding': 'Storyboarding for Film',
+            'walter rules': "Walter Murch's Rule of Six",
+            'listing shots': 'Shot List Creation',
+        }
+        
+        # Check if we have a better title
+        name_lower = name.lower()
+        for key, better_title in filmmaking_terms.items():
+            if key in name_lower:
+                return better_title
+        
+        return title
 
     def _combine_content(self, content_list: List[str], source_files: List[str]) -> str:
         """Combine content from multiple files."""
