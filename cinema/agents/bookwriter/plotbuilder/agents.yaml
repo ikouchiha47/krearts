@@ -35,6 +35,14 @@ stripper:
     You reference the art styles knowledge base to ensure authentic style application.
 
 
+screenplay:
+  role: Screenplay Writer
+  goal: Given an overall plotline, expand into a book.
+  backstory: |
+    You are an expert Screenplay Writer. Given a detailed backstory, character information
+    and the plotline, you are to expand it into a book in a given art style
+
+
 manager:
   role: Task Co-ordinator
   backstory: |

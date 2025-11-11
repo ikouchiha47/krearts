@@ -6,6 +6,12 @@ from typing import List, Optional, Literal
 from pydantic import BaseModel, Field, field_validator
 
 
+class DialogueLine(BaseModel):
+    """Single line of dialogue with character attribution"""
+    character: str = Field(..., description="Character name speaking this line (or 'Narrator' for caption boxes)")
+    text: str = Field(..., description="The dialogue or caption text")
+
+
 class PanelPrompt(BaseModel):
     """Image generation prompt for a comic panel"""
 
@@ -25,11 +31,15 @@ class PanelPrompt(BaseModel):
             # Remove "Shot" suffix and normalize to lowercase
             v = v.replace(" Shot", "").replace(" shot", "").strip().lower()
         return v
+    
     visual_description: str = Field(
         ...,
-        description="Detailed visual description of the scene for image generation",
+        description="Detailed VISUAL-ONLY description for image generation. Must end with orientation (Landscape/Portrait). NO dialogue or captions here.",
     )
-    dialogue: Optional[str] = Field(None, description="Dialogue or caption text")
+    dialogue: List[DialogueLine] = Field(
+        default_factory=list, 
+        description="List of dialogue lines with character attribution. Use 'Narrator' for caption boxes."
+    )
     sound_effects: Optional[str] = Field(
         None, description="Sound effects (POW!, BANG!, etc)"
     )
@@ -125,6 +135,12 @@ class DetectiveStoryOutput(BaseModel):
     narrative_structure: Literal["linear", "non-linear", "flashback", "parallel"] = Field(
         ..., 
         description="Type of narrative structure used from knowledge base"
+    )
+    
+    # Art style used
+    art_style: str = Field(
+        default="Noir Comic Book Style",
+        description="Art style used for visual generation (e.g., 'Noir Comic Book Style', 'Cyberpunk', 'Anime')"
     )
     
     # Metadata (derived from input constraints)

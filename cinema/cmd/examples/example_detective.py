@@ -3,24 +3,39 @@
 Example: Detective Comic Strip Generation
 
 This example shows how to generate a detective comic strip using the DetectiveMaker pipeline
-with the new Flow-based PlotBuilderWithCritiqueFlow for controllable critique loop.
+with Flow-based implementations for controllable critique loop.
+
+Two flow options are available:
+1. PlotBuilderWithCritiqueFlow (default): Plot + critique, then separate storyboard
+   - Better control with validation checkpoint
+   - Can use --validate-only to review storyline before generating images
+   
+2. StoryBuilder (--use-storybuilder): Full pipeline in one flow
+   - Plot + critique + screenplay + storyboard all in one
+   - Single state machine, no intermediate checkpoints
 
 Usage:
-    # Validate storyline only (no image generation)
+    # Validate storyline only (no image generation) - default flow
     python cinema/cmd/examples/example_detective.py --validate-only
     
-    # Generate full comic with images
+    # Generate full comic with images - default flow
     python cinema/cmd/examples/example_detective.py
+    
+    # Use full StoryBuilder flow
+    python cinema/cmd/examples/example_detective.py --use-storybuilder
     
     # Resume from existing state
     python cinema/cmd/examples/example_detective.py --resume detective_abc123
+    
+    # Custom art style
+    python cinema/cmd/examples/example_detective.py --style "Cyberpunk Comic Style"
 """
 
 import asyncio
 import argparse
 from cinema.agents.bookwriter.models import Character, PlotConstraints
-from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotCritique
-from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow
+from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotCritique, ScreenplayWriter
+from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow, StoryBuilder
 from cinema.context import DirectorsContext
 from cinema.pipeline.detective_maker import DetectiveMaker
 from cinema.registry import GeminiHerd
@@ -41,6 +56,11 @@ async def main():
         type=str,
         default="Noir Comic Book Style",
         help="Art style for comic",
+    )
+    parser.add_argument(
+        "--use-storybuilder",
+        action="store_true",
+        help="Use full StoryBuilder flow (plot + critique + screenplay + storyboard in one flow)",
     )
     args = parser.parse_args()
 
@@ -76,18 +96,33 @@ async def main():
     plotbuilder = DetectivePlotBuilder(ctx)
     critique = PlotCritique(ctx)
     storyboard = ComicStripStoryBoarding(ctx)
+    screenplay = ScreenplayWriter(ctx)
 
-    # Create Flow-based plot builder with critique loop
-    # This provides better control and observability than the old Crew-based approach
-    plotbuilder_flow = PlotBuilderWithCritiqueFlow.build(
+    # Choose between StoryBuilder (full pipeline) or PlotBuilderWithCritiqueFlow (plot + critique only)
+    # if args.use_storybuilder:
+        # Use full StoryBuilder flow (plot + critique + screenplay + storyboard in one flow)
+    print("Using StoryBuilder (full pipeline flow)")
+    flow = StoryBuilder.build(
         ctx=ctx,
         plotbuilder=plotbuilder,
         critique=critique,
+        screenplay=screenplay,
+        storyboard=storyboard,
     )
+    # else:
+    #     # Use PlotBuilderWithCritiqueFlow (plot + critique only, then separate storyboard)
+    #     # This provides better control with validation checkpoint
+    #     print("Using PlotBuilderWithCritiqueFlow (plot + critique, then separate storyboard)")
+    #     flow = PlotBuilderWithCritiqueFlow.build(
+    #         ctx=ctx,
+    #         plotbuilder=plotbuilder,
+    #         critique=critique,
+    #         screenplay=screenplay,
+    #     )
 
     # Initialize DetectiveMaker with Flow-based implementation
     maker = DetectiveMaker(
-        plotbuilder=plotbuilder_flow,
+        plotbuilder=flow,
         storyboard=storyboard,
         db_path="./cinema_jobs.db",
         art_style=args.style,
@@ -101,6 +136,7 @@ async def main():
     else:
         # Generate new comic
         print(f"\n📖 Generating new detective comic")
+        print(f"   Flow: {'StoryBuilder' if args.use_storybuilder else 'PlotBuilderWithCritiqueFlow'}")
         print(f"   Style: {args.style}")
         print(f"   Validate only: {args.validate_only}")
         

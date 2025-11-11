@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, List, Union
 
 from cinema.agents.bookwriter.models import Character, PlotConstraints
 from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotBuilderWithCritique, PlotCritique
-from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow, StoryBuilderOutput
+from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow, StoryBuilder, StoryBuilderOutput
 from cinema.models.detective_output import DetectiveStoryOutput
 from cinema.agents.bookwriter.detective import (
     ConstraintTableBuilder,
@@ -84,6 +84,88 @@ class PlotStructureBuilder(Runner[Dict[str, Any], Dict[str, Any]]):
             "plot_structure": plot_structure,
             "graph": graph,
         }
+
+
+class NarrativeBuilderWithStoryBuilder(Runner[Dict[str, Any], DetectiveStoryOutput]):
+    """
+    Stage 1: Generate narrative using full StoryBuilder flow.
+    
+    This uses StoryBuilder which does BOTH storyline generation AND storyboarding
+    in a single flow. The flow includes:
+    - Plot generation with critique loop
+    - Screenplay writing
+    - Storyboarding
+    """
+
+    def __init__(
+        self,
+        storybuilder_flow: StoryBuilder,
+        art_style: str = "Noir Comic Book Style",
+    ):
+        self.storybuilder_flow = storybuilder_flow
+        self.art_style = art_style
+
+    async def run(self, inputs: Dict[str, Any]) -> DetectiveStoryOutput:
+        logger.info("=== Stage 1: Narrative Generation (with StoryBuilder Flow) ===")
+
+        plot_structure = inputs["plot_structure"]
+
+        # Build input for story builder flow
+        from cinema.agents.bookwriter.flow import StoryBuilderInput, StripperInputSchema
+        from cinema.agents.bookwriter.crew import DetectivePlotBuilderSchema
+        
+        # Build plot schema
+        plot_builder_schema = DetectivePlotBuilderSchema(
+            characters=plot_structure["graph"]["characters"],
+            relationships=plot_structure["timeline"],
+            killer=plot_structure["constraints"]["killer"],
+            victim=plot_structure["constraints"]["victim"],
+            accomplices=plot_structure["constraints"]["accomplices"],
+            witnesses=plot_structure["constraints"]["witnesses"],
+            betrayals=plot_structure["constraints"]["betrayals"],
+        )
+        
+        # Build stripper schema for storyboarding
+        stripper_schema = StripperInputSchema(
+            art_style=self.art_style,
+            examples=ComicStripStoryBoarding.load_examples(),
+        )
+        
+        story_input = StoryBuilderInput(
+            plotbuilder=plot_builder_schema,
+            stripper=stripper_schema,
+        )
+
+        # Set input in flow state
+        self.storybuilder_flow.state.input = story_input
+
+        # Run the full flow - this will do plan -> critique -> screenplay -> storyboard
+        logger.info("Running StoryBuilder flow...")
+        await self.storybuilder_flow.kickoff_async()
+
+        # Get output from flow state (kickoff_async may not return the final output directly)
+        result = self.storybuilder_flow.state.output
+        
+        if not isinstance(result, StoryBuilderOutput):
+            logger.error(f"Flow state.output is not StoryBuilderOutput, got {type(result)}")
+            raise ValueError("Flow did not generate StoryBuilderOutput")
+
+        if not result.storystructure:
+            logger.error("Flow did not generate storystructure")
+            raise ValueError("Flow did not generate storystructure")
+
+        detective_output = result.storystructure
+
+        if not isinstance(detective_output, DetectiveStoryOutput):
+            logger.error("Failed to generate detective story output")
+            raise ValueError("Failed to generate detective story output")
+
+        logger.info("✓ Narrative generation complete (via StoryBuilder)")
+        logger.info(f"  Characters: {len(detective_output.characters)}")
+        logger.info(f"  Narrative structure: {detective_output.narrative_structure}")
+        logger.info(f"  Retry count: {result.retry_count}")
+
+        return detective_output
 
 
 class NarrativeBuilderWithCritiqueFlow(Runner[Dict[str, Any], DetectiveStoryOutput]):
@@ -377,7 +459,7 @@ class DetectiveMaker:
 
     def __init__(
         self,
-        plotbuilder: Union[DetectivePlotBuilder, PlotBuilderWithCritique, PlotBuilderWithCritiqueFlow],
+        plotbuilder: Union[DetectivePlotBuilder, PlotBuilderWithCritique, PlotBuilderWithCritiqueFlow, StoryBuilder],
         storyboard: ComicStripStoryBoarding,
         db_path: str = "./cinema_jobs.db",
         art_style: str = "Noir Comic Book Style",
@@ -590,13 +672,19 @@ class DetectiveMaker:
 
             try:
                 # Check if plotbuilder is a Flow or Crew
-                if isinstance(self.plotbuilder, PlotBuilderWithCritiqueFlow):
-                    # Use Flow-based narrative builder
+                if isinstance(self.plotbuilder, StoryBuilder):
+                    # Use full StoryBuilder flow (does plot + critique + screenplay + storyboard)
+                    narrative_builder = NarrativeBuilderWithStoryBuilder(
+                        self.plotbuilder, self.art_style
+                    )
+                elif isinstance(self.plotbuilder, PlotBuilderWithCritiqueFlow):
+                    # Use PlotBuilderWithCritiqueFlow (does plot + critique only, then separate storyboard)
                     narrative_builder = NarrativeBuilderWithCritiqueFlow(
                         self.plotbuilder, self.storyboard, self.art_style
                     )
                 else:
                     # Use traditional Crew-based narrative builder
+                    # This expects DetectivePlotBuilder or PlotBuilderWithCritique (Crew objects)
                     narrative_builder = NarrativeBuilder(
                         self.plotbuilder, self.storyboard, self.art_style
                     )

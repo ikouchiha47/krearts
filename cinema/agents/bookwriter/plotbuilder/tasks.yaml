@@ -15,7 +15,7 @@ detective:
     - Character personalities
     - Atmospheric details
     - Emotional depth
-    - Create **two** parallel plotlines to compare.
+    - Create **two** separate plotlines to compare.
 
     ---
 
@@ -102,7 +102,7 @@ detective:
     ## Storyline
 
     The entire storyline told using one of the narrative-styles in knowledgebase.
-    Use the DirectoryReadTool and FileReadTool to understand wether a linear or non-linear fits best.
+    Use the DirectoryReadTool and FileReadTool to understand whether a linear or non-linear fits best.
 
     ## References
     - Which parts of knowledgebase was used for understanding
@@ -111,7 +111,11 @@ detective:
 
     ---
 
+    ## Context
+    {storyline}
+
     ## Improvement Feedback
+    
     {feedback}
     (Ignore if empty)
 
@@ -125,12 +129,12 @@ detective:
     - Relationships
     - Logic structure
     - Use the knowledgebase to have a better understading on writer better detective plotline
-    - Use a Tree of Thought to **create two storylines**
+
     - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
       like, **lives of people depend on it**.
 
     - **IMPORTANT**: Choose amongst two plotlines, with the one having tighter plotlines, stronger plausability
-        Give your reason for the chosen plotline.
+        Give your reason for the chosen plotline. **DO NOT CONVERGE THEM**
 
     ---
 
@@ -190,21 +194,53 @@ stripper:
       * Anime: Speed lines, expressive faces, dynamic motion blur
 
     ### Prompt Enhancement Format
-    Each enhanced_prompt should follow this structure:
+    Each visual_description should follow this structure:
     ```
     "A single comic book panel in [ART_STYLE]. [SHOT_TYPE] of [SUBJECT/ACTION].
     [DETAILED VISUAL DESCRIPTION]. [LIGHTING/ATMOSPHERE]. [COMPOSITION NOTES].
-    Caption box: '[DIALOGUE/CAPTION]'. [ORIENTATION: Landscape/Portrait]."
+    [ORIENTATION: Landscape/Portrait]."
     ```
+    
+    IMPORTANT: 
+    - Do NOT include dialogue or captions in visual_description
+    - Dialogue goes in the separate "dialogue" field
+    - Sound effects go in the separate "sound_effects" field
+    - Always end with orientation: "Landscape." or "Portrait."
 
-    ### Example Enhanced Prompt (Noir style):
+    ### Example Panel (Noir style):
+    ```json
+    {
+      "shot_type": "wide",
+      "visual_description": "A single comic book panel in a gritty, noir art style with high-contrast black and white inks. Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows. Landscape.",
+      "dialogue": [
+        {"character": "Narrator", "text": "The city was a tough place to keep secrets."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "somber, foreboding",
+      "orientation": "Landscape"
+    }
     ```
-    "A single comic book panel in a gritty, noir art style with high-contrast black and white inks.
-    Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a
-    flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a
-    desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows.
-    Caption box at the top reads 'The city was a tough place to keep secrets.' Landscape."
+    
+    ### Example Multi-Character Panel:
+    ```json
+    {
+      "shot_type": "medium",
+      "visual_description": "A single comic book panel in noir style. Medium shot of Detective Morgan and Butler facing each other across a desk. Morgan leans forward, Butler stands rigid. Harsh overhead light. Landscape.",
+      "dialogue": [
+        {"character": "Detective Morgan", "text": "Where were you at 11 PM?"},
+        {"character": "James Butler", "text": "Serving tea, as always."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "tense interrogation",
+      "orientation": "Landscape"
+    }
     ```
+    
+    CRITICAL: 
+    - visual_description = VISUAL ONLY, ends with orientation
+    - dialogue = ARRAY of {character, text} objects
+    - Use "Narrator" for caption boxes
+    - Multi-character scenes MUST have dialogue from multiple characters
 
     ### Character Consistency
     - Generate character reference sheets first
@@ -218,13 +254,16 @@ stripper:
 
     ### Knowledge Base
     - Understand the art-styles to produce the image prompts
-    - Understand the process of storytelling, continuity and storyboarding 
-      to understand what the keyframes should be
+    - Understand how to construct image prompt for art styles using image prompting guide
+    - Understand camera angles and motion from video prompting guide
 
-    ### Tool USAGE
-    - Use the DirectoryReadTool and FileReadTool to understand how to create
-      detailed image prompts with camera angles
-    - Details of the camera angles are in video-prompting
+    ### Tool Usage
+    - Use the DirectoryReadTool to understand the techniques of moviemaking, (knowledge/moviemaking)
+    - Use the FileReadTool to read:
+      - knowledge/moviemaking/storytelling.md
+      - knowledge/moviemaking/storyboarding.md
+      - knowledge/moviemaking/continuity.md
+      Understand the process of storytelling, continuity and storyboarding to understand what the keyframes should be
 
     From the knowledgebase and prompting guide understanding:
     - Find out the keyframe images
@@ -244,11 +283,16 @@ stripper:
 
     ---
 
+    ### Additional Instructions
+    - For Image prompts, use caption boxes for dialogues and inner thoughts.
+
+    ---
+
     ## Example
     {examples}
 
     **MANDATORY**: DO NOT RETURN THE EXAMPLE, ONLY USE IT FOR UNDERSTANDING OF STRUCTURE.
-
+  
     ---
 
     Answer:
@@ -458,3 +502,119 @@ critique:
     - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
 
     ---
+
+screenplay:
+  expected_output: >
+    The structured screenplay in an industry standard format
+
+  description: |
+    Expand the storyline into a an expanded screenplay of {pages} pages.
+    
+    ---
+
+    ## Context
+
+    ### Previous Summary
+    {summary}
+
+    ### Storyline
+    {storyline}
+
+    ### Selected Art Style
+    {art_style}
+
+    ---
+
+    ## Knowledge
+    
+    Includes:
+    - art stytles
+    - image-prompting guidelines
+    - video-prompting guidelines
+
+    ## TOOL Usage
+    - From the `moviemaking` directory understand
+      - continuity
+      - screen direction
+      - screenplay format
+      - walter murch rules
+      - storyboarding
+
+    - Use the DirectoryReadTool and the FileReadTool
+      to gain understanding
+
+    ---
+
+    ## ELEMENTS OF SCREENPLAY
+
+    ------------------------------------------------------------
+
+    TITLE: <Title of Screenplay>
+    WRITTEN BY: <Author Name>
+
+    [Optional metadata: Draft, Date, etc.]
+    ------------------------------------------------------------
+
+    INT. / EXT. <LOCATION> - <TIME OF DAY>
+    (Scene Heading / Slugline)
+    - Always uppercase
+    - Format: [INT./EXT.] [LOCATION] - [DAY/NIGHT/etc.]
+    - Marks the start of a new scene
+
+    Action:
+    <Describe what happens visually.>
+    - Written in present tense
+    - No dialogue or camera directions unless necessary
+    - Each paragraph = one beat or moment of action
+
+    CHARACTER NAME (optional EXTENSION)
+    (Centered, UPPERCASE)
+    - Extension examples: (V.O.), (O.S.), (CONT'D)
+
+    (parenthetical)
+    (Optional, short direction about how dialogue is delivered)
+    Example: (whispering), (sarcastic), (beat)
+
+    Dialogue line
+    (Indented under character name)
+    Example:
+    I told you not to come here.
+
+    [Repeat CHARACTER + DIALOGUE as needed]
+
+    Transition:
+    (Optional, right-aligned, uppercase)
+    Examples:
+    CUT TO:
+    DISSOLVE TO:
+    FADE OUT:
+
+    ------------------------------------------------------------
+    # Optional Elements
+    ------------------------------------------------------------
+
+    Subheader:
+    (Used for mini location/time breaks within a scene)
+    Example: LATER / SAME TIME / KITCHEN
+
+    Shot direction:
+    (Optional, for directors)
+    Example: CLOSE ON - SARAH'S HAND TREMBLES.
+
+    Montage / Series of Shots:
+    (Used to describe multiple short visuals)
+    Example:
+    MONTAGE - SARAH'S TRAINING
+    - Sarah runs up the hill.
+    - She punches a heavy bag.
+    - Sweat pours down her face.
+
+    Title page:
+    Should contain:
+    - Title centered
+    - Written by <Name>
+    - Contact info (optional)
+
+    ---
+
+    Answer:

@@ -10,6 +10,8 @@ from cinema.agents.bookwriter.crew import (
     DetectivePlotBuilder,
     DetectivePlotBuilderSchema,
     PlotCritique,
+    ScreenplayWriter,
+    ScreenplayWriterSchema,
     StripperInputSchema
 )
 
@@ -24,6 +26,7 @@ logger = logging.getLogger(__name__)
 class StoryBuilderOutput(BaseModel):
     storyline: Optional[str] = None
     critique: Optional[str] = None
+    screenplay: Optional[str] = None
     storystructure: Optional[DetectiveStoryOutput] = None
     retry_count: int = 0
     errors: list[str] = []  # Store error messages as strings
@@ -38,6 +41,7 @@ class StoryBuilderState(BaseModel):
         "start",
         "plan",
         "critique",
+        "screenplay",
         "storyboard",
         "success",
         "error",
@@ -58,11 +62,13 @@ class StoryBuilder(Flow[StoryBuilderState]):
     plotbuilder: DetectivePlotBuilder
     critique: PlotCritique
     storyboard: ComicStripStoryBoarding
+    screenplay: ScreenplayWriter
     
     # Cache crew instances to avoid re-initializing knowledge
     _plotbuilder_crew = None
     _critique_crew = None
     _storyboard_crew = None
+    _screenplay_crew = None
 
     @classmethod
     def build(
@@ -71,6 +77,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         plotbuilder: DetectivePlotBuilder,
         critique: PlotCritique,
         storyboard: ComicStripStoryBoarding,
+        screenplay: ScreenplayWriter,
         initial_state: dict | None = None,
     ):
 
@@ -83,6 +90,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         o.plotbuilder = plotbuilder
         o.critique = critique
         o.storyboard = storyboard
+        o.screenplay = screenplay
         
         return o
 
@@ -96,7 +104,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
     @start()
     def resume(self):
         logger.info("== "* 10)
-        logger.info(self.state)
+        # logger.info(self.state)
 
         if self.state.output is None:
             self.state.output = StoryBuilderOutput()
@@ -126,6 +134,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         if self.state.output.critique:
             logger.info(f"Incorporating feedback from previous critique")
             plot_inputs["feedback"] = self.state.output.critique
+            plot_inputs["storyline"] = self.state.output.storyline
 
         # Reuse crew instance to avoid re-initializing knowledge
         if self._plotbuilder_crew is None:
@@ -192,20 +201,23 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
         if verdict == "PASS":
             logger.info("✓ Critique PASSED")
+            self.state.output.critique = None
+
             # Check if we should skip storyboarding
             if self.state.skip_storyboard:
                 logger.info("Skipping storyboard (skip_storyboard=True)")
                 self.update_state("success")
             else:
-                self.update_state("storyboard")
+                self.update_state("screenplay")
 
         elif self.state.output.retry_count > MAX_RETRIES - 1:  # because 0 indexed
             logger.warning(f"⚠ Max retries ({MAX_RETRIES}) reached")
-            # Check if we should skip storyboarding
+            logger.info(f"Skipping? {self.state.skip_storyboard}")
+
             if self.state.skip_storyboard:
                 self.update_state("success")
             else:
-                self.update_state("storyboard")
+                self.update_state("screenplay")
 
         else:
             logger.info(f"✗ Critique FAILED - retrying with feedback (attempt {self.state.output.retry_count + 1}/{MAX_RETRIES})")
@@ -215,16 +227,54 @@ class StoryBuilder(Flow[StoryBuilderState]):
         
         return self.state.current_state
 
-    @listen("storyboard")
+    @listen("screenplay")
+    async def handle_screenplay(self):
+        logger.info("Running Screenplay writing crew...")
+        
+        assert self.state.input is not None
+        assert self.state.input.stripper is not None
+        assert self.state.output is not None
+        assert self.state.output.storyline is not None
+
+        self.update_state("screenplay")
+
+        screenplay = ScreenplayWriterSchema(
+            storyline=self.state.output.storyline,
+            art_style=self.state.input.stripper.art_style,
+        )
+
+        if self._screenplay_crew is None:
+            self._screenplay_crew = self.screenplay.crew()
+
+        result = await self._screenplay_crew.kickoff_async(
+            inputs=screenplay.model_dump(),
+        )
+
+        # Collect as DetectiveStoryOutput
+        output = ScreenplayWriter.collect(  # type: ignore[attr-defined]
+            result,
+        )
+
+        self.state.output.screenplay = output
+        logger.info(f"✓ Screenplay Generated generated")
+
+        self.update_state("storyboard")
+
+        return self.state.current_state
+    
+    @listen(or_("storyboard", handle_screenplay))
     async def handle_storyboarding(self):
         logger.info("Running ComicStripStoryBoarding crew...")
         
         assert self.state.input is not None
         assert self.state.input.stripper is not None
         assert self.state.output is not None
+        assert self.state.output.screenplay is not None
+
+        self.update_state("storyboard")
 
         stripper = self.state.input.stripper
-        stripper.storyline = self.state.output.storyline
+        stripper.storyline = self.state.output.screenplay
 
         # Reuse crew instance to avoid re-initializing knowledge
         if self._storyboard_crew is None:
@@ -263,13 +313,27 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
     @listen("success")
     def handle_success(self):
+        logger.info("="*80)
+        logger.info("STORYBUILDER FLOW COMPLETE")
+        logger.info("="*80)
+
+        if self.state.output:
+            logger.info(f"Storyline length: {len(self.state.output.storyline) if self.state.output.storyline else 0} chars")
+            logger.info(f"Critique length: {len(self.state.output.critique) if self.state.output.critique else 0} chars")
+            logger.info(f"Storystructure: {'Generated' if self.state.output.storystructure else 'None'}")
+            logger.info(f"Retry count: {self.state.output.retry_count}")
+
+            if self.state.output.storystructure:
+                logger.info(f"Characters: {len(self.state.output.storystructure.characters)}")
+                logger.info(f"Narrative structure: {self.state.output.storystructure.narrative_structure}")
+                logger.info(f"Art style: {self.state.output.storystructure.art_style}")
+
+        logger.info("="*80)
         return self.state.output
 
     @listen("error")
     def handle_error(self):
         return self.state.output and self.state.output.errors
-
-
 
 
 
@@ -277,217 +341,229 @@ class StoryBuilder(Flow[StoryBuilderState]):
 # PlotBuilderWithCritiqueFlow - Plot + Critique Only (No Storyboarding)
 # ============================================================================
 
-class PlotBuilderWithCritiqueState(BaseModel):
-    """State for PlotBuilderWithCritiqueFlow - Plot + Critique only"""
-    current_state: Literal[
-        "start",
-        "plan",
-        "critique",
-        "evaluate",
-        "success",
-        "error",
-    ] = "start"
+# class PlotBuilderWithCritiqueState(BaseModel):
+#     """State for PlotBuilderWithCritiqueFlow - Plot + Critique only"""
+#     current_state: Literal[
+#         "start",
+#         "plan",
+#         "critique",
+#         "evaluate",
+#         "success",
+#         "error",
+#     ] = "start"
     
-    # Input: Type-safe plot structure
-    input: Optional[StoryBuilderInput] = None
+#     # Input: Type-safe plot structure
+#     input: Optional[StoryBuilderInput] = None
     
-    # Output: storyline + critique (no storystructure)
-    output: Optional[StoryBuilderOutput] = None
+#     # Output: storyline + critique (no storystructure)
+#     output: Optional[StoryBuilderOutput] = None
 
 
-class PlotBuilderWithCritiqueFlow(Flow[PlotBuilderWithCritiqueState]):
-    """
-    Flow for Plot + Critique only (no storyboarding).
+# class PlotBuilderWithCritiqueFlow(Flow[PlotBuilderWithCritiqueState]):
+#     """
+#     Flow for Plot + Critique only (no storyboarding).
     
-    Flow: start → plan → critique → evaluate → success/error
+#     Flow: start → plan → critique → evaluate → success/error
     
-    - Runs DetectivePlotBuilder to generate storyline
-    - Runs PlotCritique to validate storyline
-    - Loops back with feedback if critique fails
-    - Terminates on PASS or MAX_RETRIES
-    - Does NOT run storyboarding
-    """
+#     - Runs DetectivePlotBuilder to generate storyline
+#     - Runs PlotCritique to validate storyline
+#     - Loops back with feedback if critique fails
+#     - Terminates on PASS or MAX_RETRIES
+#     - Does NOT run storyboarding
+#     """
     
-    ctx: DirectorsContext
-    plotbuilder: DetectivePlotBuilder
-    critique: PlotCritique
+#     ctx: DirectorsContext
+#     plotbuilder: DetectivePlotBuilder
+#     critique: PlotCritique
+#     screenplay: ScreenplayWriter
     
-    # Cache crew instances to avoid re-initializing knowledge
-    _plotbuilder_crew = None
-    _critique_crew = None
+#     # Cache crew instances to avoid re-initializing knowledge
+#     _plotbuilder_crew = None
+#     _critique_crew = None
+#     _storyboard_crew = None
+#     _screenplay_crew = None
     
-    @classmethod
-    def build(
-        cls,
-        ctx: DirectorsContext,
-        plotbuilder: DetectivePlotBuilder,
-        critique: PlotCritique,
-        initial_state: dict | None = None,
-    ):
-        """Build a new flow instance"""
-        if not initial_state:
-            initial_state = {}
+#     @classmethod
+#     def build(
+#         cls,
+#         ctx: DirectorsContext,
+#         plotbuilder: DetectivePlotBuilder,
+#         critique: PlotCritique,
+#         screenplay: ScreenplayWriter,
+#         initial_state: dict | None = None,
+#     ):
+#         """Build a new flow instance"""
+#         if not initial_state:
+#             initial_state = {}
         
-        o = cls(**initial_state)
-        o.ctx = ctx
-        o.plotbuilder = plotbuilder
-        o.critique = critique
+#         o = cls(**initial_state)
+#         o.ctx = ctx
+#         o.plotbuilder = plotbuilder
+#         o.critique = critique
+#         o.screenplay = screenplay
         
-        return o
+#         return o
     
-    def update_state(self, now_state: str):
-        """Update state with validation"""
-        if self.state.current_state == now_state:
-            return
+#     def update_state(self, now_state: str):
+#         """Update state with validation"""
+#         if self.state.current_state == now_state:
+#             return
         
-        # Validate state transition
-        valid_states = ["start", "plan", "critique", "evaluate", "success", "error"]
-        if now_state not in valid_states:
-            raise ValueError(f"Invalid state: {now_state}")
+#         # Validate state transition
+#         valid_states = ["start", "plan", "critique", "evaluate", "success", "error"]
+#         if now_state not in valid_states:
+#             raise ValueError(f"Invalid state: {now_state}")
         
-        self.state.current_state = now_state  # type: ignore
+#         self.state.current_state = now_state  # type: ignore
     
-    @start()
-    def resume(self):
-        """Entry point - initialize output if needed"""
-        logger.info("="*40)
-        logger.info("PlotBuilderWithCritiqueFlow: Starting")
-        logger.info("="*40)
+#     @start()
+#     def resume(self):
+#         """Entry point - initialize output if needed"""
+#         logger.info("="*40)
+#         logger.info("PlotBuilderWithCritiqueFlow: Starting")
+#         logger.info("="*40)
         
-        if self.state.output is None:
-            self.state.output = StoryBuilderOutput()
+#         if self.state.output is None:
+#             self.state.output = StoryBuilderOutput()
         
-        return self.state.current_state
+#         return self.state.current_state
     
-    @router(resume)
-    def director(self):
-        """Route from start to plan"""
-        if self.state.current_state == "start":
-            self.update_state("plan")
+#     @router(resume)
+#     def director(self):
+#         """Route from start to plan"""
+#         if self.state.current_state == "start":
+#             self.update_state("plan")
         
-        logger.info(f"Routing to: {self.state.current_state}")
-        return self.state.current_state
+#         logger.info(f"Routing to: {self.state.current_state}")
+#         return self.state.current_state
     
-    @listen("plan")
-    async def handle_plotbuilding(self):
-        """Run DetectivePlotBuilder crew to generate storyline"""
-        assert self.state.input is not None, "InputNotFound"
-        assert self.state.input.plotbuilder is not None, "PlotSchemaNotFound"
-        assert self.state.output is not None, "OutputNotFound"
+#     @listen("plan")
+#     async def handle_plotbuilding(self):
+#         """Run DetectivePlotBuilder crew to generate storyline"""
+#         assert self.state.input is not None, "InputNotFound"
+#         assert self.state.input.plotbuilder is not None, "PlotSchemaNotFound"
+#         assert self.state.output is not None, "OutputNotFound"
         
-        logger.info(f"[Iteration {self.state.output.retry_count + 1}/{MAX_RETRIES}] Running DetectivePlotBuilder...")
+#         logger.info(f"[Iteration {self.state.output.retry_count + 1}/{MAX_RETRIES}] Running DetectivePlotBuilder...")
         
-        # Convert to dict for kickoff_async
-        plot_inputs: dict[str, Any] = dict(self.state.input.plotbuilder)
+#         # Convert to dict for kickoff_async
+#         plot_inputs: dict[str, Any] = dict(self.state.input.plotbuilder)
         
-        # Check if feedback exists from previous iteration
-        if self.state.output.critique:
-            logger.info(f"Incorporating feedback from previous critique")
-            plot_inputs["feedback"] = self.state.output.critique
+#         # Check if feedback exists from previous iteration
+#         if self.state.output.critique:
+#             logger.info(f"Incorporating feedback from previous critique")
+#             plot_inputs["feedback"] = self.state.output.critique
+#             plot_inputs["storyline"] = self.state.output.storyline
         
-        # Reuse crew instance to avoid re-initializing knowledge
-        if self._plotbuilder_crew is None:
-            self._plotbuilder_crew = self.plotbuilder.crew()
+#         # Reuse crew instance to avoid re-initializing knowledge
+#         if self._plotbuilder_crew is None:
+#             self._plotbuilder_crew = self.plotbuilder.crew()
         
-        # Run plotbuilder crew
-        plot_result = await self._plotbuilder_crew.kickoff_async(
-            inputs=plot_inputs
-        )
+#         # Run plotbuilder crew
+#         plot_result = await self._plotbuilder_crew.kickoff_async(
+#             inputs=plot_inputs
+#         )
         
-        # Collect storyline
-        narrative_text = DetectivePlotBuilder.collect(plot_result)
-        self.state.output.storyline = narrative_text
+#         # Collect storyline
+#         narrative_text = DetectivePlotBuilder.collect(plot_result)
+#         self.state.output.storyline = narrative_text
         
-        logger.info(f"✓ Storyline generated ({len(narrative_text) if narrative_text else 0} chars)")
+#         logger.info(f"✓ Storyline generated ({len(narrative_text) if narrative_text else 0} chars)")
     
-    @listen(handle_plotbuilding)
-    async def handle_critique(self):
-        """Run PlotCritique crew to validate storyline"""
-        assert self.state.output is not None, "OutputNotFound"
-        assert self.state.output.storyline is not None, "StorylineNotFound"
+#     @listen(handle_plotbuilding)
+#     async def handle_critique(self):
+#         """Run PlotCritique crew to validate storyline"""
+#         assert self.state.output is not None, "OutputNotFound"
+#         assert self.state.output.storyline is not None, "StorylineNotFound"
         
-        logger.info("Running PlotCritique...")
+#         logger.info("Running PlotCritique...")
         
-        self.update_state("critique")
+#         self.update_state("critique")
         
-        # Prepare critique input
-        critique_input = CritiqueSchema(
-            storyline=self.state.output.storyline
-        )
+#         # Prepare critique input
+#         critique_input = CritiqueSchema(
+#             storyline=self.state.output.storyline
+#         )
         
-        # Reuse crew instance to avoid re-initializing knowledge
-        if self._critique_crew is None:
-            self._critique_crew = self.critique.crew()
+#         # Reuse crew instance to avoid re-initializing knowledge
+#         if self._critique_crew is None:
+#             self._critique_crew = self.critique.crew()
         
-        # Run critique crew
-        critique_inputs: dict[str, Any] = dict(critique_input)
-        critique_result = await self._critique_crew.kickoff_async(
-            inputs=critique_inputs
-        )
+#         # Run critique crew
+#         critique_inputs: dict[str, Any] = dict(critique_input)
+#         critique_result = await self._critique_crew.kickoff_async(
+#             inputs=critique_inputs
+#         )
         
-        # Collect critique
-        critique_text: str = PlotCritique.collect(critique_result)
-        self.state.output.critique = critique_text
+#         # Collect critique
+#         critique_text: str = PlotCritique.collect(critique_result)
+#         self.state.output.critique = critique_text
         
-        logger.info(f"✓ Critique completed ({len(critique_text)} chars)")
+#         logger.info(f"✓ Critique completed ({len(critique_text)} chars)")
     
-    @router(handle_critique)
-    def eval_critique(self):
-        """
-        Evaluate critique verdict and route accordingly.
+#     @router(handle_critique)
+#     def eval_critique(self):
+#         """
+#         Evaluate critique verdict and route accordingly.
         
-        Routes to:
-        - "success" if critique passes
-        - "success" if max retries reached
-        - "plan" to retry with feedback
-        """
-        assert self.state.input is not None, "InputNotFound"
-        assert self.state.output is not None, "OutputNotFound"
-        assert self.state.output.critique is not None, "CritiqueNotFound"
+#         Routes to:
+#         - "success" if critique passes
+#         - "success" if max retries reached
+#         - "plan" to retry with feedback
+#         """
+#         assert self.state.input is not None, "InputNotFound"
+#         assert self.state.output is not None, "OutputNotFound"
+#         assert self.state.output.critique is not None, "CritiqueNotFound"
         
-        self.update_state("evaluate")
+#         self.update_state("evaluate")
         
-        critique_text = self.state.output.critique
-        section = "## Final Binary Verdict"
+#         critique_text = self.state.output.critique
+#         section = "## Final Binary Verdict"
         
-        splits = critique_text.split(section, 1)
+#         splits = critique_text.split(section, 1)
         
-        verdict = "FAIL"
-        if len(splits) >= 2:
-            verdict_check = splits[1][:200].upper()
-            if "- PASS" in verdict_check or "PASS" in verdict_check.split('\n')[0]:
-                verdict = "PASS"
+#         verdict = "FAIL"
+#         if len(splits) >= 2:
+#             verdict_check = splits[1][:200].upper()
+#             if "- PASS" in verdict_check or "PASS" in verdict_check.split('\n')[0]:
+#                 verdict = "PASS"
         
-        logger.info(f"Evaluating critique verdict: {verdict}")
+#         logger.info(f"Evaluating critique verdict: {verdict}")
         
-        if verdict == "PASS":
-            logger.info("✓ Critique PASSED - storyline approved")
-            self.update_state("success")
+#         if verdict == "PASS":
+#             logger.info("✓ Critique PASSED - storyline approved")
 
-        elif self.state.output.retry_count >= MAX_RETRIES - 1:
-            logger.warning(f"⚠ Max retries ({MAX_RETRIES}) reached - accepting storyline")
-            self.update_state("success")
+#             self.state.output.critique = None
+#             self.update_state("success")
 
-        else:
-            logger.info(f"✗ Critique FAILED - retrying with feedback")
-            self.state.output.retry_count += 1
-            # Feedback will be picked up in handle_plotbuilding via output.critique
-            self.update_state("plan")
+#         elif self.state.output.retry_count >= MAX_RETRIES - 1:
+#             logger.warning(f"⚠ Max retries ({MAX_RETRIES}) reached - accepting storyline")
+#             self.update_state("success")
+
+#         else:
+#             logger.info(f"✗ Critique FAILED - retrying with feedback")
+#             self.state.output.retry_count += 1
+#             # Feedback will be picked up in handle_plotbuilding via output.critique
+#             self.update_state("plan")
         
-        return self.state.current_state
+#         return self.state.current_state
     
-    @listen("success")
-    def handle_success(self):
-        """Return final output"""
-        logger.info("="*40)
-        logger.info("PlotBuilderWithCritiqueFlow: Complete")
-        logger.info(f"Final retry count: {self.state.output.retry_count if self.state.output else 0}")
-        logger.info("="*40)
+#     @listen("success")
+#     def handle_success(self):
+#         """Return final output"""
+#         logger.info("="*80)
+#         logger.info("PLOTBUILDER WITH CRITIQUE FLOW COMPLETE")
+#         logger.info("="*80)
+#         if self.state.output:
+#             logger.info(f"Storyline length: {len(self.state.output.storyline) if self.state.output.storyline else 0} chars")
+#             logger.info(f"Critique length: {len(self.state.output.critique) if self.state.output.critique else 0} chars")
+#             logger.info(f"Retry count: {self.state.output.retry_count}")
+#         logger.info("="*80)
         
-        return self.state.output
+#         return self.state.output
     
-    @listen("error")
-    def handle_error(self):
-        """Handle errors"""
-        logger.error("PlotBuilderWithCritiqueFlow: Error occurred")
-        return self.state.output and self.state.output.errors
+#     @listen("error")
+#     def handle_error(self):
+#         """Handle errors"""
+#         logger.error("PlotBuilderWithCritiqueFlow: Error occurred")
+#         return self.state.output and self.state.output.errors

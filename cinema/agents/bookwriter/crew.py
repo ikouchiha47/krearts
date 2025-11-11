@@ -30,7 +30,7 @@ class DetectivePlotBuilderSchema(BaseModel):
     witnesses: Any
     betrayals: Any
     feedback: Optional[str] = ""
-
+    storyline: Optional[str] = ""
 
 class StripperInputSchema(BaseModel):
     art_style: str
@@ -227,6 +227,109 @@ class PlotCritique:
         )
 
 
+class ScreenplayWriterSchema(BaseModel):
+    storyline: str
+    art_style: str
+    pages: Optional[int] = 50
+    summary: Optional[str] = ""
+
+@CrewBase
+class ScreenplayWriter:
+    agents_config = "plotbuilder/agents.yaml"
+    tasks_config = "plotbuilder/tasks.yaml"
+
+    config: CrewConfig
+    narrative_index_docs: TextFileKnowledgeSource
+
+    ctx: Optional[DirectorsContext] = None
+
+    role_name: str = "screenplay"
+    outfile: str = "screenplay.md"
+
+    def __init__(self, ctx: DirectorsContext, outfile: Optional[str] = None):
+        self.ctx = ctx
+        self.config = CrewConfig()
+
+        if outfile:
+            self.outfile = outfile
+
+        self.narrative_index_docs = TextFileKnowledgeSource(
+            file_paths=[
+                "moviemaking/screenplay-format.md",
+                "moviemaking/continuity.md",
+                "moviemaking/screen_direction.md",
+                "moviemaking/walter_murch_rules.md",
+            ],
+        )
+
+        # knowledge_dir = Path(__file__).parent.parent.parent.parent / "knowledge"
+
+        self.config.tools = [
+            # DirectoryReadTool(directory=str(knowledge_dir / "moviemaking")),
+            # DirectoryReadTool(directory=str(knowledge_dir / "art-styles")),
+            # FileReadTool(),
+        ]
+
+    @classmethod
+    def collect(
+        cls,
+        result: CrewOutput,
+        output_model: Optional[Type[BaseModel]] = None,
+    ) -> BaseModel | str | None:
+
+        if not output_model:
+            return result.raw
+
+        return output_model.model_validate(result.pydantic)
+
+    @classmethod
+    def load_examples(cls):
+        # try:
+        #     with open(
+        #         Path(__file__).parent / "plotbuilder/examples.yaml",
+        #         "r+",
+        #     ) as f:
+        #         examples_config = yaml.safe_load(f)
+        #         return examples_config["stripper"]["examples"]
+
+        # except Exception as e:
+        #     print(e)
+        #     return ""
+        return ""
+
+    def _validate_ctx(self):
+        assert self.ctx is not None, "EmptyCtx"
+
+    def bootstrap(self):
+        assert self.ctx is not None
+
+        agent = Agent(
+            config=self.agents_config[self.role_name],  # type:ignore[index]
+            llm=self.ctx.llmstore.load(LLMExecutorIntent),
+            tools=self.config.tools,
+            verbose=self.ctx.debug,
+        )
+
+        task = Task(
+            config=self.tasks_config[self.role_name],  # type:ignore[index],
+            agent=agent,
+            output_file=self.outfile,
+        )
+
+        self.config.agents.append(agent)
+        self.config.tasks.append(task)
+
+    def crew(self):
+        assert self.ctx is not None, "EmptyCtx"
+
+        self.bootstrap()
+
+        return Crew(
+            agents=self.config.agents,
+            tasks=self.config.tasks,
+            verbose=self.ctx.debug,
+        )
+
 @CrewBase
 class ComicStripStoryBoarding:
     agents_config = "plotbuilder/agents.yaml"
@@ -250,17 +353,16 @@ class ComicStripStoryBoarding:
         self.narrative_index_docs = TextFileKnowledgeSource(
             file_paths=[
                 "art-styles/styles.md",
-                "moviemaking/storytelling.md",
-                "moviemaking/storyboarding.md",
-                "moviemaking/continuity.md",
+                "gemini/image-prompting.md",
+                "gemini/video-prompting.md",
             ],
         )
 
         knowledge_dir = Path(__file__).parent.parent.parent.parent / "knowledge"
 
         self.config.tools = [
-            DirectoryReadTool(directory=str(knowledge_dir / "gemini")),
-            DirectoryReadTool(directory=str(knowledge_dir / "art-styles")),
+            DirectoryReadTool(directory=str(knowledge_dir / "moviemaking")),
+            # DirectoryReadTool(directory=str(knowledge_dir / "art-styles")),
             FileReadTool(),
         ]
 
