@@ -25,7 +25,7 @@ Current state, recommendation
 
 ---
 
-## For 30-Second Ad
+## For 30-Second Video
 
 ```yaml
 Introduction (6s):

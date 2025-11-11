@@ -2,7 +2,8 @@
 """
 Example: Detective Comic Strip Generation
 
-This example shows how to generate a detective comic strip using the DetectiveMaker pipeline.
+This example shows how to generate a detective comic strip using the DetectiveMaker pipeline
+with the new Flow-based PlotBuilderWithCritiqueFlow for controllable critique loop.
 
 Usage:
     # Validate storyline only (no image generation)
@@ -18,7 +19,8 @@ Usage:
 import asyncio
 import argparse
 from cinema.agents.bookwriter.models import Character, PlotConstraints
-from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotBuilderWithCritique, PlotCritique
+from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotCritique
+from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow
 from cinema.context import DirectorsContext
 from cinema.pipeline.detective_maker import DetectiveMaker
 from cinema.registry import GeminiHerd
@@ -73,18 +75,19 @@ async def main():
     # Initialize crews
     plotbuilder = DetectivePlotBuilder(ctx)
     critique = PlotCritique(ctx)
+    storyboard = ComicStripStoryBoarding(ctx)
 
-    plotcritique = PlotBuilderWithCritique(
-        ctx,
+    # Create Flow-based plot builder with critique loop
+    # This provides better control and observability than the old Crew-based approach
+    plotbuilder_flow = PlotBuilderWithCritiqueFlow.build(
+        ctx=ctx,
         plotbuilder=plotbuilder,
         critique=critique,
     )
 
-    storyboard = ComicStripStoryBoarding(ctx)
-
-    # Initialize DetectiveMaker
+    # Initialize DetectiveMaker with Flow-based implementation
     maker = DetectiveMaker(
-        plotbuilder=plotcritique,
+        plotbuilder=plotbuilder_flow,
         storyboard=storyboard,
         db_path="./cinema_jobs.db",
         art_style=args.style,

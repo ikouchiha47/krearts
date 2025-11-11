@@ -29,16 +29,24 @@ Stories told in distinct, self-contained segments.
 
 ### Linear Structures
 - **Three-Act Structure** - `linear/three-act-structure.md` ✅
+  - *When to use*: Fast-paced action, thrillers, modern blockbusters, clear hero's journey
+- **Five-Act Structure** - `linear/five-act.md` ✅
+  - *When to use*: Tragedies, character-driven dramas, complex mysteries, moral dilemmas, Shakespearean adaptations
 - **Hero's Journey** - `linear/heros-journey.md` ✅
+  - *When to use*: Transformation stories, adventure narratives, coming-of-age, hero origin stories
 - **Problem-Solution** - `linear/problem-solution.md` ✅
+  - *When to use*: Educational content, product demos, B2B videos, how-to guides, direct response
 - **Testimonial Structure** - `linear/testimonial-structure.md` ✅
-- **Five-Act Structure** - `linear/five-act.md` (TODO)
+  - *When to use*: Customer stories, case studies, social proof, before/after transformations
 - **Chronological** - `linear/chronological.md` (TODO)
 
 ### Non-Linear Structures
-- **Pulp Fiction Structure** - `non-linear/pulp-fiction-structure.md` ✅
-- **Memento Structure (Reverse)** - `non-linear/memento-structure.md` ✅
 - **In Medias Res** - `non-linear/in-medias-res.md` ✅
+  - *When to use*: Hook audience quickly, social media content, dramatic reveals, transformation stories
+- **Pulp Fiction Structure** - `non-linear/pulp-fiction-structure.md` ✅
+  - *When to use*: Multiple interconnected stories, ensemble casts, thematic connections, artistic narratives
+- **Memento Structure (Reverse)** - `non-linear/memento-structure.md` ✅
+  - *When to use*: Mystery reveals, detective stories, psychological thrillers, "how did we get here" narratives
 - **Flashback/Flash-forward** - `non-linear/flashback-flashforward.md` (TODO)
 - **Fractured/Puzzle** - `non-linear/fractured.md` (TODO)
 - **Frame Story** - `non-linear/frame-story.md` (TODO)
@@ -63,12 +71,15 @@ Stories told in distinct, self-contained segments.
 
 | Structure | Time Order | Complexity | Best For | Duration |
 |-----------|-----------|------------|----------|----------|
-| **Linear** | Chronological | Simple | Clear storytelling | Any |
+| **Three-Act** | Chronological | Simple | Action, thrillers, clear storytelling | Any |
+| **Five-Act** | Chronological | Medium | Drama, tragedy, character studies | 60min+ |
+| **Hero's Journey** | Chronological | Medium | Transformation, adventure | 60min+ |
+| **Problem-Solution** | Chronological | Simple | Educational, product demos | 15s-5min |
+| **In Medias Res** | Middle → Beginning → End | Medium | Hook audience, social media | 30s+ |
 | **Flashback** | Past → Present | Medium | Backstory reveal | 30s+ |
 | **Flash-forward** | Present → Future | Medium | Build tension | 30s+ |
 | **Reverse** | End → Beginning | High | Mystery, reveal | 60s+ |
 | **Fractured** | Mixed order | High | Puzzle, mystery | 60s+ |
-| **In Medias Res** | Middle → Beginning → End | Medium | Hook audience | 30s+ |
 | **Bookend** | Present → Past → Present | Medium | Frame story | 30s+ |
 | **Parallel** | Simultaneous | Medium-High | Compare/contrast | 30s+ |
 | **Episodic** | Segments | Low-Medium | Multiple stories | 30s+ |

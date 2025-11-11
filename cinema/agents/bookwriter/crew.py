@@ -21,15 +21,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class DetectivePlotBuilderSchema(TypedDict):
-    characters: dict
-    relationships: dict
+class DetectivePlotBuilderSchema(BaseModel):
+    characters: Any  # List of character dicts
+    relationships: Any  # List of relationship dicts
     killer: Any
     victim: Any
     accomplices: Any
     witnesses: Any
     betrayals: Any
-    feedback: Optional[str]
+    feedback: Optional[str] = ""
 
 
 class StripperInputSchema(BaseModel):
@@ -38,7 +38,7 @@ class StripperInputSchema(BaseModel):
     storyline: Optional[str] = None
 
 
-class CritiqueSchema(TypedDict):
+class CritiqueSchema(BaseModel):
     storyline: str
 
 
@@ -200,7 +200,6 @@ class PlotCritique:
             config=self.agents_config[self.role_name],  # type:ignore[index]
             llm=self.ctx.llmstore.load(LLMCritiqueIntent),
             tools=self.config.tools,
-            # reasoning=True,
             verbose=self.ctx.debug,
         )
 
@@ -261,6 +260,7 @@ class ComicStripStoryBoarding:
 
         self.config.tools = [
             DirectoryReadTool(directory=str(knowledge_dir / "gemini")),
+            DirectoryReadTool(directory=str(knowledge_dir / "art-styles")),
             FileReadTool(),
         ]
 
@@ -328,6 +328,19 @@ class ComicStripStoryBoarding:
 
 @CrewBase
 class PlotBuilderWithCritique:
+    """
+    DEPRECATED: Crew-based implementation with hierarchical manager.
+    
+    This uses a manager agent to orchestrate between PlotBuilder and Critique,
+    but provides limited control over the iteration logic.
+    
+    RECOMMENDED: Use PlotBuilderWithCritiqueFlow from flow.py instead.
+    The Flow-based version provides:
+    - Explicit state machine control
+    - Observable iteration state
+    - Deterministic routing logic
+    - Better debugging capabilities
+    """
     ## not really needed
     agents_config = "plotbuilder/agents.yaml"
     tasks_config = "plotbuilder/tasks.yaml"

@@ -235,6 +235,7 @@ OpenAiHerd = (
             is_hosted=False,
             temp=0.0,
             loader=LLM,
+            max_tokens=12000,
         ),
     )
     .register_model(
@@ -261,6 +262,15 @@ OpenAiHerd = (
             is_hosted=False,
         ),
     )
+    .register_model(
+        LLMCritiqueIntent,
+        ModelConfig(
+            name="gemini/gemini-2.5-pro",
+            loader=LLM,
+            is_hosted=False,
+            max_tokens=22000,
+        ),
+    )
 )
 
 GeminiHerd = (
@@ -283,6 +293,7 @@ GeminiHerd = (
             is_hosted=False,
             temp=0.0,
             loader=LLM,
+            max_tokens=12000,
         ),
     )
     .register_model(
@@ -315,6 +326,7 @@ GeminiHerd = (
             name="openai/gpt-4.1",
             loader=LLM,
             is_hosted=False,
+            max_tokens=22000,
         ),
     )
 )

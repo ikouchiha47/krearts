@@ -2,7 +2,7 @@
 
 ## Overview
 
-The simplest and most common ad structure. Show problem, introduce solution, demonstrate result.
+The simplest and most common video structure. Show problem, introduce solution, demonstrate result.
 
 ---
 
@@ -19,7 +19,7 @@ Show happy outcome
 
 ---
 
-## For 15-Second Ad
+## For 15-Second Video
 
 ```yaml
 Problem (5s): Character struggling
@@ -29,7 +29,7 @@ Result (5s): Happy character + logo
 
 ---
 
-## For 30-Second Ad
+## For 30-Second Video
 
 ```yaml
 Problem (10s): 

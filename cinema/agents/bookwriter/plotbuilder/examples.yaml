@@ -1,5 +1,12 @@
 stripper:
   examples: |
+    IMPORTANT: shot_type must be one of these EXACT values (lowercase, no "Shot" suffix):
+    - "wide"
+    - "medium" 
+    - "close-up"
+    - "extreme close-up"
+    - "establishing"
+    
     <example>
       {
           "characters": [

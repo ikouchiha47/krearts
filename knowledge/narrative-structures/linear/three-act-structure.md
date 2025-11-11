@@ -36,7 +36,7 @@ content:
 - **Obstacles**: Character struggles
 - **Plot Point 2**: Lowest point, all seems lost
 
-**For 30s Ad**:
+**For 30s Videos for Social Media**:
 ```yaml
 duration: 15 seconds
 content:
@@ -64,7 +64,7 @@ content:
 
 ---
 
-## Example: 30-Second Ad
+## Example: 30-Second Video
 
 ```yaml
 Act 1 (8s):

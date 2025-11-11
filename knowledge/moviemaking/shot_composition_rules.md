@@ -1,114 +1,102 @@
-# Documentation extracted from studiobinder-shotcomposition-rules.html
+# Shot Compostion Rules
 
-# Table of Contents
+# Rules of Shot Composition in Film: A Definitive Guide
 
-1. [Introduction](#introduction) (Line 20)
-2. [Getting Started](#getting-started) (Line 30)
-   1. [Installation](#installation) (Line 40)
-   2. [Basic Usage](#basic-usage) (Line 60)
-3. [Advanced Features](#advanced-features) (Line 80)
-   1. [Configuration](#configuration) (Line 90)
-   2. [Customization](#customization) (Line 110)
-4. [API Reference](#api-reference) (Line 130)
-   1. [Endpoints](#endpoints) (Line 140)
-   2. [Authentication](#authentication) (Line 160)
-5. [Troubleshooting](#troubleshooting) (Line 180)
-6. [FAQ](#faq) (Line 200)
-7. [Contributing](#contributing) (Line 220)
-8. [License](#license) (Line 240)
+## Table of Contents
 
-# Document Summary
+1. [Introduction](#introduction)
+2. [Rules of Composition](#rules-of-composition)
+   1. [What is Composition?](#what-is-composition)
+   2. [The Rules of Shot Composition](#the-rules-of-shot-composition)
+3. [Elements of Composition](#elements-of-composition)
+   1. [The Rule of Thirds](#the-rule-of-thirds)
+   2. [Balance and Symmetry](#balance-and-symmetry)
+4. [Film Composition Techniques](#film-composition-techniques)
+   1. [Leading Lines](#leading-lines)
+   2. [Eye-Level Framing](#eye-level-framing)
+5. [Composition Examples](#composition-examples)
+   1. [Depth of Field](#depth-of-field)
+   2. [Rack Focus](#rack-focus)
+   3. [Bokeh](#bokeh)
+6. [Deep Space Composition](#deep-space-composition)
+7. [Conclusion](#conclusion)
 
-This document provides a comprehensive guide to using the software, including installation, basic and advanced features, API reference, troubleshooting, and more. It is structured to help both new and experienced users navigate through the setup and utilization of the software efficiently. Each section is numbered for easy reference, and cross-references are provided where applicable.
+## Document Summary
 
-# 1. Introduction
+This document provides a comprehensive guide to the rules and techniques of shot composition in filmmaking. It covers essential concepts such as the rule of thirds, balance and symmetry, leading lines, and depth of field. The guide also explores how these techniques are applied in films like *Nightcrawler* to enhance storytelling and character development.
 
-Welcome to the documentation for our software. This guide will help you get started and make the most out of the features available.
+- --
 
-# 2. Getting Started
+## 1. Introduction
 
-## 2.1 Installation
+There are many ways to film the same scene. The director’s decisions depend on what experience they want the audience to have. Knowing what shot composition is and how to use it is vital to visual storytelling. Shot composition is more than arranging scene elements in a camera frame. It is an art that combines those elements to advance the story, reveal character, and create emotion.
 
-To install the software, follow these steps:
+Knowing the rules of shot composition and using them well can keep your audience engaged from beginning to end.
 
-```bash
-pip install our-software
+## 2. Rules of Composition
 
-```
+### 2.1 What is Composition?
 
-Ensure you have Python 3.6 or later installed.
+- *Composition** refers to the way elements of a scene are arranged in a camera frame. Shot composition refers to the arrangement of visual elements to convey an intended message.
 
-## 2.2 Basic Usage
+For a deep dive into all the elements of composition, download our FREE Ebook: [Elements of Composition in Art, Photography & Film](https://www.studiobinder.com/blog/e-books/elements-of-composition-in-art-photography-film-ebook/).
 
-Once installed, you can start using the software with the following command:
+### 2.2 The Rules of Shot Composition
 
-```bash
-our-software start
+First, just like any "rules" in [photography](https://www.studiobinder.com/blog/what-is-photography-definition/) or [cinematography](https://www.studiobinder.com/blog/what-is-cinematography/), the rules of composition are made to be broken. As much as we rely on these rules in most cases, the [elements of composition](https://www.studiobinder.com/blog/what-is-composition-in-art-definition/) are most exciting when they go against the grain.
 
-```
+## 3. Elements of Composition
 
-For more detailed usage, refer to the [Advanced Features](#advanced-features) section.
+### 3.1 The Rule of Thirds
 
-# 3. Advanced Features
+The [rule of thirds](https://www.studiobinder.com/blog/what-is-the-rule-of-thirds/) is one of the most common camera framing techniques used in film or photography. It's about positioning a character to show their relation to other elements in the scene.
 
-## 3.1 Configuration
+![Rules of Shot Composition- Rule of Thirds- Grid](https://s.studiobinder.com/wp-content/uploads/2019/04/Rules-of-Shot-Composition-Rule-of-Thirds-Grid-min.jpg.webp)
 
-Configuration can be done via a configuration file. Here is an example:
+### 3.2 Balance and Symmetry
 
-```yaml
-setting1: value1
-setting2: value2
+Understanding frame composition rules is invaluable knowledge for [directors](https://www.studiobinder.com/blog/what-does-a-director-do/) and cinematographers. Shooting a perfectly [symmetrical shot](https://www.studiobinder.com/blog/wes-anderson-symmetry/), breaking the [rule of thirds](https://www.studiobinder.com/blog/what-is-the-rule-of-thirds/), is used for very specific reasons.
 
-```
+![Rules of Shot Composition - Breaking the Rule of Thirds - StudioBinder](https://s.studiobinder.com/wp-content/uploads/2019/04/Rules-of-Shot-Composition-Breaking-Rule-of-Thirds-min.jpg.webp)
 
-See also the [Customization](#customization) section for more options.
+## 4. Film Composition Techniques
 
-## 3.2 Customization
+### 4.1 Leading Lines
 
-You can customize the software by editing the configuration file or using command-line arguments:
+[Leading lines](https://www.studiobinder.com/blog/what-are-leading-lines-definition/) are actual lines (or sometimes imaginary ones) in a shot, that lead the eye to key elements in the [scene](https://www.studiobinder.com/blog/what-is-a-scene-definition/).
 
-```bash
-our-software start --custom-flag
+![Rules of Shot Composition- Leading Lines- Nightcrawler](https://s.studiobinder.com/wp-content/uploads/2019/04/Rules-of-Shot-Composition-Leading-Lines-Nightcrawler-min.jpg.webp)
 
-```
+### 4.2 Eye-Level Framing
 
-# 4. API Reference
+[Eye-level framing](https://www.studiobinder.com/blog/eye-level-camera-shot-angle/) positions the audience at eye-level with the characters, which plants the idea that we are equal with the character.
 
-## 4.1 Endpoints
+![Rules of Composition Nightcrawler Eyes](https://s.studiobinder.com/wp-content/uploads/2020/12/Rules-of-Composition-Nightcrawler-Eyes-Storyboard-StudioBinder-Shotlisting-Software.jpg.webp)
 
-The API provides several endpoints:
+## 5. Composition Examples
 
-- `/api/v1/resource` - Access resources
-- `/api/v1/resource/{id}` - Access a specific resource
+### 5.1 Depth of Field
 
-## 4.2 Authentication
+[Depth of field](https://www.studiobinder.com/blog/depth-of-field/) describes the size of the area in your image where objects appear acceptably sharp.
 
-Authentication is required for all API requests. Use the following method:
+![What is an F Stop in Photography Depth of Field Diagram StudioBinder](https://s.studiobinder.com/wp-content/uploads/2024/02/What-is-an-F-Stop-in-Photography-Depth-of-Field-Diagram-StudioBinder.png.webp)
 
-```python
-import requests
+### 5.2 Rack Focus
 
-response = requests.get('https://api.example.com/resource', headers={'Authorization': 'Bearer YOUR_TOKEN'})
+A [rack focus](https://www.studiobinder.com/blog/rack-focus-shot-camera-movement-angles/) in filmmaking is changing the focus during a shot.
 
-```
+### 5.3 Bokeh
 
-# 5. Troubleshooting
+[Bokeh](https://www.studiobinder.com/blog/what-is-bokeh-effect/) is the circular blurring produced from out of focus images.
 
-If you encounter issues, check the following:
+![Rules of Shot Composition- Bokeh-StudioBinder](https://s.studiobinder.com/wp-content/uploads/2019/04/Rules-of-Shot-Composition-Bokeh-StudioBinder-1024x436-min.jpg.webp)
 
-- Ensure all dependencies are installed
-- Verify your configuration settings
+## 6. Deep Space Composition
 
-# 6. FAQ
+- *Deep space composition** is used when significant elements in a scene are positioned both near and far from the camera. These elements do not have to be in focus.
 
-- *Q: How do I reset my configuration?**
+![Rules of Shot Composition -Deep-Space-Composition - StudioBinder](https://s.studiobinder.com/wp-content/uploads/2020/12/Rules-of-Shot-Composition-Deep-Space-Composition-StudioBinder.jpg.webp)
 
-A: Delete the configuration file and restart the software.
+## 7. Conclusion
 
-# 7. Contributing
-
-We welcome contributions! Please see our [contributing guidelines](https://example.com/contributing) for more information.
-
-# 8. License
-
-This software is licensed under the MIT License. See the [LICENSE](https://example.com/license) file for details.
+The rules of composition are more like suggestions. They are meant to guide and assist, not to limit or prohibit. There are many instances when you really should obey the rules of composition, and other times when breaking them is ideal. A filmmaker like Dan Gilroy and a film like *Nightcrawler* are great examples of how to play with the rules of composition.

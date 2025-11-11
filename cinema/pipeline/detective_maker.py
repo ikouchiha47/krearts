@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional, List, Union
 
 from cinema.agents.bookwriter.models import Character, PlotConstraints
 from cinema.agents.bookwriter.crew import DetectivePlotBuilder, ComicStripStoryBoarding, PlotBuilderWithCritique, PlotCritique
+from cinema.agents.bookwriter.flow import PlotBuilderWithCritiqueFlow, StoryBuilderOutput
 from cinema.models.detective_output import DetectiveStoryOutput
 from cinema.agents.bookwriter.detective import (
     ConstraintTableBuilder,
@@ -85,10 +86,107 @@ class PlotStructureBuilder(Runner[Dict[str, Any], Dict[str, Any]]):
         }
 
 
+class NarrativeBuilderWithCritiqueFlow(Runner[Dict[str, Any], DetectiveStoryOutput]):
+    """
+    Stage 1: Generate narrative descriptions using Flow-based PlotBuilderWithCritique.
+    
+    This uses PlotBuilderWithCritiqueFlow for controllable critique loop iteration.
+    The Flow provides:
+    - Explicit state machine control over the critique loop
+    - Observable iteration state with retry counter
+    - Deterministic routing based on critique verdict
+    - Better debugging capabilities
+    """
+
+    def __init__(
+        self,
+        plotbuilder_flow: PlotBuilderWithCritiqueFlow,
+        storyboard: ComicStripStoryBoarding,
+        art_style: str = "Noir Comic Book Style",
+    ):
+        self.plotbuilder_flow = plotbuilder_flow
+        self.storyboard = storyboard
+        self.art_style = art_style
+
+    async def run(self, inputs: Dict[str, Any]) -> DetectiveStoryOutput:
+        logger.info("=== Stage 1: Narrative Generation (with Critique Flow) ===")
+
+        plot_structure = inputs["plot_structure"]
+
+        # Build input for plot builder flow
+        from cinema.agents.bookwriter.flow import StoryBuilderInput
+        from cinema.agents.bookwriter.crew import DetectivePlotBuilderSchema
+        
+        # constraints are already in crew-compatible format (markdown strings)
+        plot_builder_schema = DetectivePlotBuilderSchema(
+            characters=plot_structure["graph"]["characters"],
+            relationships=plot_structure["timeline"],
+            killer=plot_structure["constraints"]["killer"],
+            victim=plot_structure["constraints"]["victim"],
+            accomplices=plot_structure["constraints"]["accomplices"],
+            witnesses=plot_structure["constraints"]["witnesses"],
+            betrayals=plot_structure["constraints"]["betrayals"],
+        )
+        
+        story_input = StoryBuilderInput(
+            plotbuilder=plot_builder_schema
+        )
+
+        # Set input in flow state
+        self.plotbuilder_flow.state.input = story_input
+
+        # Run the flow - this will iterate through plan -> critique -> evaluate
+        logger.info("Running PlotBuilderWithCritiqueFlow...")
+        result = await self.plotbuilder_flow.kickoff_async()
+
+        # Extract storyline from flow output
+        if not isinstance(result, StoryBuilderOutput):
+            logger.error("Flow did not return StoryBuilderOutput")
+            raise ValueError("Flow did not return StoryBuilderOutput")
+
+        narrative_text = result.storyline
+        if not narrative_text:
+            logger.error("Flow did not generate storyline")
+            raise ValueError("Flow did not generate storyline")
+
+        logger.info(f"✓ Storyline generated with {result.retry_count} critique iterations")
+
+        # Build input for comic strip storyboarding
+        storyboard_input = {
+            "storyline": narrative_text,
+            "art_style": self.art_style,
+            "examples": ComicStripStoryBoarding.load_examples(),
+        }
+
+        # Run comic strip storyboarding crew
+        logger.info("Running ComicStripStoryBoarding crew...")
+        storyboard_result = await self.storyboard.crew().kickoff_async(
+            inputs=storyboard_input
+        )
+
+        # Collect as DetectiveStoryOutput
+        detective_output = ComicStripStoryBoarding.collect(
+            storyboard_result, DetectiveStoryOutput
+        )
+
+        if not isinstance(detective_output, DetectiveStoryOutput):
+            logger.error("Failed to generate detective story output")
+            raise ValueError("Failed to generate detective story output")
+
+        logger.info("✓ Narrative generation complete")
+        logger.info(f"  Characters: {len(detective_output.characters)}")
+        logger.info(f"  Narrative structure: {detective_output.narrative_structure}")
+
+        return detective_output
+
+
 class NarrativeBuilder(Runner[Dict[str, Any], DetectiveStoryOutput]):
     """
     Stage 1: Generate narrative descriptions using LLM crews.
     Takes plot structure and generates character profiles, backstories, and storyline.
+    
+    NOTE: This uses the basic DetectivePlotBuilder without critique loop.
+    For critique loop support, use NarrativeBuilderWithCritiqueFlow instead.
     """
 
     def __init__(
@@ -279,7 +377,7 @@ class DetectiveMaker:
 
     def __init__(
         self,
-        plotbuilder: Union[DetectivePlotBuilder, PlotBuilderWithCritique],
+        plotbuilder: Union[DetectivePlotBuilder, PlotBuilderWithCritique, PlotBuilderWithCritiqueFlow],
         storyboard: ComicStripStoryBoarding,
         db_path: str = "./cinema_jobs.db",
         art_style: str = "Noir Comic Book Style",
@@ -491,9 +589,17 @@ class DetectiveMaker:
             logger.info("=== Stage 1: Narrative Generation ===")
 
             try:
-                narrative_builder = NarrativeBuilder(
-                    self.plotbuilder, self.storyboard, self.art_style
-                )
+                # Check if plotbuilder is a Flow or Crew
+                if isinstance(self.plotbuilder, PlotBuilderWithCritiqueFlow):
+                    # Use Flow-based narrative builder
+                    narrative_builder = NarrativeBuilderWithCritiqueFlow(
+                        self.plotbuilder, self.storyboard, self.art_style
+                    )
+                else:
+                    # Use traditional Crew-based narrative builder
+                    narrative_builder = NarrativeBuilder(
+                        self.plotbuilder, self.storyboard, self.art_style
+                    )
 
                 plot_result = {
                     "plot_structure": state.screenplay_dict,

@@ -1,4 +1,4 @@
-# Documentation extracted from gemini-video-gen-basics.html
+# Gemini Video Prompting Guide
 
 # Generate Videos with Veo 3.1 in Gemini API
 

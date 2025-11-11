@@ -97,3 +97,289 @@ Has the characterstics of Print Comics with with noir touch
 - **Integrated Onomatopoeia with a Grittier Feel**: Sound effects (e.g., "CRACK!", "THWIP!") could still be integrated but might take on a rougher, more impactful font style, blending with the overall grittier aesthetic.
 
 This combined style would create a visual world that is simultaneously vibrant in its artistic execution and oppressively dark in its mood – a stark, graphic, and profoundly atmospheric narrative experience.
+
+---
+
+## 🎨 Visual Techniques for Emotional Storytelling
+
+### Chromatic Aberration
+
+**Definition**: A visual effect where colors separate at the edges of objects, creating a subtle RGB color fringe. Mimics optical lens distortion or can be used stylistically for emotional impact.
+
+**Use Cases**:
+- **Disorientation/Confusion**: Heavy chromatic aberration during dream sequences, drug-induced states, or moments of mental breakdown
+- **High-Speed Action**: Subtle aberration on fast-moving objects to emphasize velocity and kinetic energy
+- **Supernatural/Otherworldly**: Strong aberration around magical effects, dimensional rifts, or alien technology
+- **Emotional Distress**: Increasing aberration as character's mental state deteriorates
+- **Flashbacks/Memory**: Slight aberration to distinguish past from present
+
+**Intensity Levels**:
+- **Subtle (1-2px)**: Adds visual interest without distraction, good for general stylization
+- **Moderate (3-5px)**: Noticeable effect for specific emotional beats or action sequences
+- **Heavy (6-10px)**: Dramatic, disorienting effect for climactic or surreal moments
+
+**Sample Prompts**:
+
+*Subtle aberration for style*:
+```
+"A single comic book panel. Detective examining evidence under desk lamp. 
+Noir style with subtle chromatic aberration (1-2px RGB separation) on edges 
+of objects, adding slight visual distortion. High contrast lighting. Landscape."
+```
+
+*Heavy aberration for disorientation*:
+```
+"A single comic book panel. Character stumbling through hallway, vision blurred. 
+Heavy chromatic aberration (8-10px RGB separation) creating strong color fringing, 
+conveying disorientation and confusion. Tilted angle. Portrait."
+```
+
+*Action sequence aberration*:
+```
+"A single comic book panel. Superhero punching through wall at high speed. 
+Moderate chromatic aberration (4-5px) on motion trails and impact point, 
+emphasizing velocity. Dynamic angle. Landscape."
+```
+
+---
+
+### Big-Medium-Small Composition with Leading Lines
+
+**Definition**: A fundamental composition principle that creates visual hierarchy and guides the viewer's eye through the panel using three distinct size elements connected by leading lines.
+
+**The BMS Principle**:
+- **Big**: Primary focal point, largest element, where the eye lands first (character's face, main action)
+- **Medium**: Secondary element, supports the story, provides context (supporting character, key object)
+- **Small**: Tertiary detail, adds depth and richness (background elements, environmental details)
+
+**Leading Lines**: Visual pathways (roads, shadows, architectural elements, character gazes, weapons, motion lines) that connect BMS elements and guide the viewer's eye through the intended reading order.
+
+**Emotional Applications**:
+
+**Tense/Suspenseful Scenes**:
+- **Big**: Threat or danger (looming figure, weapon, ominous shadow)
+- **Medium**: Vulnerable character reacting
+- **Small**: Escape route or hope element (distant door, weapon within reach)
+- **Leading Lines**: Diagonal, sharp angles creating instability; shadows pointing toward danger
+- **Color**: Desaturated with accent of danger (red, harsh yellow)
+
+**Relaxed/Peaceful Scenes**:
+- **Big**: Serene environment (sunset, calm water, open sky)
+- **Medium**: Character at ease (sitting, reclining, contemplative pose)
+- **Small**: Comforting details (steam from coffee, gentle breeze effects)
+- **Leading Lines**: Horizontal, curved, flowing lines creating stability
+- **Color**: Warm, harmonious palette (soft oranges, blues, greens)
+
+**Thrilling/Action Scenes**:
+- **Big**: Main action (explosion, punch, leap)
+- **Medium**: Reacting characters or secondary action
+- **Small**: Environmental destruction or motion effects
+- **Leading Lines**: Dynamic diagonals, converging lines toward action, motion blur trails
+- **Color**: High contrast, vibrant, saturated colors
+
+**Sample Prompts**:
+
+*Tense scene with BMS*:
+```
+"A single comic book panel. BIG: Shadowy figure looming in doorway (foreground, 
+dominant). MEDIUM: Detective's startled face (mid-ground, reacting). SMALL: 
+Gun on desk (background, potential defense). Leading lines: Shadow extends 
+diagonally toward detective, doorframe creates sharp angles. Noir style, 
+desaturated with harsh red accent light. Vertical composition. Portrait."
+```
+
+*Relaxed scene with BMS*:
+```
+"A single comic book panel. BIG: Golden sunset over calm lake (background, 
+expansive). MEDIUM: Character sitting on dock (mid-ground, peaceful pose). 
+SMALL: Coffee cup steaming beside them (foreground detail). Leading lines: 
+Dock planks lead eye from cup to character to horizon. Warm orange and 
+soft blue palette. Horizontal composition. Landscape."
+```
+
+*Action scene with BMS*:
+```
+"A single comic book panel. BIG: Hero's fist connecting with villain's jaw 
+(center, explosive impact). MEDIUM: Villain's body recoiling (mid-ground). 
+SMALL: Debris and motion lines (background/foreground). Leading lines: 
+Motion blur and speed lines converge on impact point. Vibrant, high-contrast 
+colors with impact burst. Dynamic diagonal composition. Landscape."
+```
+
+---
+
+## 🎭 Emotional Color Theory for Sequential Storytelling
+
+**Principle**: Colors are not decorative—they are narrative tools that communicate emotional states, shift mood, and guide audience response.
+
+### Color Palettes by Emotional State
+
+#### Tense/Suspenseful
+**Palette**: Desaturated with sharp accent colors
+- **Primary**: Cool grays, muted blues, deep shadows
+- **Accent**: Harsh reds, sickly yellows, cold whites
+- **Lighting**: High contrast, sharp shadows, single harsh light sources
+- **Effect**: Creates unease, anticipation, danger
+
+**Sample Prompt**:
+```
+"A single comic book panel. Detective in interrogation room, single overhead 
+light. Desaturated blue-gray palette with harsh white light and deep black 
+shadows. Sharp red accent on suspect's eyes. High contrast noir style. 
+Tense, claustrophobic mood. Portrait."
+```
+
+#### Relaxed/Peaceful
+**Palette**: Warm, harmonious, low contrast
+- **Primary**: Soft oranges, gentle blues, warm earth tones
+- **Accent**: Golden yellows, sage greens, soft pinks
+- **Lighting**: Diffused, even, golden hour quality
+- **Effect**: Creates comfort, safety, tranquility
+
+**Sample Prompt**:
+```
+"A single comic book panel. Character reading in cozy armchair by window. 
+Warm orange and soft blue palette, golden afternoon light streaming through 
+curtains. Low contrast, harmonious colors. Peaceful, comfortable mood. 
+Landscape."
+```
+
+#### Thrilling/Exciting
+**Palette**: Vibrant, saturated, high energy
+- **Primary**: Bold reds, electric blues, vivid purples
+- **Accent**: Bright yellows, hot pinks, neon greens
+- **Lighting**: Dynamic, multiple colored light sources, high contrast
+- **Effect**: Creates excitement, energy, intensity
+
+**Sample Prompt**:
+```
+"A single comic book panel. Superhero mid-leap between buildings at night. 
+Vibrant color palette: electric blue costume, neon city lights (pink, yellow, 
+green), deep purple sky. High saturation, dynamic lighting. Thrilling, 
+energetic mood. Landscape."
+```
+
+#### Melancholic/Sad
+**Palette**: Cool, muted, low saturation
+- **Primary**: Slate blues, cool grays, muted purples
+- **Accent**: Pale yellows (distant hope), deep indigos
+- **Lighting**: Overcast, diffused, minimal highlights
+- **Effect**: Creates sadness, isolation, introspection
+
+**Sample Prompt**:
+```
+"A single comic book panel. Character sitting alone on park bench in rain. 
+Muted blue-gray palette, overcast lighting, low saturation. Pale yellow 
+streetlamp in distance (faint hope). Melancholic, isolated mood. Portrait."
+```
+
+#### Angry/Aggressive
+**Palette**: Hot, intense, clashing
+- **Primary**: Deep reds, harsh oranges, black
+- **Accent**: Violent yellows, blood reds, stark whites
+- **Lighting**: Harsh, dramatic, strong shadows
+- **Effect**: Creates rage, violence, intensity
+
+**Sample Prompt**:
+```
+"A single comic book panel. Character's face in extreme close-up, shouting. 
+Intense red and orange palette, harsh lighting from below creating dramatic 
+shadows. High contrast, saturated colors. Angry, aggressive mood. Portrait."
+```
+
+#### Mysterious/Eerie
+**Palette**: Unnatural, discordant, low-key
+- **Primary**: Deep purples, sickly greens, midnight blues
+- **Accent**: Unnatural cyan, toxic yellows, pale whites
+- **Lighting**: Rim lighting, fog effects, unnatural color sources
+- **Effect**: Creates unease, supernatural feeling, mystery
+
+**Sample Prompt**:
+```
+"A single comic book panel. Abandoned mansion at night, fog rolling in. 
+Eerie color palette: deep purple sky, sickly green fog, unnatural cyan 
+moonlight. Low-key lighting with rim light on architecture. Mysterious, 
+unsettling mood. Landscape."
+```
+
+#### Hopeful/Optimistic
+**Palette**: Bright, clear, uplifting
+- **Primary**: Sky blues, sunny yellows, fresh greens
+- **Accent**: Pure whites, coral pinks, light purples
+- **Lighting**: Bright, clear, sunrise/sunset quality
+- **Effect**: Creates hope, renewal, positivity
+
+**Sample Prompt**:
+```
+"A single comic book panel. Character standing on hilltop at sunrise, arms 
+raised. Bright, optimistic palette: sky blue, golden yellow sun, fresh green 
+grass. Clear lighting, high key. Hopeful, uplifting mood. Landscape."
+```
+
+---
+
+### Emotional Color Transitions in Sequential Panels
+
+**Technique**: Shift color palettes between panels to show emotional progression or contrast.
+
+**Example Sequence**:
+
+**Panel 1 (Peaceful)**: 
+```
+"Warm orange sunset, character relaxed. Harmonious colors."
+```
+
+**Panel 2 (Tension Rising)**:
+```
+"Colors desaturate, shadows lengthen. Cool blue creeps into palette."
+```
+
+**Panel 3 (Danger)**:
+```
+"Harsh red accent appears, high contrast. Desaturated background with 
+sharp color accent on threat."
+```
+
+**Panel 4 (Action)**:
+```
+"Vibrant, saturated colors explode. Dynamic lighting, high energy palette."
+```
+
+**Panel 5 (Resolution)**:
+```
+"Return to warm, harmonious colors but slightly muted. Peaceful but 
+changed by experience."
+```
+
+---
+
+### Integration with Existing Styles
+
+**Noir + Emotional Color**:
+- Maintain high contrast B&W base
+- Add single emotional accent color (red for danger, blue for sadness, yellow for hope)
+- Use chromatic aberration on accent color for emphasis
+
+**Cyberpunk + Emotional Color**:
+- Neon colors shift based on emotion (cool neons for tense, warm neons for relaxed)
+- Chromatic aberration on holographic elements
+- BMS composition with neon signs as leading lines
+
+**Print Comics + Emotional Color**:
+- Halftone dots shift density based on mood (dense for dark, sparse for light)
+- Ben-Day dot colors change with emotional state
+- Bold outlines remain but color fills shift dramatically
+
+---
+
+### Quick Reference: Emotion → Color → Technique
+
+| Emotion | Primary Colors | Accent Colors | Lighting | Aberration | BMS Focus |
+|---------|---------------|---------------|----------|------------|-----------|
+| **Tense** | Cool grays, muted blues | Harsh red, cold white | High contrast, sharp shadows | Moderate on threat | Big: Threat |
+| **Relaxed** | Warm oranges, soft blues | Golden yellow, sage green | Diffused, even | None/subtle | Big: Environment |
+| **Thrilling** | Bold reds, electric blues | Bright yellow, hot pink | Dynamic, multiple sources | Moderate on motion | Big: Action |
+| **Sad** | Slate blues, cool grays | Pale yellow (distant) | Overcast, diffused | Subtle overall | Big: Isolation |
+| **Angry** | Deep reds, harsh oranges | Violent yellow, blood red | Harsh, dramatic | Heavy on face | Big: Character rage |
+| **Mysterious** | Deep purples, sickly greens | Unnatural cyan, toxic yellow | Rim lighting, fog | Moderate on supernatural | Big: Unknown element |
+| **Hopeful** | Sky blues, sunny yellows | Pure white, coral pink | Bright, clear | None | Big: Open sky/future |

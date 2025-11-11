@@ -15,6 +15,7 @@ detective:
     - Character personalities
     - Atmospheric details
     - Emotional depth
+    - Create **two** parallel plotlines to compare.
 
     ---
 
@@ -38,7 +39,7 @@ detective:
 
     ---
 
-    ## Plot Structure
+    ## Plot Structure (1)
 
     ### CHARACTERS
     {characters}
@@ -54,6 +55,7 @@ detective:
     - Betrayals: {betrayals}
 
     ---
+
     Respond in the markdown heirarchical format
 
     ## Characters
@@ -102,6 +104,17 @@ detective:
     The entire storyline told using one of the narrative-styles in knowledgebase.
     Use the DirectoryReadTool and FileReadTool to understand wether a linear or non-linear fits best.
 
+    ## References
+    - Which parts of knowledgebase was used for understanding
+    - Which files were actually used for narrative-structures.
+      This will be used in the next stage, for quick accessing files.
+
+    ---
+
+    ## Improvement Feedback
+    {feedback}
+    (Ignore if empty)
+
     ---
     
     ## MANDATORY GUIDELINES
@@ -112,8 +125,13 @@ detective:
     - Relationships
     - Logic structure
     - Use the knowledgebase to have a better understading on writer better detective plotline
-    - Use a Tree of Thought to create two storylines
-    - Critique the plotline, for improvement, and yield a single engaging followable plotline.
+    - Use a Tree of Thought to **create two storylines**
+    - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
+      like, **lives of people depend on it**.
+
+    - **IMPORTANT**: Choose amongst two plotlines, with the one having tighter plotlines, stronger plausability
+        Give your reason for the chosen plotline.
+
     ---
 
 
@@ -148,11 +166,12 @@ stripper:
 
 
     ## Tool USAGE
-    - Use the DirectoryReadTool to understand the file docs for gemini prompting guides at (knowledge/gemini)
+    - Use the DirectoryReadTool to understand the file docs **only** for gemini image and video prompting guides at (knowledge/gemini)
     - And the FileReadTool to read the detailed image-prompting.md and video-prompting.md
     - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
 
     ---
+
     ## MANDATORY GUIDELINES
 
     ### Panel Structure
@@ -162,7 +181,7 @@ stripper:
     - First panel of each page should establish location/context
 
     ### Art Style Application
-    - Use the art style knowledgebase at (knowledge/art-styles/styles.md)
+    - Art Style is only present in knowledgebase
     - Default style: {art_style}
     - Apply style-specific elements:
       * Noir: High-contrast black and white, rain-slicked streets, harsh shadows
@@ -364,7 +383,7 @@ critique:
     - Physical evidence types: [list]
     - Multilayered: [Y/N]
     - **Verdict**: [PASS/FAIL with explanation]
-    
+
     ## Detailed Critique
     
     ### CRITICAL Issues (Must Fix)
@@ -393,9 +412,21 @@ critique:
     - [What the storyline does well]
     
     ## Final Recommendation
-    [Overall assessment and next steps]
+    If the storyline is structurally sound and passes all mandatory evidence and plausibility checks.
+    No more recommendations are needed and the Verdict should be a pass.
+    [Overall assessment and next steps, to strengthen the plot line, and improves plausibility, iff needed.]
+
+
+    ## Final Binary Verdict
+    - PASS / IMPROVE
+
+    IMPROVE, if any of these are present:
+    - CRITICAL ISSUES
+    - HIGH Priority Issues
+    - MEDIUM Priority issues
+    - Recommended Fixes
+
     ```
-    
     ---
 
     ## Storyline
@@ -417,25 +448,13 @@ critique:
       - File: knowledge/narrative-structures/index.md
 
     ## Tool USAGE
+
+    - If references to files were provided in storyline, use the FileReadTool to directly access them.
+    - If not found, Use the DirectoryReadTool to understand the file structure in narrative-structures
+    
+    Otherwise:
     - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
-    - Use the DirectoryReadTool to understand the file structure in narrative-structures
-    - And the FileReadTool to read the detailed narrative structure.
+    - Use DirectoryReadTool and the FileReadTool to read the detailed narrative structure.
     - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
 
-    ---
-
-    ## Answer Structure
-    
-    **MANDATOR**: When critique doesn't find any CRITICAL, HIGHT, MEDIUM issues,
-    or any issues that affect the plot's logical or tension 
-    always add None at the end
-    
-    Example:
-
-    ## Full Analysis
-    (full critique analyis)
-
-    ## Final Binary Verdict
-    - PASS / FAIL
-    
     ---

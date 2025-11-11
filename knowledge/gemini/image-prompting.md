@@ -1,4 +1,4 @@
-# Documentation extracted from gemini-imagen.html
+# Gemini Image Prompting Guide
 
 # Table of Contents
 

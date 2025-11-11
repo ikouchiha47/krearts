@@ -3,15 +3,28 @@ Pydantic models for Detective Agent Output
 """
 
 from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class PanelPrompt(BaseModel):
     """Image generation prompt for a comic panel"""
 
-    shot_type: Literal["wide", "medium", "close-up", "extreme close-up", "establishing"] = Field(
-        ..., description="Camera shot type"
+    shot_type: Literal[
+        "wide", "medium", "close-up", "extreme close-up", "establishing",
+        "Wide", "Medium", "Close-up", "Extreme Close-up", "Establishing",
+        "Wide Shot", "Medium Shot", "Close-Up", "Extreme Close-Up", "Establishing Shot"
+    ] = Field(
+        ..., description="Camera shot type (lowercase preferred: wide, medium, close-up, extreme close-up, establishing)"
     )
+    
+    @field_validator('shot_type', mode='after')
+    @classmethod
+    def normalize_shot_type(cls, v):
+        """Normalize shot type to lowercase and remove 'Shot' suffix for consistency"""
+        if isinstance(v, str):
+            # Remove "Shot" suffix and normalize to lowercase
+            v = v.replace(" Shot", "").replace(" shot", "").strip().lower()
+        return v
     visual_description: str = Field(
         ...,
         description="Detailed visual description of the scene for image generation",
