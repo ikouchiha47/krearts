@@ -386,12 +386,15 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
 
 @cli.command()
 @click.argument('workflow_id')
-@click.option('--pages', help='Generate specific pages (e.g., 1,20)')
+@click.option('--pages', help='Generate specific pages (e.g., 1,20 or "all")')
 @click.option('--continue', 'continue_from', is_flag=True, help='Continue from last page')
 def chapters(workflow_id: str, pages: Optional[str], continue_from: bool):
     """Generate page images from chapters"""
     if pages:
-        page_list = [int(p.strip()) for p in pages.split(',')]
+        if pages.lower() == 'all':
+            page_list = None  # Will generate all pages
+        else:
+            page_list = [int(p.strip()) for p in pages.split(',')]
         asyncio.run(_generate_pages(workflow_id, page_list, False))
     else:
         asyncio.run(_generate_pages(workflow_id, None, continue_from))
@@ -399,24 +402,30 @@ def chapters(workflow_id: str, pages: Optional[str], continue_from: bool):
 
 async def _generate_pages(workflow_id: str, pages: Optional[List[int]], continue_from: bool):
     """Generate pages"""
-    logger.info("=" * 80)
-    logger.info(f"Generating pages: {workflow_id}")
-    logger.info("=" * 80)
+    # Setup logging
+    global logger
+    logger, log_file, cleanup = setup_logging(workflow_id)
     
-    ctx = DirectorsContext(llmstore=OpenAiHerd, debug=True)
-    workflow = BookWorkflow(workflow_id, ctx)
-    
-    result = await workflow.generate_pages(
-        pages=pages,
-        continue_from=continue_from
-    )
-    
-    logger.info("=" * 80)
-    logger.info("✅ Page generation complete")
-    logger.info(f"   Pages: {result['pages']}")
-    logger.info(f"   Total generated: {result['total_generated']}")
-    logger.info(f"   Output: {result['output_dir']}")
-    logger.info("=" * 80)
+    try:
+        user_section(f"Generating Pages: {workflow_id}")
+        user_info(f"Log file: {log_file}")
+        
+        ctx = DirectorsContext(llmstore=OpenAiHerd, debug=True)
+        workflow = BookWorkflow(workflow_id, ctx)
+        
+        result = await workflow.generate_pages(
+            pages=pages,
+            continue_from=continue_from
+        )
+        
+        user_section("Page Generation Complete")
+        user_success(f"Pages generated: {result['pages']}")
+        user_info(f"Total generated: {result['total_generated']}")
+        user_info(f"Output: {result['output_dir']}")
+        user_info("=" * 80)
+    finally:
+        if cleanup:
+            cleanup()
 
 
 @cli.command()
