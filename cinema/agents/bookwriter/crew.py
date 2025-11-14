@@ -35,13 +35,6 @@ logger = logging.getLogger(__name__)
 # Constants
 KNOWLEDGE_DIR = Path(__file__).parent.parent.parent.parent / "knowledge"
 
-_skippers = {
-    "p": True,  # PlotBuilder
-    "c": True,  # Critique
-    "w": False,  # ScreenplayWriter/BookWriter
-    "s": False,  # ComicStripStoryBoarding/ChapterBuilder 
-}
-
 
 class KnowledgeSourceRegistry:
     """Singleton registry for knowledge sources"""
@@ -143,7 +136,7 @@ class DetectivePlotBuilder:
         ctx: DirectorsContext,
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = _skippers["p"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
@@ -273,7 +266,7 @@ class PlotCritique:
         ctx: DirectorsContext,
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = _skippers["c"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
@@ -374,7 +367,7 @@ class ScreenplayWriter:
 
     ctx: Optional[DirectorsContext] = None
     external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = _skippers["w"]
+    use_mock: Optional[bool] = False
 
     role_name: str = "screenplay"
     outfile: str = "screenplay.md"
@@ -384,7 +377,7 @@ class ScreenplayWriter:
         ctx: DirectorsContext,
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = _skippers["w"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
@@ -493,14 +486,14 @@ class BookWriter:
 
     ctx: Optional[DirectorsContext] = None
     external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = _skippers["w"]
+    use_mock: Optional[bool] = False
 
     def __init__(
         self,
         ctx: DirectorsContext,
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = _skippers["w"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
@@ -613,7 +606,7 @@ class ChapterBuilder:
     ctx: Optional[DirectorsContext] = None
     knowledge_sources: List[KnowledgeSources]
     external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = True
+    use_mock: Optional[bool] = False
 
     def __init__(
         self,
@@ -621,7 +614,7 @@ class ChapterBuilder:
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
         knowledge_sources: Optional[List[KnowledgeSources]] = None,
-        use_mock: Optional[bool] = _skippers["s"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()
@@ -730,14 +723,14 @@ class ComicStripStoryBoarding:
 
     ctx: Optional[DirectorsContext] = None
     external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = True
+    use_mock: Optional[bool] = False
 
     def __init__(
         self,
         ctx: DirectorsContext,
         outfile: Optional[str] = None,
         external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = _skippers["s"],
+        use_mock: Optional[bool] = False,
     ):
         self.ctx = ctx
         self.config = CrewConfig()

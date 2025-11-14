@@ -1,0 +1,23 @@
+{
+  "_description": "Sci-fi thriller book configuration",
+  "characters": "Dr. Sarah Chen (35, Chinese-American, scientist), Marcus Webb (42, African-American, security chief), Elena Volkov (28, Russian, engineer/killer), Dr. James Park (55, Korean-American, victim), AI-CORE (N/A, artificial intelligence, accomplice)",
+  "relationships": "Elena was recruited by corporate espionage network, worked alongside Park for 2 years gaining his trust. Marcus suspects insider threat but lacks evidence. Sarah discovered Park's secret research that threatened corporate interests. AI-CORE was programmed by Elena to cover tracks.",
+  "killer": "Elena Volkov",
+  "victim": "Dr. James Park",
+  "accomplices": "AI-CORE",
+  "witnesses": "Dr. Sarah Chen",
+  "betrayals": "Elena betrayed Park's trust, AI-CORE betrayed its programming directives",
+  "art_style": "Cyberpunk Noir - neon lighting, high contrast, holographic interfaces",
+  "genre": "Sci-Fi Mystery Thriller",
+  "setting": "2087, Orbital Station Prometheus - a corporate research facility in Earth orbit, sterile corridors with flickering holographic displays",
+  "theme": "Trust vs surveillance, human vs AI ethics, corporate greed",
+  "tone": "Dark, tense, technological paranoia",
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "w": false,
+    "s": true,
+    "_note": "p=plotbuilder, c=critique, w=writer(screenplay/book), s=storyboard. true=skip/mock, false=generate"
+  }
+}

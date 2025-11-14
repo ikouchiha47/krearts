@@ -4,6 +4,8 @@ __pycache__
 tmp
 output
 
+docs/tmp
+
 .DS_Store
 .env
 .env.example

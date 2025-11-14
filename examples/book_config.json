@@ -1,0 +1,13 @@
+{
+  "characters": "Detective Morgan (52, Irish-English, detective), James Butler (48, British, killer), Victor Ashford (65, British, victim), Dr. Helen Price (38, British, accomplice), Margaret Ashford (42, British, witness)",
+  "relationships": "Butler served Ashford family for 30 years, enduring humiliation. Dr. Price was family physician, hiding illegal medical practice. Margaret is Victor's wife, emotionally neglected.",
+  "killer": "James Butler",
+  "victim": "Victor Ashford",
+  "accomplices": "Dr. Helen Price",
+  "witnesses": "Margaret Ashford",
+  "betrayals": "",
+  "art_style": "Print Comic Noir Style with Halftones",
+  "genre": "Detective Mystery",
+  "setting": "1940s England, Blackwood Manor",
+  "theme": "Revenge and class struggle"
+}
