@@ -6,6 +6,49 @@ Joseph Campbell's universal story structure found across cultures. Character goe
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Transformation arcs, aspirational narratives, personal growth
+
+### Core promise
+- A: Ordinary World → B: Call → C: Refusal → D: Mentor → E: Threshold
+- F: Tests/Allies/Enemies → G: Approach → H: Ordeal → I: Reward
+- J: Road Back → K: Resurrection → L: Return with Elixir
+
+### Labeled Mermaid graph (A–L)
+```mermaid
+flowchart LR
+  A[Ordinary World] --> B[Call to Adventure] --> C[Refusal]
+  C --> D[Meeting the Mentor] --> E[Crossing the Threshold]
+  E --> F[Tests, Allies, Enemies] --> G[Approach]
+  G --> H[Ordeal] --> I[Reward]
+  I --> J[Road Back] --> K[Resurrection] --> L[Return with Elixir]
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: heros_journey
+beats: [A, B, C, D, E, F, G, H, I, J, K, L]
+labels:
+  A: Ordinary World
+  B: Call to Adventure
+  C: Refusal of the Call
+  D: Meeting the Mentor
+  E: Crossing the Threshold
+  F: Tests, Allies, Enemies
+  G: Approach to the Inmost Cave
+  H: Ordeal
+  I: Reward
+  J: Road Back
+  K: Resurrection
+  L: Return with Elixir
+constraints:
+  - "H (Ordeal) is the emotional low point; I (Reward) changes stakes"
+  - "K (Resurrection) demonstrates transformation to audience"
+  - "L (Return) shows practical benefit of change"
+```
+
 ## 12 Stages (Simplified for Videos)
 
 ### 1. Ordinary World

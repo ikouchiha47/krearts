@@ -1,10 +1,113 @@
+screenplay:
+    examples: |
+        ## Example: "Ashford's Shadow"
+        <example>
+        EXT. ASHFORD ESTATE - DAY
+
+        Police tape comes down. The monolithic mansion looks slightly
+        less imposing in the daylight, but the shadows remain long.
+
+        MARGARET ASHFORD (57), dressed in severe black, stands on
+        the portico. She looks powerful, free, watching the final
+        patrol car pull away.
+
+        DETECTIVE MORGAN (46) approaches her, his trench coat
+        rumpled.
+
+                        MORGAN
+                Mrs. Ashford. James Butler has
+                confessed and is in custody. Dr.
+                Price is charged as an accomplice.
+                You are officially cleared of all
+                suspicion.
+
+                        MARGARET
+                I knew it wasn't me, Detective.
+                    (a small, dry smile)
+                But I appreciate the thoroughness.
+                Most would have stopped at the
+                locket.
+
+                        MORGAN
+                I don't stop at easy answers, Mrs.
+                Ashford. They tend to be the
+                costliest lies.
+
+                        MARGARET
+                So, the man who served him for
+                thirty years finally broke his
+                chain. Irony is cruel, isn't it?
+
+                        MORGAN
+                Justice is simply finding the truth
+                hidden in the convenience.
+
+        Margaret looks out over the vast, empty grounds.
+
+                        MARGARET
+                What happens to this now? The
+                house? The fortune?
+
+                        MORGAN
+                That, Mrs. Ashford, is no longer
+                my jurisdiction.
+
+        Morgan turns to leave.
+
+                        MARGARET
+                Detective Morgan.
+
+        He pauses, turning back to face her.
+
+                        MARGARET (CONT'D)
+                You found the killer. But you also
+                found the truth. Thank you.
+
+        Morgan simply clicks his silver lighter once -- a quiet
+        affirmation. He walks toward his car, blending into the
+        shadows.
+
+        </example>
+
+        ## Beat Plan Example (per scene)
+
+        <example>
+        EXT. ASHFORD ESTATE - NIGHT
+        Beat Plan:
+        - A:
+            Shot Type: establishing
+            Visible Focus: Manor scale; security camera beaded with rain; front door brass plate
+            Composition Notes: high-angle, leading lines of driveway to door; deep focus
+            Light & Atmosphere: headlights through fog, rain sheets, overflowing gutters
+            Motion Cues: strobe reflections across steps; wind-driven rain
+            Foreshadow/Clue Scaffold: security camera staring outward
+            Narrator: "Power wears stone and shadow; the rain edits nothing."
+            Backstory Drip (trigger: camera): "The Ashfords prized surveillance over trust."
+        - B:
+            Shot Type: medium
+            Visible Focus: Detective stepping from sedan; Zippo flame in wet spectacles
+            Composition Notes: low three-quarter; rule-of-thirds on eyes; background police tape diagonal
+            Light & Atmosphere: harsh headlight backlight; rain beads on tweed; smoke drift
+            Motion Cues: wind tears smoke sideways
+            Foreshadow/Clue Scaffold: meticulous lighter—a habit that recurs at reveals
+            Narrator: "He inventories the night: light, water, and the lie they carry."
+        - C:
+            Shot Type: close-up
+            Visible Focus: brass plate with a faint wiped oval and linear edge streak
+            Composition Notes: shallow depth; isolate smear; background dissolves to grey
+            Light & Atmosphere: strobing reflections on metal; steady runoff
+            Motion Cues: water streaming across plate
+            Foreshadow/Clue Scaffold: wiped area suggests gloved touch (later glove residue)
+            Narrator: "Clean is a story; patterns betray the editor."
+        </example>
+
 stripper:
   examples: |
     IMPORTANT: shot_type must be one of these EXACT values (lowercase, no "Shot" suffix):
     - "wide"
     - "medium" 
     - "close-up"
-    - "extreme close-up"
+    - "extreme-close-up"
     - "establishing"
     
     <example>
@@ -91,7 +194,7 @@ stripper:
                           "role_played": "Murder victim",
                           "alibi": null,
                           "panel": {
-                              "shot_type": "close-up",
+                              "shot_type": "extreme-close-up",
                               "visual_description": "Extreme close-up of Ashford's shocked face as a shadow looms over him. His eyes widen in terror. A candlestick is raised in the foreground, silhouetted against the lamplight. High contrast, dramatic shadows.",
                               "dialogue": "You! But why—",
                               "sound_effects": "CRACK!",

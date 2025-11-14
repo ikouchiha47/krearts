@@ -1,0 +1,12 @@
+{
+  "rate_limits": {
+    "veo-3.1-generate-preview": {
+      "rpm": 2,
+      "description": "Veo 3.1 video generation"
+    },
+    "gemini-2.5-flash-image": {
+      "rpm": 500,
+      "description": "Gemini 2.5 Flash image generation"
+    }
+  }
+}

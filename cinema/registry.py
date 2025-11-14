@@ -229,13 +229,26 @@ OpenAiHerd = (
         ),
     )
     .register_model(
+        LLMThinkerIntent,
+        ModelConfig(
+            name="openai/gpt-4.1",
+            is_hosted=False,
+            temp=0.8,
+            lazy_load=True,
+            loader=LLM,
+            max_tokens=30000,
+            reasoning_effort="low",
+        ),
+    )
+    .register_model(
         LLMExecutorIntent,
         ModelConfig(
-            name="openai/gpt-4.1-mini",
+            name="openai/gpt-4.1",
             is_hosted=False,
             temp=0.0,
             loader=LLM,
             max_tokens=12000,
+            reasoning_effort="medium",  # For prose-to-comic adaptation
         ),
     )
     .register_model(
@@ -257,7 +270,8 @@ OpenAiHerd = (
     .register_model(
         LLMImageGenIntent,
         ModelConfig(
-            name="gpt-5-mini-2025-08-07",
+            # name="gpt-5-mini-2025-08-07",
+            name="gemini/gemini-2.5-flash-image-preview",
             loader=LLM,
             is_hosted=False,
         ),
@@ -273,63 +287,77 @@ OpenAiHerd = (
     )
 )
 
-GeminiHerd = (
-    GenerationHerd()
-    .register_model(
-        LLMPlannerIntent,
-        ModelConfig(
-            name="gemini/gemini-2.5-flash-preview-09-2025",
-            is_hosted=False,
-            temp=0.8,
-            lazy_load=True,
-            loader=LLM,
-            max_tokens=22000,
-        ),
-    )
-    .register_model(
-        LLMExecutorIntent,
-        ModelConfig(
-            name="gemini/gemini-2.5-flash-lite-preview-09-2025",
-            is_hosted=False,
-            temp=0.0,
-            loader=LLM,
-            max_tokens=12000,
-        ),
-    )
-    .register_model(
-        LLMVideoGenIntent,
-        ModelConfig(
-            name="gemini/veo-3.1-fast-generate-preview",
-            loader=LLM,  # NOTE: litellm: https://docs.litellm.ai/docs/videos
-            is_hosted=False,
-        ),
-    )
-    .register_model(
-        LLMASRIntent,
-        ModelConfig(
-            name="gemini/gemini-2.5-flash-preview-09-2025",
-            loader=LLM,  # NOTE: litellm support
-            is_hosted=False,
-        ),
-    )
-    .register_model(
-        LLMImageGenIntent,
-        ModelConfig(
-            name="gemini/gemini-2.5-flash-image-preview",
-            loader=LLM,
-            is_hosted=False,
-        ),
-    )
-    .register_model(
-        LLMCritiqueIntent,
-        ModelConfig(
-            name="openai/gpt-4.1",
-            loader=LLM,
-            is_hosted=False,
-            max_tokens=22000,
-        ),
-    )
-)
+GeminiHerd = OpenAiHerd
+
+# GeminiHerd = (
+#     GenerationHerd()
+#     .register_model(
+#         LLMPlannerIntent,
+#         ModelConfig(
+#             name="gemini/gemini-2.5-flash-preview-09-2025",
+#             is_hosted=False,
+#             temp=0.8,
+#             lazy_load=True,
+#             loader=LLM,
+#             max_tokens=22000,
+#         ),
+#     )
+#     .register_model(
+#         LLMThinkerIntent,
+#         ModelConfig(
+#             name="gemini/gemini-2.5-pro",
+#             is_hosted=False,
+#             temp=0.8,
+#             lazy_load=True,
+#             loader=LLM,
+#             max_tokens=22000,
+#             reasoning_effort="medium",
+#         ),
+#     )
+#     .register_model(
+#         LLMExecutorIntent,
+#         ModelConfig(
+#             name="gemini/gemini-2.5-flash-lite-preview-09-2025",
+#             is_hosted=False,
+#             temp=0.0,
+#             loader=LLM,
+#             max_tokens=12000,
+#         ),
+#     )
+#     .register_model(
+#         LLMVideoGenIntent,
+#         ModelConfig(
+#             name="gemini/veo-3.1-fast-generate-preview",
+#             loader=LLM,  # NOTE: litellm: https://docs.litellm.ai/docs/videos
+#             is_hosted=False,
+#         ),
+#     )
+#     .register_model(
+#         LLMASRIntent,
+#         ModelConfig(
+#             name="gemini/gemini-2.5-flash-preview-09-2025",
+#             loader=LLM,  # NOTE: litellm support
+#             is_hosted=False,
+#         ),
+#     )
+#     .register_model(
+#         LLMImageGenIntent,
+#         ModelConfig(
+#             name="gemini/gemini-2.5-flash-image-preview",
+#             loader=LLM,
+#             is_hosted=False,
+#         ),
+#     )
+#     .register_model(
+#         LLMCritiqueIntent,
+#         ModelConfig(
+#             name="openai/gpt-4.1",
+#             loader=LLM,
+#             is_hosted=False,
+#             max_tokens=22000,
+#         ),
+#     )
+# )
 
 # OpenAiPlannerAndQwenExecutorHerd = (
 #     GenerationHerd()

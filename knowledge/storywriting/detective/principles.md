@@ -12,7 +12,7 @@ Reveal chain = breadcrumb chain. Each reveal must be reconstructible by followin
 
 ## Narrative Patterns
 
-**Note**: For detailed explanations of detective narrative techniques, see `narrative-techniques.md`
+**Note**: For detailed explanations of detective storytelling techniques, see `storywriting/detective/storytelling-techniques.md`
 
 Quick reference of common patterns:
 
@@ -22,7 +22,7 @@ Quick reference of common patterns:
 
 **Emotional trigger reveal**: A character confesses not because they need to, but because a presented fact (ledger/record) makes continued lying costlier.
 
-See `narrative-techniques.md` for 16 detailed techniques including: Breadcrumb Chain, Convergent Evidence, The Overlooked Detail, Contradiction Trap, The Gathering, and more.
+See `storytelling-techniques.md` for 16 detailed techniques including: Breadcrumb Chain, Convergent Evidence, The Overlooked Detail, Contradiction Trap, The Gathering, and more.
 
 ## Evidence Distribution Checklist (**MUST PASS**)
 

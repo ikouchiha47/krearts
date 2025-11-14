@@ -7,7 +7,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from cinema.agents.scriptwriter.crew import (
+from cinema.agents.filmmaker.crew import (
     Enhancer,
     EnhancerInputSchema,
     ScriptWriter,

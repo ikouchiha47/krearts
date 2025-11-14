@@ -6,6 +6,56 @@ The most common narrative structure in Western storytelling. Divides story into 
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Clear storytelling, product demos, transformation arcs, detective reveals
+
+### Core promise
+- A: Hook and problem are established
+- B: Stakes rise and commitment happens
+- C: Conflict peaks and resolves with payoff
+
+### Minimum beats
+- A Opening Image → B Inciting Incident → C Plot Point 1 (end Act I)
+- D Rising Action → E Midpoint → F Plot Point 2 (all-is-lost)
+- G Climax → H Resolution/Closing Image
+
+### Labeled Mermaid graph (A–H)
+```mermaid
+flowchart LR
+  A[Opening Image] --> B[Inciting Incident]
+  B --> C[Plot Point 1 (End of Act I)]
+  C --> D[Rising Action] --> E[Midpoint]
+  E --> F[Plot Point 2 (All Is Lost)]
+  F --> G[Climax] --> H[Resolution / Closing Image]
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: three_act
+beats:
+  - id: A_opening_image
+  - id: B_inciting_incident
+  - id: C_plot_point_1
+  - id: D_rising_action
+  - id: E_midpoint
+  - id: F_plot_point_2
+  - id: G_climax
+  - id: H_resolution
+constraints:
+  - "Midpoint (E) changes stakes or understanding"
+  - "Climax (G) resolves the core conflict"
+  - "Closing image (H) mirrors or contrasts opening (A)"
+```
+
+### Quick checklist
+- A clear hook and problem (A/B)
+- A strong commitment at C
+- A true reversal or elevation at E
+- A decisive action at G
+- A mirrored closing at H
+
 ## Structure
 
 ### Act 1: Setup (25% of runtime)

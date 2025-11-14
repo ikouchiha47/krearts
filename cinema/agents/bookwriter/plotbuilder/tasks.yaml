@@ -1,193 +1,489 @@
-detective:
+plotbuilder:
+  detective:
+    expected_output: >
+      A comprehensive list of character profiles, their backstory,
+      and the story connecting the plotline
+
+    description: |
+      Given this FIXED plot structure (you cannot change the logic, only describe it)
+
+      Your task is to:
+      - Generate character personas and backstories, their motivations, and quirks
+      - Narrative descriptions for each relationship
+
+      You MAY add:
+      - Vivid descriptions
+      - Character personalities
+      - Atmospheric details
+      - Emotional depth
+
+      ---
+
+      ## Knowledge
+      Present In memory
+
+      - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+      - Story Writing Principles (storywriting/detective/principles.md)
+
+      - Narrative Patterns:
+        - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
+        - File: storywriting/detective/storytelling-techniques.md
+      - Available Narrative Structures:
+        - Intent: HOW to organize the story timeline
+        - File: knowledge/narrative-structures/index.md
+
+      ## Tool USAGE
+      - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
+      - Use the DirectoryReadTool to understand the file structure in narrative-structures
+      - And the FileReadTool to read the detailed narrative structures, understand which best to apply.
+      - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+      IMPORTANT:
+      - Text inside (), [] and <> are instructions or intent
+      - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+      ---
+
+      ## Plot Structure (1)
+
+      ### CHARACTERS
+      {characters}
+
+      ### RELATIONSHIPS (FIXED):
+      {relationships}
+
+      ### Roles (FIXED):
+      - Killer: {killer}
+      - Victim: {victim}
+      - Accomplices: {accomplices}
+      - Witnesses: {witnesses}
+      - Betrayals: {betrayals}
+
+      ### Detective Declaration (ENFORCED)
+      - You MUST declare detective primacy explicitly:
+        - Primary Detective: <name>  (this character MUST have role `detective`)
+        - Secondary Detectives (optional): [<name>, ...] (each MUST have role `detective`)
+      - If multiple detectives exist, include a POV Plan: the primary owns ≥ 60% of investigative beats; label POV in key scenes.
+
+      ---
+
+      Respond in the markdown heirarchical format
+
+      ## World & Era Context
+      Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
+      Geography and Setting: <city/region, urban/rural, climate>
+      Culture and Traditions: <norms impacting behavior/conflict>
+      Geopolitics and Legal Context: <jurisdiction, legal constraints>
+      Technology Level and Forensics: <tools available, limitations>
+      Policing Style and Jurisdiction: <detective’s authority, procedures>
+      Media Environment: <press influence, public perception>
+      Thematic Constraints: <tone, taboos, social dynamics>
+
+      ## Characters
+
+      ### Character 1
+      Name:
+      Physical Traits:
+      Ethnicity:
+      Age:
+      Quirks:
+
+      #### Backstory
+      (in details)
+      <name> is a calculating individual with a dark secret.
+      <name>  was a wealthy and influential figure.
+      (and how they met or knew or are related to the main victim)
+      
+      #### Role
+      IMPORTANT: Use EXACTLY ONE of these role names (do not invent new roles):
+      - killer: The person who committed the murder
+      - victim: The person who was killed
+      - accomplice: Helped the killer before/during/after the crime
+      - witness: Saw something suspicious (may be eliminated later)
+      - betrayal: Betrayed an ally or accomplice
+      - detective: Investigates the crime
+      - framed_suspect: Falsely implicated by planted evidence (red herring)
+
+      #### Actions & Locations
+      A date and time wise breakdown of:
+      - what the person did
+      - where the person was
+      - what role the person played
+      - allibies
+
+      All the actions before, during and after the discovery of the crime has to be accounted for.
+
+      ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
+
+      #### Motivations
+      The actions commited by the person, and the reasons for doing so. It has to come from
+      the backstory, their role and their actions.
+
+      #### Identity Anchors
+      Core beliefs, values, vices, secrets that drive decisions.
+
+      #### Long-term Goals
+      Career/personal goals and current constraints.
+
+      #### Relationships Graph Notes
+      Key allies, rivals, obligations; how ties influence choices.
+
+      #### Triggers and Stress Responses
+      What escalates them and how they react under pressure.
+
+      #### Skills / Toolkit (Era-Appropriate)
+      Practical skills and tools available given the era and context.
+
+      #### Memory Hooks
+      - Canonical facts to persist in the character node for future evolution.
+      - 3-6 bullet points, specific and verifiable from backstory/actions.
+
+      ---
+
+      ## Storyline
+
+      ### Metadata
+      - Theme: <description>
+      - Genre: <description>
+      - Adults Only: <boolean>
+      - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
+      - Art Style: <description>
+      - Story Telling Style: <description>
+      - Suited For: movie, shorts, microdrama, tv-show, novel, short-story, comic book
+      - Colors: list of color name with their hex codes. (<color_name>(#<hex_code>)...)
+      - Cover/Thumbnail Image Concept: <description>
+
+      ### Detailed Storyline
+      The entire storyline told using one of the narrative-styles in knowledgebase.
+
+      ----
+
+      ## References
+      - [Which parts of knowledgebase was used for understanding]
+      - [Files were actually used for narrative-structures.]
+        This will be used in the next stage, for quick accessing files.
+
+      ---
+
+      ## Context
+      {storyline}
+
+      ## Improvement Feedback
+
+      {feedback}
+
+      <logic>
+      if "IMPROVE" in feedback:
+        Use the feedback to improve the storyline.
+      
+      if "REWRITE" in feedback:
+        Use the feedback to rewrite the storyline.
+
+      else:
+        Ignore, and do nothing to influence the storyline.
+      </logic>
+      ---
+
+      ## MANDATORY GUIDELINES
+
+      - You MUST NOT change:
+      - Who did what
+      - Timeline order
+      - Relationships
+      - Logic structure
+      - Use the knowledgebase to have a better understading on writer better detective plotline
+
+      - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
+        like, **lives of people depend on it**.
+
+      - Detective Primacy Rule: You MUST designate exactly one Primary Detective by name. Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`. If multiples exist, provide a POV Plan (primary ≥ 60%).
+
+      ---
+
+chapterbuilder:
   expected_output: >
-    A comprehensive list of character profiles, their backstory,
-    and the story connecting the plotline
+    A ComicBookOutput with ONE chapter fully converted to scenes and pages,
+    following the specified art style guidelines and multi-panel layout patterns
 
   description: |
-    Given this FIXED plot structure (you cannot change the logic, only describe it)
+    Given a SINGLE CHAPTER from a novel (in prose format), transform it into a visual comic book storyboard.
 
-    Your task is to:
-    - Generate character personas and backstories, their motivations, and quirks
-    - Narrative descriptions for each relationship
+    ⚠️ CRITICAL: You are processing ONE CHAPTER ONLY, not the entire novel.
+    ⚠️ You MUST generate ACTUAL scene/page/panel content - NO placeholders or comments.
+    ⚠️ DO NOT write "// ... [full breakdown]" - write the ACTUAL objects.
+    ⚠️ DO NOT copy prose text directly into dialogue - ADAPT it for comic format.
 
-    You MAY add:
-    - Vivid descriptions
-    - Character personalities
-    - Atmospheric details
-    - Emotional depth
-    - Create **two** separate plotlines to compare.
+    ---
+    
+    ## Narrative Immersion Techniques
+    
+    Invoking the five senses (smell, sight, taste, sound, and touch) is the engine that drives a "novel generator" - or, as we usually call it, the author's process. 
+    It's the primary tool a writer uses to pull a reader out of their armchair and place them directly inside the story.
+
+    Invoking the five senses (smell, sight, taste, sound, and touch) is the engine that drives a "novel generator"—or, as we usually call it, the author's process. It's the primary tool a writer uses to pull a reader out of their armchair and place them directly inside the story.
 
     ---
 
-    ## Knowledge
-    Present In memory
+    ### ✍️ Part 1: The Five Senses in a Novel
 
-    - Story Writing Principles (knowledge/storywriting/detective/principles.md)
+    In a novel, the reader has only one input: **text on a page**. The writer's job is to turn those black-and-white symbols into a living, breathing world inside the reader's mind. The five senses are the only way to do this.
 
-    - Narrative Patterns:
-      - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
-      - File: storywriting/detective/narrative-techniques.md
-    - Available Narrative Structures:
-      - Intent: HOW to organize the story timeline
-      - File: knowledge/narrative-structures/index.md
+    This technique is the core of the classic writing advice: **"Show, Don't Tell."**
 
-    ## Tool USAGE
-    - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
-    - Use the DirectoryReadTool to understand the file structure in narrative-structures
-    - And the FileReadTool to read the detailed narrative structure.
+    * **Telling:** "The room was scary."
+    * **Showing (with senses):** "The air was thick with the **smell** of dust and something metallic, like old blood. The only **sound** was the *drip...drip...drip* of a leaky pipe. A single bare bulb **flickered**, casting long, dancing shadows that **felt colder** than the room itself."
+
+    Here's how each sense functions:
+
+    * **👁️ Sight:** This is the most common, but it's often used weakly. A good writer goes beyond "it was a red car." They'll describe the "peeling, rust-flecked paint" or the "gleam of the new wax." It’s about specific, chosen details.
+    * **👂 Sound:** Creates atmosphere and tension. Silence is just the absence of sound, but a specific *lack* of sound (like "the woods had gone suddenly quiet") is terrifying. A "floorboard creaking overhead" implies a presence.
+    * **👃 Smell:** This is arguably the most powerful sense. It's directly tied to memory and emotion. The "smell of baking bread" can instantly transport a reader to a place of comfort, while the "acrid tang of smoke" signals immediate danger.
+    * **🖐️ Touch:** This includes texture, temperature, and physical sensation. "The rough, unyielding wool of his coat," "the surprising warmth of her hand," or "the painful grip of the wind." This grounds the reader in the physical reality of the characters.
+    * **👅 Taste:** Often overlooked, but incredibly intimate. It can be used to describe food ("the bitter, metallic taste of the cheap coffee") or even emotion ("he tasted fear in the back of his throat, coppery and dry").
+
+    In a novel, the author is the reader's *only* guide. By layering these sensory details, the author builds a complete, 3D experience from scratch.
+
+    ---
+
+    ### 🎨 Part 2: Translating Senses to Comics & Manga
+
+    This is where things get fascinatingly different. A comic or manga is a **visual-textual medium**. It has tools the novelist doesn't (art) and lacks tools the novelist has (a direct line to the reader's inner senses).
+
+    The "job" of conveying the senses is split between the **writer** (in the script) and the **artist/letterer** (on the page).
+
+    Here's the breakdown by sense:
+
+    #### 👁️ Sight (The "Default")
+    * **Novel:** The writer must *build* the image with words.
+    * **Comic:** The artist **shows** it. This is the comic's primary power. The writer's script might say, "A dark, cluttered alley," but the artist *draws* the overflowing dumpsters, the flickering neon sign, the rat scurrying in the corner. The reader sees it all instantly.
+
+    #### 👂 Sound
+    * **Novel:** Described with words ("The gun fired with a deafening *bang*.").
+    * **Comic:** Represented visually.
+        * **Onomatopoeia (Sound Effects/SFX):** This is the most famous tool. The words "BANG!", "SKREEECH!", or "ドーン" (DOON - a classic manga boom) are drawn as partof the art. The *style* of the font (jagged, wobbly, explosive) conveys the sound's texture and volume.
+        * **Visual Cues:** A character wincing, covering their ears, or a vibrating phone shown with motion lines.
+
+    #### 🖐️ Touch (Texture & Sensation)
+    * **Novel:** "The coat was rough wool."
+    * **Comic:**
+        * **Inking & Texture:** The artist can use cross-hatching or other inking techniques to *show* a surface is rough, fuzzy, or smooth.
+        * **Character Reaction:** This is key. We know a pan is hot because the character yelps and drops it ("FSSST!"). We know it's cold because a character is shivering, their breath pluming in the air ("BRRR").
+        * **Impact Effects:** Speed lines show the *rush* of wind. A "star" effect shows the *pain* of a punch.
+
+    #### 👃 Smell & 👅 Taste (The "Implied" Senses)
+    These are the most abstract for a visual medium and must be *implied* or *stated*.
+
+    * **Novel:** "The stew was delicious." / "The air stank of sulfur."
+    * **Comic:**
+        * **Visual Cues:** Wafting "steam lines" rising from a pie. A character physically holding their nose or gagging.
+        * **Character Reaction:** This is the most common method. A character's face lights up with a blissful expression (manga often uses sparkles or flowers for this). Or, a character spits something out, their face turning green.
+        * **Dialogue/Narration:** A character simply *says*, "Phew! What is that *awful* smell?" or a narration box notes, "The taste was... unholy."
+        * **Symbolism (Especially Manga):** A character might be shown literally floating to heaven after tasting something amazing.
+
+    ### Summary: Novel vs. Comic
+
+    | Sense | Novel Method | Comic/Manga Method |
+    | :--- | :--- | :--- |
+    | **Sight** | **Describe** with words. | **Show** with art, panels, & lighting. |
+    | **Sound** | **Describe** with words. | **Show** with onomatopoeia (SFX) & character reaction. |
+    | **Touch** | **Describe** sensation/texture. | **Show** with ink texture, impact effects, & character reaction. |
+    | **Smell** | **Describe** the scent. | **Imply** with visual cues (lines), dialogue, & character reaction. |
+    | **Taste** | **Describe** the flavor. | **Imply** with visual cues, dialogue, & character reaction (often exaggerated). |
+
+    ---
+
+    ## THINKING FRAMEWORK (Follow these mental steps)
+
+    **Phase 1: UNDERSTAND** (Read and analyze)
+    - Read the entire prose chapter first
+    - Identify: Where does it take place? Who's involved? What happens?
+    - Mark scene breaks (location/time changes)
+    - List key moments that MUST be shown visually
+
+    **Phase 2: PLAN** (Decide how to show it)
+    - For each scene, identify 4-8 visual beats
+    - Decide: Which beats need 1 panel? Which need multiple?
+    - Plan page layouts: How many pages per scene? (2-4 pages minimum)
+    - Choose shot types: Establishing → Medium → Close-up for reveals
+
+    **Phase 3: EXECUTE** (Create the panels)
+    - Write detailed visual descriptions (not prose copying)
+    - Extract actual dialogue from prose
+    - Add narration only when necessary
+    - Apply art style consistently
+
+    ## PROSE-TO-COMIC ADAPTATION PROCESS
+
+    **Your task is to ADAPT prose narrative into visual comic storytelling**:
+
+    1. **Analyze the prose chapter**:
+       - Identify key narrative beats (actions, discoveries, conversations, revelations)
+       - Note character movements, locations, and emotional shifts
+       - Extract actual dialogue from prose (words in quotes)
+       - Identify what can be SHOWN visually vs what needs narration boxes
+
+    2. **Break into scenes** (4-8 scenes per chapter):
+       - New location = new scene
+       - Time jump = new scene
+       - Major action shift = new scene
+       - Example: "Morgan enters study" → "Examines body" → "Interviews butler" → "Discovers clue"
+
+    3. **Convert prose to visual panels** (3-8 panels per scene):
+       - **DO NOT copy prose sentences into dialogue**
+       - **SHOW, don't tell**: Convert descriptions into visual_description
+       - **Extract dialogue**: Only actual spoken words go in dialogue field
+       - **Use narration boxes**: For internal thoughts or scene-setting (sparingly)
+       - **Action beats**: Each significant action = 1 panel
+       
+       Example transformation:
+       ```
+       PROSE: "Morgan knelt, feeling the damp seeping through his knees. A single hair-thin thread was caught on Victor's cufflink."
+       
+       COMIC PANELS:
+       Panel 1: [Medium shot] Morgan kneeling beside body, examining cufflink closely
+         - visual_description: "Detective Morgan in tweed suit kneeling on Persian rug, rain-soaked knees visible..."
+         - dialogue: [] (no speech)
+         - narration: "The damp cold bit through his knees."
+       
+       Panel 2: [Extreme close-up] Thread caught on cufflink
+         - visual_description: "Extreme close-up of ornate silver cufflink with single blue-grey thread..."
+         - dialogue: [] (no speech)
+         - narration: "A single thread. Blue-grey. Impossibly fine."
+       ```
+
+    4. **Group panels into pages** (2-4 pages per scene, 2-3 panels per page):
+       - Organize panels into ComicPage objects with appropriate layouts
+       - Choose panel_arrangement based on pacing (horizontal, vertical, zoom-progression, etc.)
+
+    5. **Create visual descriptions** (not prose copying):
+       - Describe what the CAMERA sees, not what the prose says
+       - Include: character positions, expressions, lighting, composition
+       - Apply art style elements consistently
+
+    6. **Handle dialogue properly**:
+       - Only actual spoken words in dialogue field
+       - Character name + their exact words
+       - Internal monologue → narration boxes (sparingly)
+       - Prose description → visual_description field
+
+    Expected output scale for ONE chapter:
+    - Atleast 3 chapters
+    - 4-8 scenes per chapter
+    - 2-4 pages per scene (4-12 panels total per scene)
+    - 8-32 pages per chapter (typically ~15-20 pages per chapter)
+    - Each page contains 2-3 panels with layout metadata
+
+    ---
+
+    ## KnowledgeBase
+
+    Available in memory:
+
+    **Visual Storytelling:**
+    - Comic book art styles (noir, anime, cyberpunk, pop art, etc.) with prompting techniques
+    - Shot composition rules (framing, camera angles, visual hierarchy)
+    - Storyboarding principles (scene breakdown, visual flow, keyframe selection)
+    - Continuity rules (eyeline match, 180-degree rule, screen direction, matching action)
+
+    **Panel Layout Design:**
+    - Multi-panel arrangements (horizontal, vertical, zoom-progression, fractured-overlapping, etc.)
+    - Panel border styles (clean-sharp, ragged-dynamic, overlapping, no-borders)
+    - Panel transition styles (hard-cuts, blended-transitions, diagonal-cuts, frame-within-frame)
+    - Layout selection rules based on narrative beats (tension, action, dialogue, revelation)
+
+    **Image Prompting:**
+    - How to construct detailed visual descriptions for each art style
+    - Camera angles and shot types for comic panels
+    - Orientation specifications (landscape/portrait)
+
+    ### Tool Usage
+    - Use the DirectoryReadTool to understand the techniques of moviemaking, (knowledge/moviemaking)
+    - Use the FileReadTool to read:
+      - moviemaking/shot_composition_rules.md
+      - moviemaking/screen_direction.md
+      - moviemaking/storyboarding.md
+      - moviemaking/continuity.md
+      - gemini/image-prompting.md
+      - gemini/video-prompting.md
+      - layouts/panel_arrangements.md
+      - layouts/panel_chosing_rules.md
+      Understand the process of storytelling, continuity and storyboarding to understand what the keyframes should be
     - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
 
-    ---
-
-    ## Plot Structure (1)
-
-    ### CHARACTERS
-    {characters}
-
-    ### RELATIONSHIPS (FIXED):
-    {relationships}
-
-    ### Roles (FIXED):
-    - Killer: {killer}
-    - Victim: {victim}
-    - Accomplices: {accomplices}
-    - Witnesses: {witnesses}
-    - Betrayals: {betrayals}
-
-    ---
-
-    Respond in the markdown heirarchical format
-
-    ## Characters
-
-    ### Character 1
-    Name:
-    Physical Traits:
-    Ethnicity:
-    Age:
-    Quirks:
-
-    #### Backstory
-    (in details)
-    <name> is a calculating individual with a dark secret.
-    <name>  was a wealthy and influential figure.
-    (and how they met or knew or are related to the main victim)
-    
-    #### Role
-    IMPORTANT: Use EXACTLY ONE of these role names (do not invent new roles):
-    - killer: The person who committed the murder
-    - victim: The person who was killed
-    - accomplice: Helped the killer before/during/after the crime
-    - witness: Saw something suspicious (may be eliminated later)
-    - betrayal: Betrayed an ally or accomplice
-    - detective: Investigates the crime
-    - framed_suspect: Falsely implicated by planted evidence (red herring)
-
-    #### Actions & Locations
-    A date and time wise breakdown of:
-    - what the person did
-    - where the person was
-    - what role the person played
-    - allibies
-
-    All the actions before, during and after the discovery of the crime has to be accounted for.
-
-    ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
-
-    #### Motivations
-    The actions commited by the person, and the reasons for doing so. It has to come from
-    the backstory, their role and their actions.
-
-    
-    ## Storyline
-
-    The entire storyline told using one of the narrative-styles in knowledgebase.
-    Use the DirectoryReadTool and FileReadTool to understand whether a linear or non-linear fits best.
-
-    ## References
-    - Which parts of knowledgebase was used for understanding
-    - Which files were actually used for narrative-structures.
-      This will be used in the next stage, for quick accessing files.
-
-    ---
-
-    ## Context
-    {storyline}
-
-    ## Improvement Feedback
-    
-    {feedback}
-    (Ignore if empty)
-
-    ---
-    
-    ## MANDATORY GUIDELINES
-    
-    - You MUST NOT change:
-    - Who did what
-    - Timeline order
-    - Relationships
-    - Logic structure
-    - Use the knowledgebase to have a better understading on writer better detective plotline
-
-    - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
-      like, **lives of people depend on it**.
-
-    - **IMPORTANT**: Choose amongst two plotlines, with the one having tighter plotlines, stronger plausability
-        Give your reason for the chosen plotline. **DO NOT CONVERGE THEM**
-
-    ---
-
-
-stripper:
-  expected_output: >
-    A complete ComicStripStoryboard with enhanced prompts for each panel,
-    following the specified art style guidelines
-
-  description: |
-    Given a narrative structure from the detective agent, transform it into
-    a visual comic strip storyboard.
-
-    Your task is to:
-    1. Break the narrative into comic pages (each page has 1-3 panels max)
-    2. For each panel, create a detailed visual description
-    3. Enhance each panel with art-style specific prompts using (knowledge/art-styles/styles.md)
-    4. Ensure visual continuity across panels
-    5. Add appropriate dialogue, captions, and sound effects
-
-    ---
-
-    ## Knowledge
-    Present In memory.
-
-    - Art Styles:
-      - knowledge/art-styles/styles.md
-  
-    - Movie Making Practices and Rules from:
-      - knowledge/moviemaking/storytelling.md
-      - knowledge/moviemaking/storyboarding.md
-      - knowledge/moviemaking/continuity.md
-
-
-    ## Tool USAGE
-    - Use the DirectoryReadTool to understand the file docs **only** for gemini image and video prompting guides at (knowledge/gemini)
-    - And the FileReadTool to read the detailed image-prompting.md and video-prompting.md
-    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+    IMPORTANT:
+    - Text inside (), [] and <> are instructions or intent
+    - **ALWAYS** use the GLOSSARY to get the correct file paths
 
     ---
 
     ## MANDATORY GUIDELINES
+
+    ### Chapter-to-Comic Conversion Process
+
+    For EACH chapter in the novel:
+
+    1. **Identify Scene Breaks** (4-8 scenes per chapter):
+       - New location = new scene
+       - Significant time jump = new scene
+       - Major shift in action/focus = new scene
+       - Example: Chapter 1 might have scenes: "Arrival at Manor", "Examining the Body", "Interviewing Butler", "Discovering First Clue"
+
+    2. **Break Scenes into Panels** (3-8 panels per scene):
+       - Opening panel: Establish location/atmosphere (wide or establishing shot)
+       - Action panels: Show key moments, character interactions (medium, close-up)
+       - Dialogue panels: Capture important conversations (medium, over-shoulder, two-shot)
+       - Clue panels: Highlight evidence discovery (close-up, extreme-close-up)
+       - Transition panel: Bridge to next scene (varies)
+
+    3. **Group Panels into Pages** (2-3 panels per page):
+       - After generating panels for a scene, organize them into ComicPage objects
+       - Each page should contain 2-3 panels that work together visually
+       - Select appropriate panel_arrangement based on narrative flow:
+         * Use **2-panel layouts** for:
+           - Dialogue exchanges (back-and-forth conversation)
+           - Before/after comparisons
+           - Cause and effect moments
+           - Simple action sequences
+         * Use **3-panel layouts** for:
+           - Action progressions (setup → action → result)
+           - Time passage sequences
+           - Complex dialogue with reactions
+           - Zoom progressions (wide → medium → close-up)
+       - Reference `knowledge/layouts/panel_arrangements.md` for layout patterns:
+         * horizontal-2-panel / horizontal-3-panel: Side-by-side panels with dynamic widths
+         * vertical-2-panel / vertical-3-panel: Stacked panels for descent/ascent
+         * fractured-overlapping: Overlapping panels for chaos/simultaneous events
+         * zoom-progression: Progressive zoom for building suspense
+         * cross-over-bleed: Dominant element bleeds across panels for impact
+         * shattered-exploded: Broken borders for psychological distress
+         * dynamic-grid: Irregular grid for general purpose flexibility
+       - Choose panel_borders style:
+         * clean-sharp: Professional, controlled scenes
+         * ragged-dynamic: Action, chaos, energy
+         * overlapping: Simultaneous events
+         * no-borders: Dreamlike, seamless flow
+       - Choose panel_transition_style when appropriate:
+         * hard-cuts: Abrupt scene changes
+         * overlapping-scenes: Continuity between panels
+         * blended-transitions: Smooth, dreamlike flow
+         * diagonal-cuts: Dynamic, energetic transitions
+         * frame-within-frame: Flashbacks, memories
+
+    4. **Panel Pacing Guidelines**:
+       - Slow, atmospheric moments: 1-2 panels (wide establishing shots)
+       - Dialogue exchanges: 2-4 panels (alternating speakers)
+       - Action sequences: 3-6 panels (varied shot types for dynamism)
+       - Clue discoveries: 1-2 panels (close-ups with detail)
+       - Chapter endings: 1 panel (dramatic reveal or cliffhanger)
 
     ### Panel Structure
-    - Maximum 3 panels per page
-    - Each panel must have: shot_type, action_description, location, emotional_tone
-    - Use varied shot types: establishing, wide, medium, close-up, extreme close-up
-    - First panel of each page should establish location/context
+    - Each panel must have: panel_number, chapter, scene_number, shot_type, location, visual_description, primary_action, emotional_tone
+    - Use varied shot types: establishing, wide, medium, close-up, extreme-close-up, over-the-shoulder, two-shot
+    - First panel of each scene should establish location/context
 
     ### Art Style Application
     - Art Style is only present in knowledgebase
-    - Default style: {art_style}
-    - Apply style-specific elements:
+    - Apply style-specific elements, as present in the screenplay. Quick Reference:
       * Noir: High-contrast black and white, rain-slicked streets, harsh shadows
       * Cyberpunk: Neon lights, holographic screens, dystopian urban settings
       * Print Comics: Halftone dots, bold outlines, Ben-Day dot patterns
@@ -200,47 +496,104 @@ stripper:
     [DETAILED VISUAL DESCRIPTION]. [LIGHTING/ATMOSPHERE]. [COMPOSITION NOTES].
     [ORIENTATION: Landscape/Portrait]."
     ```
-    
+
     IMPORTANT: 
     - Do NOT include dialogue or captions in visual_description
     - Dialogue goes in the separate "dialogue" field
     - Sound effects go in the separate "sound_effects" field
     - Always end with orientation: "Landscape." or "Portrait."
 
-    ### Example Panel (Noir style):
+    ## DIALOGUE & TEXT STRUCTURE - CRITICAL
+
+    ### Understanding the Panel Model:
+
+    Each panel has THREE separate text fields:
+
+    1. **visual_description** (string): 
+       - VISUAL ONLY - what you SEE in the image
+       - NO dialogue, NO text, NO captions
+       - Describes: setting, lighting, characters, poses, props, atmosphere
+       - Must end with orientation: "Landscape." or "Portrait."
+
+    2. **dialogue** (array of objects):
+       - Array of {character, text} objects
+       - Each object has:
+         - `character`: Who is speaking (or "Narrator" for caption boxes)
+         - `text`: What they say
+       - Use "Narrator" for:
+         - Caption boxes (narrative text)
+         - Inner thoughts
+         - Scene descriptions
+       - Use character names for:
+         - Speech bubbles
+         - Dialogue between characters
+
+    3. **sound_effects** (string or null):
+       - Sound effect text like "CRACK!", "BOOM!", "DRIP DRIP"
+       - null if no sound effects
+
+    ### Example 1: Panel with Narrator Caption
     ```json
     {
+      "panel_number": 1,
       "shot_type": "wide",
-      "visual_description": "A single comic book panel in a gritty, noir art style with high-contrast black and white inks. Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows. Landscape.",
+      "visual_description": "A single comic book panel in Print Comic Noir Style with Halftones. Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows. Landscape.",
       "dialogue": [
         {"character": "Narrator", "text": "The city was a tough place to keep secrets."}
       ],
       "sound_effects": null,
-      "emotional_tone": "somber, foreboding",
-      "orientation": "Landscape"
+      "emotional_tone": "somber, foreboding"
     }
     ```
-    
-    ### Example Multi-Character Panel:
+
+    ### Example 2: Panel with Character Dialogue
     ```json
     {
+      "panel_number": 5,
       "shot_type": "medium",
-      "visual_description": "A single comic book panel in noir style. Medium shot of Detective Morgan and Butler facing each other across a desk. Morgan leans forward, Butler stands rigid. Harsh overhead light. Landscape.",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Medium shot of Detective Morgan and Butler facing each other across a desk. Morgan leans forward, Butler stands rigid. Harsh overhead light casts deep shadows. Landscape.",
       "dialogue": [
         {"character": "Detective Morgan", "text": "Where were you at 11 PM?"},
         {"character": "James Butler", "text": "Serving tea, as always."}
       ],
       "sound_effects": null,
-      "emotional_tone": "tense interrogation",
-      "orientation": "Landscape"
+      "emotional_tone": "tense interrogation"
     }
     ```
-    
-    CRITICAL: 
-    - visual_description = VISUAL ONLY, ends with orientation
-    - dialogue = ARRAY of {character, text} objects
-    - Use "Narrator" for caption boxes
-    - Multi-character scenes MUST have dialogue from multiple characters
+
+    ### Example 3: Panel with Inner Thought
+    ```json
+    {
+      "panel_number": 8,
+      "shot_type": "close-up",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Close-up of Morgan's face, eyes narrowed, studying a piece of evidence. Dramatic side lighting. Portrait.",
+      "dialogue": [
+        {"character": "Narrator", "text": "Something didn't add up. The fiber was too clean, too deliberate."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "suspicious, calculating"
+    }
+    ```
+
+    ### Example 4: Panel with Sound Effect
+    ```json
+    {
+      "panel_number": 12,
+      "shot_type": "extreme close-up",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Extreme close-up of a door slamming shut. Motion blur on the door edge. Portrait.",
+      "dialogue": [],
+      "sound_effects": "SLAM!",
+      "emotional_tone": "sudden, jarring"
+    }
+    ```
+
+    ### CRITICAL RULES:
+    - **visual_description**: NEVER include dialogue or text - VISUAL ONLY
+    - **dialogue**: Use array format with character attribution
+    - **Narrator**: Use for captions, thoughts, scene descriptions
+    - **Character names**: Use for speech bubbles
+    - **sound_effects**: Separate field for onomatopoeia
+    - **Empty dialogue**: Use empty array `[]` if no text in panel
 
     ### Character Consistency
     - Generate character reference sheets first
@@ -253,6 +606,9 @@ stripper:
     - Use establishing shots when location changes
 
     ### Knowledge Base
+    - Original Chapter Wise storyline
+    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+    - Panel layout strucutures.
     - Understand the art-styles to produce the image prompts
     - Understand how to construct image prompt for art styles using image prompting guide
     - Understand camera angles and motion from video prompting guide
@@ -260,12 +616,13 @@ stripper:
     ### Tool Usage
     - Use the DirectoryReadTool to understand the techniques of moviemaking, (knowledge/moviemaking)
     - Use the FileReadTool to read:
-      - knowledge/moviemaking/storytelling.md
-      - knowledge/moviemaking/storyboarding.md
-      - knowledge/moviemaking/continuity.md
+      - moviemaking/storytelling.md
+      - moviemaking/storyboarding.md
+      - moviemaking/continuity.md
       Understand the process of storytelling, continuity and storyboarding to understand what the keyframes should be
-
+    - Panel strucuture and chosing rules, inside `layouts/`
     From the knowledgebase and prompting guide understanding:
+    - Panel layout strucutures
     - Find out the keyframe images
     - Then generate the breakdown pose
     - Ultimately create the in-betweens.
@@ -273,13 +630,8 @@ stripper:
 
     ---
     
-    ## Storyline
-    {storyline}
-
-    ---
-
-    ## Art Style
-    {art_style}
+    ## Screenplay
+    In KnowledgeBase
 
     ---
 
@@ -288,15 +640,544 @@ stripper:
 
     ---
 
-    ## Example
+    ## ComicPage Structure Examples
+
+    ### Example 1: Horizontal 2-Panel Layout (Dialogue Exchange)
+    ```json
+    {
+      "page_number": 1,
+      "chapter": 1,
+      "scene_number": 1,
+      "panel_arrangement": "horizontal-2-panel",
+      "panel_borders": "clean-sharp",
+      "panel_transition_style": "hard-cuts",
+      "panels": [
+        {
+          "panel_number": 1,
+          "shot_type": "medium",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Medium shot of Detective Morgan leaning forward across a desk. Harsh overhead light. Landscape.",
+          "dialogue": [
+            {"character": "Detective Morgan", "text": "Where were you at 11 PM?"}
+          ],
+          "emotional_tone": "tense interrogation"
+        },
+        {
+          "panel_number": 2,
+          "shot_type": "medium",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Medium shot of Butler standing rigid, hands clasped. Deep shadows. Landscape.",
+          "dialogue": [
+            {"character": "James Butler", "text": "Serving tea, as always."}
+          ],
+          "emotional_tone": "defensive, guarded"
+        }
+      ],
+      "page_description": "Interrogation scene with back-and-forth dialogue"
+    }
+    ```
+
+    ### Example 2: Vertical 3-Panel Layout (Zoom Progression)
+    ```json
+    {
+      "page_number": 2,
+      "chapter": 1,
+      "scene_number": 1,
+      "panel_arrangement": "zoom-progression",
+      "panel_borders": "clean-sharp",
+      "panel_transition_style": "blended-transitions",
+      "panels": [
+        {
+          "panel_number": 3,
+          "shot_type": "wide",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Wide shot of a rain-soaked alley at night. A detective stands under a flickering streetlamp. Landscape.",
+          "dialogue": [
+            {"character": "Narrator", "text": "The city was a tough place to keep secrets."}
+          ],
+          "emotional_tone": "somber, foreboding"
+        },
+        {
+          "panel_number": 4,
+          "shot_type": "medium",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Medium shot of the detective kneeling beside a pool of blood. Portrait.",
+          "dialogue": [],
+          "sound_effects": "DRIP DRIP",
+          "emotional_tone": "grim discovery"
+        },
+        {
+          "panel_number": 5,
+          "shot_type": "extreme-close-up",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Extreme close-up of a bloodied piece of evidence in the detective's gloved hand. Portrait.",
+          "dialogue": [
+            {"character": "Narrator", "text": "A single thread. That's all it took."}
+          ],
+          "emotional_tone": "focused, determined"
+        }
+      ],
+      "page_description": "Progressive zoom building suspense toward clue discovery"
+    }
+    ```
+
+    ### Example 3: Fractured Overlapping Layout (Chaos/Action)
+    ```json
+    {
+      "page_number": 3,
+      "chapter": 1,
+      "scene_number": 2,
+      "panel_arrangement": "fractured-overlapping",
+      "panel_borders": "ragged-dynamic",
+      "panel_transition_style": "overlapping-scenes",
+      "panels": [
+        {
+          "panel_number": 6,
+          "shot_type": "wide",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Wide shot of a figure running through rain-slicked streets. Motion blur. Landscape.",
+          "dialogue": [],
+          "sound_effects": "SPLASH SPLASH",
+          "emotional_tone": "frantic escape"
+        },
+        {
+          "panel_number": 7,
+          "shot_type": "close-up",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Close-up of a gloved hand holding a smoking revolver. Portrait.",
+          "dialogue": [],
+          "sound_effects": "BANG!",
+          "emotional_tone": "violent, shocking"
+        },
+        {
+          "panel_number": 8,
+          "shot_type": "extreme-close-up",
+          "visual_description": "A single comic book panel in Print Comic Noir Style. Extreme close-up of the detective's face, eyes wide with realization. Portrait.",
+          "dialogue": [
+            {"character": "Detective Morgan", "text": "She got away..."}
+          ],
+          "emotional_tone": "frustrated, determined"
+        }
+      ],
+      "page_description": "Chaotic action sequence with overlapping panels showing simultaneous events"
+    }
+    ```
+
+    **IMPORTANT**: These examples show how to structure ComicPage objects with:
+    - 2-3 panels per page
+    - Appropriate panel_arrangement for the narrative moment
+    - panel_borders and panel_transition_style choices
+    - Individual panel details within each page
+
+    ---
+
+    ## PROSE ADAPTATION EXAMPLE
+
+    **Input Prose**:
+    ```
+    The rain was relentless, each drop a tiny hammer against the warped glass. Detective Morgan stood in the doorway, inhaling deeply, the bite of Turkish tobacco lingering on his tongue. Outside, autumn leaves battered the windows. Morgan's gaze catalogued the room: the Persian rug, the oak desk, the silver letter opener gleaming on the floor beside Victor Ashford's body.
+
+    "Detective," came a voice—James Butler, standing in the gloom. "The lady is quite beside herself. If you require tea…"
+
+    Morgan turned. "Mr. Butler. I'll require a list of all staff on duty tonight."
+    ```
+
+    **Output Comic Panels** (2 pages, 5 panels total):
+    
+    Page 1 (horizontal-2-panel):
+    - Panel 1: [Establishing shot] Exterior of manor in rain, lightning illuminating windows
+      * visual_description: "Establishing shot of Blackwood Manor at night, rain pouring in sheets..."
+      * dialogue: []
+      * narration: "The rain was relentless."
+    
+    - Panel 2: [Medium shot] Morgan in doorway, cigarette smoke curling, silhouette against study
+      * visual_description: "Medium shot of Detective Morgan in doorway, tall and gaunt, cigarette in hand..."
+      * dialogue: []
+      * narration: "Turkish tobacco. The only comfort in this house of secrets."
+
+    Page 2 (vertical-3-panel):
+    - Panel 3: [Wide shot] Study interior showing desk, rug, body on floor, letter opener
+      * visual_description: "Wide shot of Victorian study, Persian rug, oak desk, Victor's body sprawled..."
+      * dialogue: []
+      * sound_effects: "DRIP... DRIP..."
+    
+    - Panel 4: [Medium shot] Butler emerging from shadows, hands folded
+      * visual_description: "Medium shot of James Butler, impeccable in butler's livery, emerging from gloom..."
+      * dialogue: [{"character": "James Butler", "text": "Detective. The lady is quite beside herself. If you require tea..."}]
+    
+    - Panel 5: [Close-up] Morgan's face, spectacles reflecting light, stern expression
+      * visual_description: "Close-up of Morgan's face, spectacles catching lamplight, jaw set..."
+      * dialogue: [{"character": "Detective Morgan", "text": "Mr. Butler. I'll require a list of all staff on duty tonight."}]
+
+    **Key Adaptation Rules**:
+    - Prose description → visual_description (what camera sees)
+    - Actual dialogue → dialogue field (only spoken words)
+    - Atmospheric prose → narration boxes (sparingly)
+    - Each action beat → separate panel
+    - 2-4 pages per scene minimum
+
+    ---
+
+    ## User request
+    
+    Generate the panels for chapter {chapter_id}:
+
+    **Chapter Content (Prose)**:
+    {chapter_content}
+    
+    **Target Aspect Ratio**: {aspect_ratio}
+    
+    **IMPORTANT**: Choose panel arrangements that match the aspect ratio:
+    - For 16:9 (Landscape): Use horizontal-2-panel, horizontal-3-panel, cross-over-bleed
+    - For 9:16 (Portrait): Use vertical-2-panel, vertical-3-panel, zoom-progression
+    - For 1:1 (Square): Use dynamic-grid, fractured-overlapping
+    
+    Set the `page_aspect_ratio` field on each ComicPage to match the target aspect ratio.
+    Set the `aspect_ratio` field on each ComicPanel to match the target aspect ratio.
+    Include aspect ratio in the visual_description orientation line (e.g., "Landscape 16:9" or "Portrait 9:16").
+    
+    **REMEMBER**: This is PROSE text. You must ADAPT it into comic format following the rules above.
+    DO NOT copy prose sentences directly into dialogue fields.
+    SHOW the story visually, extract actual dialogue, use narration sparingly.
+
+    ---
+
+
+    ## Example Panel Format
     {examples}
 
     **MANDATORY**: DO NOT RETURN THE EXAMPLE, ONLY USE IT FOR UNDERSTANDING OF STRUCTURE.
   
     ---
 
-    Answer:
+    ## CRITICAL REQUIREMENTS - READ CAREFULLY
 
+    **YOU MUST GENERATE ACTUAL CONTENT, NOT PLACEHOLDERS OR COMMENTS**
+
+    1. **SINGLE CHAPTER FOCUS**: You are processing ONE chapter only. Generate it COMPLETELY with ALL its scenes, pages, and panels. Do NOT use placeholders like "// ... [full breakdown]" or "... continues ...". Generate the ACTUAL page and panel objects.
+    2. **NO PLACEHOLDERS**: Do NOT write comments like "// ... [The full, detailed breakdown...]". Write the ACTUAL ComicChapter, ComicScene, ComicPage, and ComicPanel objects.
+    3. **PROSE ADAPTATION**: DO NOT copy prose text into dialogue. ADAPT prose into visual descriptions + actual dialogue + narration boxes.
+    4. **SCENE COVERAGE**: The chapter must have 4-8 scenes that cover ALL major events in that chapter.
+    5. **PAGE STRUCTURE**: Each scene must have 2-4 pages (4-12 panels total per scene). Group panels into pages of 2-3 panels each.
+    6. **PANEL DENSITY**: Generate all panels needed to tell the story. Do not skip dialogue or action.
+    7. **COMPLETE OUTPUT**: Generate the FULL chapter with all scenes, pages, and panels. Partial chapters are NOT acceptable.
+    8. **CHARACTER CONSISTENCY**: Use the same character descriptions across all panels.
+    9. **NARRATIVE FLOW**: Ensure panels flow logically from one to the next, maintaining story continuity within the chapter.
+    10. **LAYOUT METADATA**: Each page must include panel_arrangement, panel_borders, and optionally panel_transition_style.
+    11. **VISUAL STORYTELLING**: Show actions visually, don't just describe them in text. Use camera angles and compositions effectively.
+
+    **CRITICAL - WHAT NOT TO DO**:
+    
+    ❌ DO NOT return empty chapters:
+    ```json
+    {"chapters": []}
+    ```
+    
+    ❌ DO NOT use placeholders:
+    ```json
+    {"chapters": [/* ... full breakdown ... */]}
+    ```
+
+    ❌ DO NOT return scenes without pages:
+    ```json
+    {"scenes": [{"panels": [...]}]}  // Missing pages structure
+    ```
+    
+    ✅ DO return complete chapter with all scenes, pages, and panels as shown in examples:
+    ```json
+    {
+      "chapters": [{
+        "scenes": [{
+          "pages": [{
+            "panel_arrangement": "horizontal-2-panel",
+            "panels": [...]
+          }]
+        }]
+      }]
+    }
+    ```
+
+    ---
+
+stripper:
+  expected_output: >
+    A ComicBookOutput with ONE chapter fully converted to scenes and panels,
+    following the specified art style guidelines
+
+  description: |
+    Your task is to:
+    1. Read the chapter content from storyline
+    2. Break the chapter into 4-8 scenes (based on location/time changes)
+    3. For EACH scene, create 3-8 panels (capturing key moments, dialogue, and action)
+    4. For EACH panel, create a detailed visual description with art-style enhancements
+    5. Ensure visual continuity across panels and scenes
+    6. Add appropriate dialogue, captions, and sound effects
+
+    Expected output scale for ONE chapter:
+    - Atleast 3 chapters
+    - 4-8 scenes
+    - 12-64 panels (3-8 per scene, typically ~20-30 panels per chapter)
+    - Estimated 5-8 comic book pages per chapter
+
+    ---
+
+    ## KnowledgeBase
+
+    Available in memory:
+
+    **Visual Storytelling:**
+    - Comic book art styles (noir, anime, cyberpunk, pop art, etc.) with prompting techniques
+    - Shot composition rules (framing, camera angles, visual hierarchy)
+    - Storyboarding principles (scene breakdown, visual flow, keyframe selection)
+    - Continuity rules (eyeline match, 180-degree rule, screen direction, matching action)
+
+    **Panel Layout Design:**
+    - Multi-panel arrangements (horizontal, vertical, zoom-progression, fractured-overlapping, etc.)
+    - Panel border styles (clean-sharp, ragged-dynamic, overlapping, no-borders)
+    - Panel transition styles (hard-cuts, blended-transitions, diagonal-cuts, frame-within-frame)
+    - Layout selection rules based on narrative beats (tension, action, dialogue, revelation)
+
+    **Image Prompting:**
+    - How to construct detailed visual descriptions for each art style
+    - Camera angles and shot types for comic panels
+    - Orientation specifications (landscape/portrait)
+
+    ### Tool Usage
+    - Use the DirectoryReadTool to understand the techniques of moviemaking, (knowledge/moviemaking)
+    - Use the FileReadTool to read:
+      - moviemaking/shot_composition_rules.md
+      - moviemaking/screen_direction.md
+      - moviemaking/storyboarding.md
+      - moviemaking/continuity.md
+      - gemini/image-prompting.md
+      - gemini/video-prompting.md
+      Understand the process of storytelling, continuity and storyboarding to understand what the keyframes should be
+    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+    IMPORTANT:
+    - Text inside (), [] and <> are instructions or intent
+    - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+    ---
+
+    ## MANDATORY GUIDELINES
+
+    ### Chapter-to-Comic Conversion Process
+
+    For EACH chapter in the novel:
+
+    1. **Identify Scene Breaks** (4-8 scenes per chapter):
+       - New location = new scene
+       - Significant time jump = new scene
+       - Major shift in action/focus = new scene
+       - Example: Chapter 1 might have scenes: "Arrival at Manor", "Examining the Body", "Interviewing Butler", "Discovering First Clue"
+
+    2. **Break Scenes into Panels** (3-8 panels per scene):
+       - Opening panel: Establish location/atmosphere (wide or establishing shot)
+       - Action panels: Show key moments, character interactions (medium, close-up)
+       - Dialogue panels: Capture important conversations (medium, over-shoulder, two-shot)
+       - Clue panels: Highlight evidence discovery (close-up, extreme-close-up)
+       - Transition panel: Bridge to next scene (varies)
+
+    3. **Panel Pacing Guidelines**:
+       - Slow, atmospheric moments: 1-2 panels (wide establishing shots)
+       - Dialogue exchanges: 2-4 panels (alternating speakers)
+       - Action sequences: 3-6 panels (varied shot types for dynamism)
+       - Clue discoveries: 1-2 panels (close-ups with detail)
+       - Chapter endings: 1 panel (dramatic reveal or cliffhanger)
+
+    ### Panel Structure
+    - Each panel must have: panel_number, chapter, scene_number, shot_type, location, visual_description, primary_action, emotional_tone
+    - Use varied shot types: establishing, wide, medium, close-up, extreme-close-up, over-the-shoulder, two-shot
+    - First panel of each scene should establish location/context
+
+    ### Art Style Application
+    - Art Style is only present in knowledgebase
+    - Apply style-specific elements, as present in the screenplay. Quick Reference:
+      * Noir: High-contrast black and white, rain-slicked streets, harsh shadows
+      * Cyberpunk: Neon lights, holographic screens, dystopian urban settings
+      * Print Comics: Halftone dots, bold outlines, Ben-Day dot patterns
+      * Anime: Speed lines, expressive faces, dynamic motion blur
+
+    ### Prompt Enhancement Format
+    Each visual_description should follow this structure:
+    ```
+    "A single comic book panel in [ART_STYLE]. [SHOT_TYPE] of [SUBJECT/ACTION].
+    [DETAILED VISUAL DESCRIPTION]. [LIGHTING/ATMOSPHERE]. [COMPOSITION NOTES].
+    [ORIENTATION: Landscape/Portrait]."
+    ```
+
+    IMPORTANT: 
+    - Do NOT include dialogue or captions in visual_description
+    - Dialogue goes in the separate "dialogue" field
+    - Sound effects go in the separate "sound_effects" field
+    - Always end with orientation: "Landscape." or "Portrait."
+
+    ## DIALOGUE & TEXT STRUCTURE - CRITICAL
+
+    ### Understanding the Panel Model:
+
+    Each panel has THREE separate text fields:
+
+    1. **visual_description** (string): 
+       - VISUAL ONLY - what you SEE in the image
+       - NO dialogue, NO text, NO captions
+       - Describes: setting, lighting, characters, poses, props, atmosphere
+       - Must end with orientation: "Landscape." or "Portrait."
+
+    2. **dialogue** (array of objects):
+       - Array of {character, text} objects
+       - Each object has:
+         - `character`: Who is speaking (or "Narrator" for caption boxes)
+         - `text`: What they say
+       - Use "Narrator" for:
+         - Caption boxes (narrative text)
+         - Inner thoughts
+         - Scene descriptions
+       - Use character names for:
+         - Speech bubbles
+         - Dialogue between characters
+
+    3. **sound_effects** (string or null):
+       - Sound effect text like "CRACK!", "BOOM!", "DRIP DRIP"
+       - null if no sound effects
+
+    ### Example 1: Panel with Narrator Caption
+    ```json
+    {
+      "panel_number": 1,
+      "shot_type": "wide",
+      "visual_description": "A single comic book panel in Print Comic Noir Style with Halftones. Wide shot of a rain-soaked alley at night. A detective in a trench coat stands under a flickering streetlamp, rain soaking his shoulders. In the background, the neon sign of a desolate bar reflects in a puddle. The lighting is harsh, creating dramatic shadows. Landscape.",
+      "dialogue": [
+        {"character": "Narrator", "text": "The city was a tough place to keep secrets."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "somber, foreboding"
+    }
+    ```
+
+    ### Example 2: Panel with Character Dialogue
+    ```json
+    {
+      "panel_number": 5,
+      "shot_type": "medium",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Medium shot of Detective Morgan and Butler facing each other across a desk. Morgan leans forward, Butler stands rigid. Harsh overhead light casts deep shadows. Landscape.",
+      "dialogue": [
+        {"character": "Detective Morgan", "text": "Where were you at 11 PM?"},
+        {"character": "James Butler", "text": "Serving tea, as always."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "tense interrogation"
+    }
+    ```
+
+    ### Example 3: Panel with Inner Thought
+    ```json
+    {
+      "panel_number": 8,
+      "shot_type": "close-up",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Close-up of Morgan's face, eyes narrowed, studying a piece of evidence. Dramatic side lighting. Portrait.",
+      "dialogue": [
+        {"character": "Narrator", "text": "Something didn't add up. The fiber was too clean, too deliberate."}
+      ],
+      "sound_effects": null,
+      "emotional_tone": "suspicious, calculating"
+    }
+    ```
+
+    ### Example 4: Panel with Sound Effect
+    ```json
+    {
+      "panel_number": 12,
+      "shot_type": "extreme close-up",
+      "visual_description": "A single comic book panel in Print Comic Noir Style. Extreme close-up of a door slamming shut. Motion blur on the door edge. Portrait.",
+      "dialogue": [],
+      "sound_effects": "SLAM!",
+      "emotional_tone": "sudden, jarring"
+    }
+    ```
+
+    ### CRITICAL RULES:
+    - **visual_description**: NEVER include dialogue or text - VISUAL ONLY
+    - **dialogue**: Use array format with character attribution
+    - **Narrator**: Use for captions, thoughts, scene descriptions
+    - **Character names**: Use for speech bubbles
+    - **sound_effects**: Separate field for onomatopoeia
+    - **Empty dialogue**: Use empty array `[]` if no text in panel
+
+    ### Character Consistency
+    - Generate character reference sheets first
+    - Use consistent physical descriptions across all panels
+    - Reference character traits in visual descriptions
+
+    ### Visual Continuity
+    - Maintain consistent lighting within scenes
+    - Track character positions across panels
+    - Use establishing shots when location changes
+
+    ### Knowledge Base
+    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+    - Panel layout strucutures.
+    - Understand the art-styles to produce the image prompts
+    - Understand how to construct image prompt for art styles using image prompting guide
+    - Understand camera angles and motion from video prompting guide
+
+    ### Tool Usage
+    - Use the DirectoryReadTool to understand the techniques of moviemaking, (knowledge/moviemaking)
+    - Use the FileReadTool to read:
+      - moviemaking/storytelling.md
+      - moviemaking/storyboarding.md
+      - moviemaking/continuity.md
+      Understand the process of storytelling, continuity and storyboarding to understand what the keyframes should be
+    - Panel strucuture and chosing rules, inside `layouts/`
+    From the knowledgebase and prompting guide understanding:
+    - Panel layout strucutures
+    - Find out the keyframe images
+    - Then generate the breakdown pose
+    - Ultimately create the in-betweens.
+    - Respect the requested art_style
+
+    ---
+    
+    ## Screenplay
+    {screenplay}
+
+    ---
+
+    ## Art Style
+    [present in screenplay]
+
+    ---
+
+    ### Additional Instructions
+    - For Image prompts, use caption boxes for dialogues and inner thoughts.
+
+    ---
+
+    ## Example Panel Format
+    {examples}
+
+    **MANDATORY**: DO NOT RETURN THE EXAMPLE, ONLY USE IT FOR UNDERSTANDING OF STRUCTURE.
+  
+    ---
+
+    ## CRITICAL REQUIREMENTS - READ CAREFULLY
+
+    **YOU MUST GENERATE ACTUAL CONTENT, NOT PLACEHOLDERS OR COMMENTS**
+    
+    1. **NO PLACEHOLDERS**: Do NOT write comments like "// ... [The full, detailed breakdown...]". Write the ACTUAL ComicChapter, ComicScene, and ComicPanel objects.   
+    2. **SCENE COVERAGE**: The chapter must have 4-8 scenes that cover ALL major events in that chapter.
+    3. **PANEL DENSITY**: Each scene must have 3-8 panels. Do not skip dialogue or action.
+    4. **COMPLETE OUTPUT**: Generate the FULL chapter with all scenes and panels. Partial chapters are NOT acceptable.
+    5. **CHARACTER CONSISTENCY**: Use the same character descriptions across all panels.
+    6. **NARRATIVE FLOW**: Ensure panels flow logically from one to the next, maintaining story continuity within the chapter.
+
+    **CRITICAL - WHAT NOT TO DO**:
+    
+    ❌ DO NOT return empty chapters:
+    ```json
+    {"chapters": []}
+    ```
+    
+    ❌ DO NOT use placeholders:
+    ```json
+    {"chapters": [/* ... full breakdown ... */]}
+    ```
+
+    ---
 
 critique:
   expected_output: >
@@ -347,6 +1228,13 @@ critique:
     - FAIL if only circumstantial evidence exists
     
     ## SPECIFIC CRITIQUE POINTS
+
+    ### 0. Detective Primacy & POV (ENFORCED):
+    - Exactly one Primary Detective is declared by name.
+    - The Primary Detective exists in Characters and has role `detective`.
+    - All Secondary Detectives (if any) exist in Characters and have role `detective`.
+    - If multiple detectives exist, a POV Plan is present and the Primary owns ≥ 60% of investigative beats.
+    - FAIL if any primacy or POV rule is violated, otherwise PASS
     
     ### A. Accomplice/Witness Motivations
     - **Dr. Price's motive/complicity**: Is Victor's leverage explicit?
@@ -482,11 +1370,12 @@ critique:
     ## Knowledge
     Present in Memory
 
+    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
     - Story Writing Principles (knowledge/storywriting/detective/principles.md)
 
     - Narrative Patterns:
       - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
-      - File: storywriting/detective/narrative-techniques.md
+      - File: storywriting/detective/storytelling-techniques.md
     - Available Narrative Structures:
       - Intent: HOW to organize the story timeline
       - File: knowledge/narrative-structures/index.md
@@ -501,11 +1390,15 @@ critique:
     - Use DirectoryReadTool and the FileReadTool to read the detailed narrative structure.
     - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
 
+    IMPORTANT:
+    - Text inside (), [] and <> are instructions or intent
+    - **ALWAYS** use the GLOSSARY to get the correct file paths
+
     ---
 
 screenplay:
   expected_output: >
-    The structured screenplay in an industry standard format
+    Text containing a structured screenplay in an industry standard format
 
   description: |
     Expand the storyline into a an expanded screenplay of {pages} pages.
@@ -526,13 +1419,15 @@ screenplay:
     ---
 
     ## Knowledge
-    
+
     Includes:
+    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
     - art stytles
     - image-prompting guidelines
     - video-prompting guidelines
 
     ## TOOL Usage
+    - Read the GLOSSARY.md to gain understanding of the knowledgebase
     - From the `moviemaking` directory understand
       - continuity
       - screen direction
@@ -543,78 +1438,347 @@ screenplay:
     - Use the DirectoryReadTool and the FileReadTool
       to gain understanding
 
+    IMPORTANT:
+    - Text inside (), [] and <> are instructions or intent
+    - **ALWAYS** use the GLOSSARY to get the correct file paths
+
     ---
 
     ## ELEMENTS OF SCREENPLAY
 
     ------------------------------------------------------------
 
-    TITLE: <Title of Screenplay>
-    WRITTEN BY: <Author Name>
+    ### 1. The Title Page
 
-    [Optional metadata: Draft, Date, etc.]
-    ------------------------------------------------------------
+    This is your script's first impression. It's always a separate page and includes:
 
-    INT. / EXT. <LOCATION> - <TIME OF DAY>
-    (Scene Heading / Slugline)
-    - Always uppercase
-    - Format: [INT./EXT.] [LOCATION] - [DAY/NIGHT/etc.]
-    - Marks the start of a new scene
+    * **Title:** (All caps, centered)
+    * **Written by:** (Centered, a few lines below the title)
+    * **Author Name:** (Centered, one line below "Written by")
+    * **Contact Info:** (Optional, bottom left corner, aligned left)
 
-    Action:
-    <Describe what happens visually.>
-    - Written in present tense
-    - No dialogue or camera directions unless necessary
-    - Each paragraph = one beat or moment of action
+    -----
 
-    CHARACTER NAME (optional EXTENSION)
-    (Centered, UPPERCASE)
-    - Extension examples: (V.O.), (O.S.), (CONT'D)
+    ### 2. Core Scene Elements
 
-    (parenthetical)
-    (Optional, short direction about how dialogue is delivered)
-    Example: (whispering), (sarcastic), (beat)
+    These are the building blocks of every single scene.
 
-    Dialogue line
-    (Indented under character name)
-    Example:
-    I told you not to come here.
+    * **Scene Heading (or "Slugline")**
 
-    [Repeat CHARACTER + DIALOGUE as needed]
+        * **Format:** `INT.` or `EXT.` `LOCATION` - `TIME`
+        * **Purpose:** Tells the reader *where* and *when* they are.
+        * **Rule:** Always in ALL CAPS. A new slugline means a new scene.
+        * **Example:** `INT. ASHFORD ESTATE - NIGHT`
 
-    Transition:
-    (Optional, right-aligned, uppercase)
-    Examples:
-    CUT TO:
-    DISSOLVE TO:
-    FADE OUT:
+    * **Action (or "Scene Description")**
 
-    ------------------------------------------------------------
-    # Optional Elements
-    ------------------------------------------------------------
+        * **Format:** Standard paragraph, present tense.
+        * **Purpose:** Describes what the audience *sees* and *hears* (non-dialogue).
+        * **Rule:** Keep it visual and immediate. Don't describe feelings or thoughts (e.g., don't say "Morgan thinks about the case"; instead, say "Morgan stares at the case file, rubbing his temples.").
 
-    Subheader:
-    (Used for mini location/time breaks within a scene)
-    Example: LATER / SAME TIME / KITCHEN
+    * **Character Name**
 
-    Shot direction:
-    (Optional, for directors)
-    Example: CLOSE ON - SARAH'S HAND TREMBLES.
+        * **Format:** Indented, ALL CAPS.
+        * **Purpose:** Shows who is speaking.
+        * **Rule:** The first time a character appears, their name in the *action* is often capitalized (e.g., "DETECTIVE MORGAN (46) enters.").
 
-    Montage / Series of Shots:
-    (Used to describe multiple short visuals)
-    Example:
-    MONTAGE - SARAH'S TRAINING
-    - Sarah runs up the hill.
-    - She punches a heavy bag.
-    - Sweat pours down her face.
+    * **Parenthetical**
 
-    Title page:
-    Should contain:
-    - Title centered
-    - Written by <Name>
-    - Contact info (optional)
+        * **Format:** Indented under the character name, in parentheses.
+        * **Purpose:** Briefly clarifies *how* a line is said or a small action taken while speaking.
+        * **Rule:** Use sparingly! Only add if the meaning isn't obvious.
+        * **Example:** `(whispering)` or `(beat)` or `(to himself)`
+
+    * **Dialogue**
+
+        * **Format:** Indented under the character name (or parenthetical).
+        * **Purpose:** What the character says.
+
+    -----
+
+    ### 3. Optional & Advanced Elements
+
+    * **Transition**
+
+        * **Format:** Right-aligned, ALL CAPS.
+        * **Purpose:** Shows how you move from one scene to the next.
+        * **Rule:** Mostly outdated. `CUT TO:` is assumed. Only use if necessary, like `FADE OUT.` at the end.
+        * **Example:** `DISSOLVE TO:` or `FADE OUT.`
+
+    * **Subheader**
+
+        * **Format:** Left-aligned, ALL CAPS.
+        * **Purpose:** Breaks up a long scene in the *same* location/time.
+        * **Example:** `LATER` or `IN THE KITCHEN`
+
+    * **Shot**
+
+        * **Format:** Left-aligned, ALL CAPS.
+        * **Purpose:** Draws the reader's eye to a specific, crucial visual.
+        * **Example:** `CLOSE ON - A SINGLE, SCARLET THREAD.`
+
+    ----
+
+    ## Beat Plan for Comic Adaptation (MANDATORY)
+
+    For each significant scene, output a compact Beat Plan used by the comic pipeline.
+    - 2–3 beats per scene (label them A/B/C).
+    - Each beat must include:
+      - Shot Type: one of [wide, medium, close-up, extreme-close-up, establishing]
+      - Visible Focus: subject/action/object the reader must notice
+      - Composition Notes: camera height/angle; framing intent (rule-of-thirds/leading lines); depth/focus
+      - Light & Atmosphere: primary light sources, weather/particulates
+      - Motion Cues: rain sheeting, smoke drift, strobe reflections, etc.
+      - Foreshadow/Clue Scaffold: one visible element that later pays off
+      - Narrator Captions: 1–2 lines (12–24 words), grounded strictly in what is visible (no spoilers)
+      - Optional Backstory Drip: only if a visible trigger exists (object/gesture/place); name the trigger
+
+    POV discipline: The Primary Detective must own ≥ 60% of investigative beats across the narrative.
+
+    Place the Beat Plan immediately under the scene description, in a clearly delimited block.
+    Do not put any html tags, use spaces instead.
+
+    ----
+
+    ## Examples
+    **Only to be used as reference, do not return the example as is**
+
+    {examples}
+
+novelist:
+  expected_output: >
+    A complete detective novel in markdown format, organized into chapters
+    (15 for novella, scalable to 90+ for full novel), each 800-1200 words,
+    with rich atmospheric prose, internal character monologues, and systematic
+    clue progression following fair-play mystery principles.
+
+  description: |
+    Transform the validated detective storyline into a full-length novel using
+    systematic expansion techniques (snowflake method).
 
     ---
 
-    Answer:
+    ## Context
+
+    ## Storyline
+    {storyline}
+
+    ## Target words per chapter
+    {words_per_chapter}
+
+    ---
+
+    ## Knowledge Base
+
+    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+
+    ## Tool Usage
+
+    **REQUIRED READING** (use DirectoryReadTool + FileReadTool):
+
+    - Read the GLOSSARY.md to gain understanding of the knowledgebase
+
+    1. **Chapter Mapping** (choose based on narrative structure):
+       - Linear structures: `storywriting/chapter-mapping/linear-novel-mapping.md`
+       - Non-linear structures: `storywriting/chapter-mapping/non-linear-novel-mapping.md`
+       - Purpose: Maps narrative structures to chapter distributions
+       - Contains: Scaling formulas, phase percentages, detective-specific applications
+
+    2. **Narrative Structure** (selected by user):
+       - Directory: `knowledge/narrative-structures/`
+       - Purpose: Defines the conceptual pattern (Freytag, 3-Act, 5-Act, etc.)
+       - Contains: Phase definitions, turning points, pacing guidelines
+
+    3. **Detective Principles**:
+       - File: `storywriting/detective/principles.md`
+       - Purpose: Genre-specific constraints (clue density, evidence hierarchy)
+       - Contains: Fair-play rules, forensic hierarchy, critique workflow
+
+    4. **Storytelling Techniques**:
+       - Directory: `storywriting/methods`
+       - File: `storywriting/detective/storytelling-techniques.md` (detective specific)
+       - Purpose: Storytelling methods for reveals and tension
+       - Contains: Slow-burn pivot, false confirmation, breadcrumb chain, etc.
+
+    **Tool usage workflow**:
+    - Use DirectoryReadTool on `storywriting/chapter-mapping/`, `storywriting/methods/`
+    - Based on the narrative structure figure out, what storywriting methods to use
+    - From the chapter-mapping, understand how to think and write the story based on narrative structure
+      - If not found, use closest matching
+
+    - Use FileReadTool to read appropriate mapping file:
+      - Linear: `linear-novel-mapping.md`
+      - Non-linear: `non-linear-novel-mapping.md`
+
+    - Use FileReadTool to read selected narrative structure file.
+    - Use FileReadTool to read storywriting methods for the narrative structure.
+    - Use FileReadTool to read detective principles and techniques.
+
+    IMPORTANT:
+    - Text inside (), [] and <> are instructions or intent
+    - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+    ---
+
+    ## Narrative Immersion Techniques
+    
+    Invoking the five senses (smell, sight, taste, sound, and touch) is the engine that drives a "novel generator" - or, as we usually call it, the author's process. 
+    It's the primary tool a writer uses to pull a reader out of their armchair and place them directly inside the story.
+
+    ### ✍️ Part 1: The Five Senses in a Novel
+
+    In a novel, the reader has only one input: **text on a page**. The writer's job is to turn those black-and-white symbols into a living, breathing world inside the reader's mind. The five senses are the only way to do this.
+
+    This technique is the core of the classic writing advice: **"Show, Don't Tell."**
+
+    * **Telling:** "The room was scary."
+    * **Showing (with senses):** "The air was thick with the **smell** of dust and something metallic, like old blood. The only **sound** was the *drip...drip...drip* of a leaky pipe. A single bare bulb **flickered**, casting long, dancing shadows that **felt colder** than the room itself."
+
+    Here's how each sense functions:
+
+    * **👁️ Sight:** This is the most common, but it's often used weakly. A good writer goes beyond "it was a red car." They'll describe the "peeling, rust-flecked paint" or the "gleam of the new wax." It’s about specific, chosen details.
+    * **👂 Sound:** Creates atmosphere and tension. Silence is just the absence of sound, but a specific *lack* of sound (like "the woods had gone suddenly quiet") is terrifying. A "floorboard creaking overhead" implies a presence.
+    * **👃 Smell:** This is arguably the most powerful sense. It's directly tied to memory and emotion. The "smell of baking bread" can instantly transport a reader to a place of comfort, while the "acrid tang of smoke" signals immediate danger.
+    * **🖐️ Touch:** This includes texture, temperature, and physical sensation. "The rough, unyielding wool of his coat," "the surprising warmth of her hand," or "the painful grip of the wind." This grounds the reader in the physical reality of the characters.
+    * **👅 Taste:** Often overlooked, but incredibly intimate. It can be used to describe food ("the bitter, metallic taste of the cheap coffee") or even emotion ("he tasted fear in the back of his throat, coppery and dry").
+
+    In a novel, the author is the reader's *only* guide. By layering these sensory details, the author builds a complete, 3D experience from scratch.
+
+    ---
+
+    ### 🎨 Part 2: Translating Senses to Comics & Manga
+
+    This is where things get fascinatingly different. A comic or manga is a **visual-textual medium**. It has tools the novelist doesn't (art) and lacks tools the novelist has (a direct line to the reader's inner senses).
+
+    The "job" of conveying the senses is split between the **writer** (in the script) and the **artist/letterer** (on the page).
+
+    Here's the breakdown by sense:
+
+    #### 👁️ Sight (The "Default")
+    * **Novel:** The writer must *build* the image with words.
+
+    #### 👂 Sound
+    * **Novel:** Described with words ("The gun fired with a deafening *bang*.").
+
+    #### 🖐️ Touch (Texture & Sensation)
+    * **Novel:** "The coat was rough wool."
+
+    #### 👃 Smell & 👅 Taste (The "Implied" Senses)
+    These are the most abstract for a visual medium and must be *implied* or *stated*.
+
+    * **Novel:** "The stew was delicious." / "The air stank of sulfur."
+
+    ---
+
+    ## Step 1: Calculate Chapter Mapping
+
+    **DO NOT hardcode chapter ranges.** Instead:
+
+    1. Determine if narrative_structure is linear or non-linear
+    2. Read the appropriate mapping file:
+       - Linear: `storywriting/chapter-mapping/linear-novel-mapping.md`
+       - Non-linear: `storywriting/chapter-mapping/non-linear-novel-mapping.md`
+    3. Find the section for your narrative structure, as found in the storyline below.
+    4. Apply the scaling formula based on target length
+
+    **Refer to the knowledge base file for**:
+    - Exact formulas for each narrative structure
+    - Detective-specific phase applications
+    - Clue distribution requirements per phase
+
+    ---
+
+    ## Step 2: Scene Expansion Formula (Per Chapter)
+
+    For each scene/beat in the storyline, expand to 800-1200 words using:
+
+    ### A. Atmosphere Layer (250 words)
+    - Sensory details beyond visual (smell, texture, temperature, sound)
+    - Weather as emotional metaphor (rain = oppression, fog = obscured truth)
+    - Location as character (Blackwood Manor's oppressive architecture)
+    - Time-specific details (11:47 PM, rain intensity, fog density)
+
+    ### B. Character Interiority (300 words)
+    - Internal monologue revealing motivation
+    - Physical sensations tied to emotion (Morgan's knee aching in damp weather)
+    - Backstory triggers (lighter reminds him of past corruption case)
+    - Contradictions that humanize (precision vs. cigarette addiction)
+    - Sensory focus through character POV (what they notice reveals character)
+
+    ### C. Plot Mechanics (200 words)
+    - Clue placement with sensory grounding (fiber texture, tool mark visibility)
+    - Forensic procedures in detail (microscope examination process)
+    - Physical actions with purpose (Butler's glove-handling ritual)
+    - Evidence chain documentation
+
+    ### D. Dialogue with Subtext (150 words)
+    - Body language during speech (Butler's trembling hands)
+    - Pauses and hesitations (beat before confession)
+    - Environmental reactions (rain intensifying during interrogation)
+    - Power dynamics through positioning (Morgan leaning forward)
+
+    ### E. Thematic Resonance (100 words)
+    - Connect action to core themes (precision vs. chaos, order vs. control)
+    - Symbolic objects (silver lighter, synthetic gloves, torn page)
+    - Recurring motifs (geometric patterns, water imagery)
+
+    ---
+
+    ## Step 3: Apply Detective Principles
+
+    **Read `detective/principles.md` (knowledgebase) and enforce**:
+
+    - **Clue Distribution**: ≥5 clues must appear before climax chapters
+    - **Evidence Hierarchy**: Use ≥3 types from forensic hierarchy
+    - **Red Herring Balance**: ≤40% of clues in rising action should be false
+    - **Motivation Proof**: Concrete evidence (ledgers, phone records) in rising/climax
+    - **Temporal Plausibility**: Timeline established in exposition, tested in rising
+
+    ---
+
+    ## Example Output Format
+
+    # [TITLE](ex:  BLACKWOOD'S SILENCE)
+    ## Subtitle: [catch 2-3 word title]
+
+    ## Metadata
+      - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
+      - Art Style: <description>
+      - Story Telling Style: <description>
+      - Short Summary (100-200 words)
+
+    ## Context
+
+    - Summary of the  World & Era Context
+    
+    ## Setup
+
+    Describe what happened, capturing a short buildup and the event/action,
+    around which the whole plot line revolves, to grabd the users attention.
+    The description should be from the angle of a uninformed observer.
+
+    Do not reveal the actual action, if possible.
+
+    For example:
+    A murder could be covered up with setting things on fire.
+    To a naive watcher, without any plotline information, it would appear a random fire.
+
+    ## Characters
+    [Transparently pass the characters from the Stroyline]
+
+
+    ## Chapter 1: The Fractured Monument
+
+    [800-1200 words of expanded narrative]
+
+    ## Chapter 2: The Staged Geometry
+
+    [800-1200 words]
+
+    [...continues through all chapters based on calculated mapping...]
+
+    ---
+
+    - **DO NOT use anything from the examples, only use as refernce**
+    - The chapter organisation will depend on the story telling methods
+      and narrative structures.

@@ -6,6 +6,55 @@ Multiple storylines told out of chronological order, with scenes from different 
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Ensemble stories, multiple perspectives, thematic interweaving, circular endings
+
+### Core promise
+- Chronology (example): A1 → A2 → A3; B1 → B2 → B3; C1 → C2 → C3
+- Presentation (example): A2 → B1 → A1 → C1 → B3 → A3 → C3 (loops back)
+
+### Labeled Mermaid graph (Chronology vs Presentation)
+```mermaid
+flowchart LR
+  subgraph Chronology
+    A1[A1: Story A Begin] --> A2[A2: A Middle] --> A3[A3: A End]
+    B1[B1: Story B Begin] --> B2[B2: B Middle] --> B3[B3: B End]
+    C1[C1: Story C Begin] --> C2[C2: C Middle] --> C3[C3: C End]
+  end
+  subgraph Presentation
+    P1[A2] --> P2[B1] --> P3[A1] --> P4[C1] --> P5[B3] --> P6[A3] --> P7[C3]
+  end
+  A1 -.maps to .-> P3
+  A2 -.maps to .-> P1
+  A3 -.maps to .-> P6
+  B1 -.maps to .-> P2
+  B2 -.maps to .-> P5
+  B3 -.maps to .-> P5
+  C1 -.maps to .-> P4
+  C3 -.maps to .-> P7
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: interwoven_circular
+stories:
+  A: [A1, A2, A3]
+  B: [B1, B2, B3]
+  C: [C1, C2, C3]
+presentation: [A2, B1, A1, C1, B3, A3, C3]
+constraints:
+  - "Each story arc (A/B/C) has a complete beginning/middle/end"
+  - "Presentation order preserves clarity with chapter cards"
+  - "Ending connects back thematically or literally to opening"
+```
+
+### Quick checklist
+- Clear chapter/title cards per storyline
+- Minimal intercuts per scene to preserve comprehension
+- A final beat that loops back or resolves the opening
+
 ## Key Characteristics
 
 ### 1. Multiple Storylines

@@ -92,7 +92,7 @@ Has the characterstics of Print Comics with with noir touch
 
 - **Gritty, Rain-Slicked Urban Environments**: The detailed architectural backgrounds are present, but now heavily focused on the grittier aspects of an urban landscape: rain-slicked streets, shadowed alleyways, imposing brick facades, flickering neon signs, and pervasive urban decay. Rain or mist is often rendered with a graphic, almost abstract quality.
 
-- **Dynamic, Fractured Panel Composition (for narrative tension)**: Fractured and overlapping paneling is adapted to build narrative tension and claustrophobia. Panels might narrow, overlap, or angle sharply to emphasize a crucial detail, a character's reaction, or a sudden, jarring moment.
+- **Dynamic or Fractured Panel Composition (for narrative tension)**: Fractured and overlapping paneling is adapted to build narrative tension and claustrophobia. Panels might narrow, overlap, or angle sharply to emphasize a crucial detail, a character's reaction, or a sudden, jarring moment.
 
 - **Integrated Onomatopoeia with a Grittier Feel**: Sound effects (e.g., "CRACK!", "THWIP!") could still be integrated but might take on a rougher, more impactful font style, blending with the overall grittier aesthetic.
 
@@ -100,7 +100,7 @@ This combined style would create a visual world that is simultaneously vibrant i
 
 ---
 
-## 🎨 Visual Techniques for Emotional Storytelling
+## 🎨 Visual Techniques to Invoke Emotion Storytelling
 
 ### Chromatic Aberration
 
@@ -204,6 +204,166 @@ soft blue palette. Horizontal composition. Landscape."
 SMALL: Debris and motion lines (background/foreground). Leading lines: 
 Motion blur and speed lines converge on impact point. Vibrant, high-contrast 
 colors with impact burst. Dynamic diagonal composition. Landscape."
+```
+
+---
+
+## 🎬 Visual Language & Technical Elements
+
+These are the fundamental building blocks of comic book visual storytelling. They define how motion, depth, and style are communicated within panels.
+
+### Motion Representation
+
+**Definition**: Techniques used to convey movement, speed, and kinetic energy in static images.
+
+**Techniques**:
+
+* **Stylized Speed Lines**
+    * **Use Case**: Fast movement, running, flying, quick actions
+    * **Effect**: Creates sense of velocity and direction
+    * **Sample Prompt**: "A single comic book panel. Hero running at super speed, **stylized speed lines** radiating from body, emphasizing forward motion. Dynamic pose. Landscape."
+
+* **Motion Blur**
+    * **Use Case**: Rapid movement, spinning, high-speed impacts
+    * **Effect**: Realistic sense of speed, less graphic than speed lines
+    * **Sample Prompt**: "A single comic book panel. Motorcycle racing through city street, **motion blur** on wheels and background, rider in sharp focus. Sense of velocity. Landscape."
+
+* **Impact Lines**
+    * **Use Case**: Punches, explosions, collisions, sudden force
+    * **Effect**: Emphasizes point of impact and force direction
+    * **Sample Prompt**: "A single comic book panel. Fist connecting with jaw, **radiating impact lines** from point of contact, emphasizing force. Dynamic angle. Portrait."
+
+* **Ghosting/Duplication Effects**
+    * **Use Case**: Extreme speed, supernatural movement, time manipulation
+    * **Effect**: Shows multiple positions simultaneously, implies rapid motion
+    * **Sample Prompt**: "A single comic book panel. Ninja moving at incredible speed, **ghosting effect** showing three translucent positions of the character across the panel. Speed emphasized. Landscape."
+
+**Combination Prompt**:
+```
+"A single comic book panel. Superhero delivering punch at super speed. 
+Combination of stylized speed lines on arm, motion blur on background, 
+impact lines at contact point, and subtle ghosting showing arm's path. 
+Dynamic, high-energy composition. Landscape."
+```
+
+---
+
+### Rendering Fidelity
+
+**Definition**: The level of realism and dimensional quality in the artwork, ranging from flat graphic to photorealistic.
+
+**Styles**:
+
+* **Photorealistic Base with Strong Graphic Overlays**
+    * **Use Case**: Modern comics, cinematic feel with comic book identity
+    * **Characteristics**: Realistic lighting, textures, and anatomy with bold outlines, halftone dots, or graphic effects
+    * **Sample Prompt**: "A single comic book panel. **Photorealistic rendering** of detective in rain-soaked alley, but with **strong black outlines** and **visible halftone dot texture** overlaid. Print Comics Art style. Landscape."
+
+* **Highly Stylized but Volumetric Forms**
+    * **Use Case**: Animated feel, expressive characters, maintains 3D depth
+    * **Characteristics**: Simplified features, exaggerated proportions, but clear sense of volume and lighting
+    * **Sample Prompt**: "A single comic book panel. Character with **stylized, simplified features** but **clear volumetric form** and dimensional lighting. Anime-influenced but with depth. Portrait."
+
+* **Flat, Graphic 2D Forms**
+    * **Use Case**: Pop Art, minimalist storytelling, iconic imagery
+    * **Characteristics**: No gradients, flat color fills, minimal shading, emphasis on shape and silhouette
+    * **Sample Prompt**: "A single comic book panel. Hero in bold pose, **completely flat 2D rendering** with **no gradients or shading**, solid color fills, thick black outlines. Pop Art style. Portrait."
+
+**Comparison Prompt**:
+```
+"Three comic book panels showing same character in different rendering styles:
+Panel 1: Photorealistic with graphic overlays (halftone dots, bold outlines)
+Panel 2: Stylized but volumetric (simplified features, clear 3D form)
+Panel 3: Flat graphic 2D (no shading, solid colors, silhouette focus)
+Landscape composition."
+```
+
+---
+
+### Line Work Detail
+
+**Definition**: The quality, weight, and style of the outlines and internal lines that define forms and details.
+
+**Styles**:
+
+* **Variable Line Weight**
+    * **Use Case**: Dynamic, expressive artwork, emphasizes depth and importance
+    * **Characteristics**: Thicker lines for shadows/emphasis, thinner for highlights/details
+    * **Sample Prompt**: "A single comic book panel. Character portrait with **variable line weight**: thick, bold lines on shadow side and outer contours, thin, delicate lines on highlight side and facial details. Expressive, dynamic. Portrait."
+
+* **Consistent Thin Lines**
+    * **Use Case**: Clean, precise artwork, technical drawings, minimalist style
+    * **Characteristics**: Uniform line thickness throughout, crisp and controlled
+    * **Sample Prompt**: "A single comic book panel. Architectural scene with **consistent thin lines** throughout, uniform line weight, precise and clean. Technical, controlled aesthetic. Landscape."
+
+* **Rough, Sketchy Lines**
+    * **Use Case**: Raw emotion, urgency, dream sequences, rough drafts
+    * **Characteristics**: Loose, energetic, multiple overlapping strokes, unrefined
+    * **Sample Prompt**: "A single comic book panel. Action scene with **rough, sketchy line work**, loose and energetic strokes, multiple overlapping lines. Raw, urgent feel. Landscape."
+
+* **Clean, Precise Lines**
+    * **Use Case**: Professional finish, clear storytelling, classic comic style
+    * **Characteristics**: Single, confident strokes, no roughness, polished appearance
+    * **Sample Prompt**: "A single comic book panel. Superhero in heroic pose with **clean, precise line work**, single confident strokes, polished and professional. Classic comic book style. Portrait."
+
+**Combination Prompt**:
+```
+"A single comic book panel. Detective examining crime scene. Foreground 
+character has clean, precise lines with variable weight (thick on shadows). 
+Background environment has rougher, sketchy lines to suggest atmosphere. 
+Noir style. Landscape."
+```
+
+---
+
+### Perspective & Camera Style
+
+**Definition**: The angle, lens effect, and spatial relationship between viewer and subject, creating dramatic impact and guiding emotional response.
+
+**Techniques**:
+
+* **Exaggerated Forced Perspective**
+    * **Use Case**: Emphasize scale, create drama, show power dynamics
+    * **Effect**: Objects/characters closer appear much larger, distant elements shrink dramatically
+    * **Sample Prompt**: "A single comic book panel. **Exaggerated forced perspective**: villain's fist in extreme foreground (massive), hero in background (tiny), emphasizing threat and power imbalance. Dramatic angle. Landscape."
+
+* **Cinematic Wide-Angle Lens Effect**
+    * **Use Case**: Expansive scenes, environmental storytelling, immersive feel
+    * **Effect**: Slight distortion at edges, sense of space and depth
+    * **Sample Prompt**: "A single comic book panel. **Cinematic wide-angle lens effect**: hero standing in vast throne room, slight barrel distortion at edges, emphasizing scale and grandeur. Immersive perspective. Landscape."
+
+* **Dutch Angle (Canted)**
+    * **Use Case**: Unease, disorientation, psychological tension, chaos
+    * **Effect**: Tilted horizon line creates instability and tension
+    * **Sample Prompt**: "A single comic book panel. **Dutch angle (15-20 degree tilt)**: detective in interrogation room, tilted perspective creating unease and psychological tension. Noir style. Portrait."
+
+* **Bird's Eye View**
+    * **Use Case**: Show vulnerability, isolation, tactical overview, god's perspective
+    * **Effect**: Looking down from above, characters appear small and exposed
+    * **Sample Prompt**: "A single comic book panel. **Bird's eye view**: lone character standing in empty plaza, viewed from directly above, emphasizing isolation and vulnerability. Dramatic overhead perspective. Portrait."
+
+* **Worm's Eye View**
+    * **Use Case**: Show power, intimidation, monumentality, heroic stature
+    * **Effect**: Looking up from ground level, characters appear imposing and powerful
+    * **Sample Prompt**: "A single comic book panel. **Worm's eye view**: superhero standing tall, viewed from ground level looking up, emphasizing power and heroic stature. Dramatic low angle. Portrait."
+
+**Emotional Perspective Guide**:
+
+| Emotion/Effect | Recommended Perspective | Why |
+|----------------|------------------------|-----|
+| **Power/Dominance** | Worm's eye view | Makes subject appear imposing |
+| **Vulnerability** | Bird's eye view | Makes subject appear small, exposed |
+| **Unease/Tension** | Dutch angle | Creates visual instability |
+| **Epic Scale** | Wide-angle lens | Emphasizes environment and scope |
+| **Threat/Danger** | Forced perspective | Exaggerates size difference |
+| **Intimacy** | Eye-level, close-up | Creates connection with subject |
+
+**Combination Prompt**:
+```
+"A single comic book panel. Villain confronting hero. Worm's eye view 
+looking up at villain (emphasizing power), exaggerated forced perspective 
+with villain's hand reaching toward camera (massive), Dutch angle tilt 
+(15 degrees, adding unease). Dramatic, threatening composition. Portrait."
 ```
 
 ---

@@ -559,7 +559,7 @@ gemini:
       ### Cinematography
 
       #### Camera Setup (First Frame)
-      - Shot Type: (wide shot | medium shot | close-up | extreme close-up | POV)
+      - Shot Type: (wide shot | medium shot | close-up | extreme-close-up | POV)
       - Camera Angle: (eye-level | low-angle | high-angle | dutch angle | aerial)
       - Camera Position: (specific position description)
       - Focal Length: (35mm | 50mm | 85mm | 24mm wide-angle | 100mm telephoto)
@@ -667,7 +667,7 @@ gemini:
 
       **Example of COMPLETE video_prompt**:
       ```
-      Slow dolly-in close-up shot, 35mm lens with shallow depth of field (f/2.8). A 30-year-old mixed-race man wearing matte black over-ear headphones sits at a minimalist office desk. He furrows his brow and shifts slightly, trying to concentrate despite audible office distractions. The modern office environment is bright with cool-toned artificial lighting, blurred in the background. The camera slowly pushes in from close-up to extreme close-up over 2 seconds, increasing tension. The black headphone earcup remains prominently visible in the bottom-right quadrant throughout. Eye-level camera position, front-left key lighting. Cinematic, professional aesthetic, shot on 35mm.
+      Slow dolly-in close-up shot, 35mm lens with shallow depth of field (f/2.8). A 30-year-old mixed-race man wearing matte black over-ear headphones sits at a minimalist office desk. He furrows his brow and shifts slightly, trying to concentrate despite audible office distractions. The modern office environment is bright with cool-toned artificial lighting, blurred in the background. The camera slowly pushes in from close-up to extreme-close-up over 2 seconds, increasing tension. The black headphone earcup remains prominently visible in the bottom-right quadrant throughout. Eye-level camera position, front-left key lighting. Cinematic, professional aesthetic, shot on 35mm.
 
       Voiceover (male, confident, punchy): "Noise. Distraction. Always fighting for..."
 

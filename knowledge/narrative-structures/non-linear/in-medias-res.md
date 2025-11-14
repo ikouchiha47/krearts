@@ -6,6 +6,55 @@ Latin for "in the middle of things." Story starts in the middle of the action, t
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Strong hook needed, detective/mystery, social content, dramatic reveal
+
+### Core promise
+- Chronology: A → B → C → D → E
+- Presentation: C (Hook) → A → B → C (Return) → D → E
+
+### Labeled Mermaid graph (Chronology A–E, Presentation P1–P5)
+```mermaid
+flowchart LR
+  subgraph Chronology
+    A[A: Beginning] --> B[B: Build] --> C[C: Crisis] --> D[D: Aftermath] --> E[E: Resolution]
+  end
+  subgraph Presentation
+    P1[C (Hook)] --> P2[A (Back to Start)] --> P3[B (Build)] --> P4[C (Return to Hook)] --> P5[D→E (Continue to End)]
+  end
+  A -.maps to .-> P2
+  B -.maps to .-> P3
+  C -.maps to .-> P1
+  C -.maps to .-> P4
+  D -.maps to .-> P5
+  E -.maps to .-> P5
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: in_medias_res
+chronology: [A, B, C, D, E]
+presentation: [C, A, B, C, D, E]
+mapping:
+  - A -> presentation[2]
+  - B -> presentation[3]
+  - C -> presentation[0] and presentation[4]
+  - D -> presentation[5]
+  - E -> presentation[5]
+constraints:
+  - "Opening hook is C; later return explicitly matches the same moment"
+  - "Time markers clarify jumps (e.g., 'EARLIER TODAY', 'NOW')"
+  - "All chronological beats A–E are present in presentation"
+```
+
+### Quick checklist
+- Clear, exciting hook at C (P1)
+- Explicit time markers for A/B and the return to C (P4)
+- Visual or audio cue confirming “we’re back”
+- Resolution proceeds linearly after return (D→E)
+
 ## Famous Examples
 
 - **The Odyssey** - Homer (original example)

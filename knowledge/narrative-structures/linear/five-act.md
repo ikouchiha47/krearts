@@ -10,6 +10,48 @@ The Five-Act Structure, also known as Freytag's Pyramid, is a dramatic structure
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Tragedy/drama, moral complexity, ensemble arcs, deep consequences
+
+### Core promise
+- A: World and stakes established
+- B: Complications escalate and stakes rise
+- C: Peak decision/crisis point
+- D: Consequences play out deliberately
+- E: Thematic closure/new order
+
+### Labeled Mermaid graph (A–E)
+```mermaid
+flowchart LR
+  A[Act I: Exposition] --> B[Act II: Rising Action]
+  B --> C[Act III: Climax]
+  C --> D[Act IV: Falling Action]
+  D --> E[Act V: Denouement]
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: five_act
+acts:
+  - id: A_exposition
+  - id: B_rising_action
+  - id: C_climax
+  - id: D_falling_action
+  - id: E_denouement
+constraints:
+  - "Climax (C) is shortest/highest intensity"
+  - "Acts II & IV carry extended build and consequence"
+  - "Ending (E) shows new equilibrium and theme"
+```
+
+### Quick checklist
+- A clear setup (A) and escalating complications (B)
+- A sharp, high-intensity turning point (C)
+- Space for consequences (D)
+- A definitive thematic resolution (E)
+
 ## The Five Acts
 
 ### Act I: Exposition (Introduction)

@@ -32,13 +32,19 @@ Stories told in distinct, self-contained segments.
   - *When to use*: Fast-paced action, thrillers, modern blockbusters, clear hero's journey
 - **Five-Act Structure** - `linear/five-act.md` ✅
   - *When to use*: Tragedies, character-driven dramas, complex mysteries, moral dilemmas, Shakespearean adaptations
+- **Freytag’s Pyramid** - `linear/freytag-pyramid.md` ✅
+  - *When to use*: Classical dramatic arc with clear rise–climax–fall; detective reveals with one decisive reversal
 - **Hero's Journey** - `linear/heros-journey.md` ✅
   - *When to use*: Transformation stories, adventure narratives, coming-of-age, hero origin stories
+- **Story Circle (Dan Harmon)** - `linear/story-circle.md` ✅
+  - *When to use*: Character-driven arcs emphasizing transformation and consequence
+- **Fichtean Curve** - `linear/fichtean-curve.md` ✅
+  - *When to use*: High-tension narratives with continuous escalation and minimal setup
 - **Problem-Solution** - `linear/problem-solution.md` ✅
   - *When to use*: Educational content, product demos, B2B videos, how-to guides, direct response
 - **Testimonial Structure** - `linear/testimonial-structure.md` ✅
   - *When to use*: Customer stories, case studies, social proof, before/after transformations
-- **Chronological** - `linear/chronological.md` (TODO)
+- **Chronological** - `linear/chronological.md` ✅
 
 ### Non-Linear Structures
 - **In Medias Res** - `non-linear/in-medias-res.md` ✅
@@ -73,6 +79,7 @@ Stories told in distinct, self-contained segments.
 |-----------|-----------|------------|----------|----------|
 | **Three-Act** | Chronological | Simple | Action, thrillers, clear storytelling | Any |
 | **Five-Act** | Chronological | Medium | Drama, tragedy, character studies | 60min+ |
+| **Freytag’s Pyramid** | Chronological | Medium | Classical drama, single decisive reveal | Any |
 | **Hero's Journey** | Chronological | Medium | Transformation, adventure | 60min+ |
 | **Problem-Solution** | Chronological | Simple | Educational, product demos | 15s-5min |
 | **In Medias Res** | Middle → Beginning → End | Medium | Hook audience, social media | 30s+ |

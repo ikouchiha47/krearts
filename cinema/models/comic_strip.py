@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 class ComicPanel(BaseModel):
     """Single comic book panel"""
     panel_number: int = Field(..., description="Panel number in sequence (1-3)")
-    shot_type: Literal["wide", "medium", "close-up", "extreme close-up", "establishing"] = Field(
+    shot_type: Literal["wide", "medium", "close-up", "extreme-close-up", "establishing"] = Field(
         ..., description="Camera shot type for the panel"
     )
     action_description: str = Field(..., description="What happens in this panel")

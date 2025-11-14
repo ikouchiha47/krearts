@@ -6,6 +6,53 @@ Story told backwards, starting with the ending and moving towards the beginning.
 
 ---
 
+## Impactful Guidance
+
+### When to use
+- Mystery/intrigue, transformation reveal, result-first storytelling
+
+### Core promise
+- Chronology: A → B → C → D → E
+- Presentation: E → D → C → B → A (strict reverse)
+
+### Labeled Mermaid graph (Chronology A–E, Presentation P1–P5)
+```mermaid
+flowchart LR
+  subgraph Chronology
+    A[A: Beginning] --> B[B: Early] --> C[C: Middle] --> D[D: Late] --> E[E: Ending]
+  end
+  subgraph Presentation
+    P1[E (Shown First)] --> P2[D] --> P3[C] --> P4[B] --> P5[A (Shown Last)]
+  end
+  A -.maps to .-> P5
+  B -.maps to .-> P4
+  C -.maps to .-> P3
+  D -.maps to .-> P2
+  E -.maps to .-> P1
+```
+
+### Minimal template (LLM-ready)
+```yaml
+structure: reverse_chronology
+chronology: [A, B, C, D, E]
+presentation: [E, D, C, B, A]
+mapping:
+  - A -> presentation[4]
+  - B -> presentation[3]
+  - C -> presentation[2]
+  - D -> presentation[1]
+  - E -> presentation[0]
+constraints:
+  - "Every presentation step clearly indicates its time marker"
+  - "Causality remains intelligible despite reverse order"
+  - "Opening E is compelling enough to hook"
+```
+
+### Quick checklist
+- Clear time cards per scene
+- Ensure each step answers a “how did we get here?” question
+- Keep jumps limited (3–5 beats for short form)
+
 ## Famous Examples
 
 - **Memento** (2000) - Christopher Nolan

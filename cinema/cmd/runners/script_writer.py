@@ -2,7 +2,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from cinema.agents.scriptwriter.crew import Enhancer, ScriptWriter, ScriptWriterSchema
+from cinema.agents.filmmaker.crew import Enhancer, ScriptWriter, ScriptWriterSchema
 from cinema.context import DirectorsContext
 from cinema.pipeline.script_writing import ScriptWritingPipeline
 from cinema.providers.shared import MediaLib

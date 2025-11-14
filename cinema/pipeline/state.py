@@ -29,6 +29,7 @@ class JobType(str, Enum):
 
     SCREENPLAY = "screenplay"
     CHARACTER = "character"
+    CHARACTER_REF = "character_reference"
     IMAGE = "image"
     VIDEO = "video"
     POST_PRODUCTION = "post_production"
@@ -63,7 +64,9 @@ class PipelineState(BaseModel):
     # Screenplay data
     screenplay: Optional[CinematgrapherCrewOutput] = None
     screenplay_dict: Optional[Dict[str, Any]] = None
-    screenplay_hash: Optional[str] = None  # Hash of screenplay_dict for change detection
+    screenplay_hash: Optional[str] = (
+        None  # Hash of screenplay_dict for change detection
+    )
 
     # Directory paths
     base_dir: Path
@@ -174,9 +177,7 @@ class PipelineState(BaseModel):
             return self.post_production_complete
         return False
 
-    def get_character_image_path(
-        self, character_id: int, view: str = "front"
-    ) -> Path:
+    def get_character_image_path(self, character_id: int, view: str = "front") -> Path:
         """Get path for character reference image"""
         return self.characters_dir / f"char_{character_id}_{view}.png"
 
@@ -200,7 +201,7 @@ class PipelineState(BaseModel):
         """Compute hash of screenplay_dict for change detection"""
         if not self.screenplay_dict:
             return None
-        
+
         # Sort keys for consistent hashing
         screenplay_json = json.dumps(self.screenplay_dict, sort_keys=True)
         return hashlib.sha256(screenplay_json.encode()).hexdigest()
@@ -209,8 +210,8 @@ class PipelineState(BaseModel):
         """Check if new screenplay is different from stored one"""
         if not self.screenplay_hash:
             return True  # No previous hash, treat as changed
-        
+
         new_json = json.dumps(new_screenplay_dict, sort_keys=True)
         new_hash = hashlib.sha256(new_json.encode()).hexdigest()
-        
+
         return new_hash != self.screenplay_hash

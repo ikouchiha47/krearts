@@ -23,7 +23,7 @@ Contains:
 
 ---
 
-### narrative-techniques.md
+### storytelling-techniques.md
 **Detective-specific storytelling techniques**
 
 Contains 16 detailed techniques organized by category:
@@ -40,12 +40,12 @@ Contains 16 detailed techniques organized by category:
 
 ## Key Distinctions
 
-### Detective Principles vs Narrative Techniques
+### Detective Principles vs Storytelling Techniques
 - **Principles** (principles.md): WHAT must be present (evidence, motives, clues)
-- **Techniques** (narrative-techniques.md): HOW to reveal information (pacing, disclosure)
+- **Techniques** (storytelling-techniques.md): HOW to reveal information (pacing, disclosure)
 
-### Detective Techniques vs Narrative Structures
-- **Detective Techniques**: Genre-specific storytelling methods (Slow-Burn Pivot, The Gathering)
+### Detective Storytelling Techniques vs Narrative Structures
+- **Detective Storytelling Techniques**: Genre-specific storytelling methods (Slow-Burn Pivot, The Gathering)
 - **Narrative Structures**: General timeline organization (Three-Act, In Medias Res)
 - **Location**: Narrative structures are in `/knowledge/narrative-structures/`
 
@@ -55,7 +55,7 @@ Contains 16 detailed techniques organized by category:
 
 ### 1. Planning Phase
 - Review `principles.md` for requirements
-- Choose 2-3 techniques from `narrative-techniques.md`
+- Choose 2-3 techniques from `storytelling-techniques.md`
 - Select narrative structure from `/knowledge/narrative-structures/`
 
 ### 2. Writing Phase
@@ -81,7 +81,7 @@ Contains 16 detailed techniques organized by category:
 - ✅ ≥3 evidence types from forensic hierarchy
 - ✅ Killer has documented opportunity
 
-### Recommended Techniques (from narrative-techniques.md)
+### Recommended Techniques (from storytelling-techniques.md)
 **For Fair-Play Mysteries**: Breadcrumb Chain, Convergent Evidence, Overlooked Detail
 **For Psychological Thrillers**: Emotional Trigger, Sympathetic Ear, Unreliable Witness
 **For Action-Oriented**: Ticking Clock, Contradiction Trap, The Gathering
@@ -97,14 +97,14 @@ Both files are loaded as knowledge sources in the detective plot builder:
 knowledge_sources = TextFileKnowledgeSource(
     file_paths=[
         "storywriting/detective/principles.md",
-        "storywriting/detective/narrative-techniques.md",  # NEW
+        "storywriting/detective/storytelling-techniques.md",  # NEW
         "narrative-structures/index.md"
     ]
 )
 ```
 
 ### Critique Agent
-The critique agent uses `principles.md` to validate storylines and can reference `narrative-techniques.md` for technique-specific feedback.
+The critique agent uses `principles.md` to validate storylines and can reference `storytelling-techniques.md` for technique-specific feedback.
 
 ---
 
@@ -157,7 +157,7 @@ Butler-Price Alliance:
 
 When adding new content:
 1. **Principles**: Add to `principles.md` if it's a validation rule or requirement
-2. **Techniques**: Add to `narrative-techniques.md` if it's a storytelling method
+2. **Techniques**: Add to `storytelling-techniques.md` if it's a storytelling method
 3. **Examples**: Keep examples generic and decoupled from specific storylines
 4. **Cross-reference**: Update this README when adding new files
 
@@ -167,5 +167,6 @@ When adding new content:
 
 - v1.0: Initial principles.md
 - v1.1: Added Common Critique Points and Forensic Evidence Hierarchy
-- v1.2: Created narrative-techniques.md with 16 detailed techniques
+- v1.2: Created storytelling-techniques.md with 16 detailed techniques
 - v1.3: Added this README for navigation
+- v1.4: Renamed narrative-techniques.md to storytelling-techniques.md for clarity

@@ -2,7 +2,7 @@ import asyncio
 import logging
 from io import BytesIO
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, List, Optional, Union
 
 from google import genai
 from google.genai import types
@@ -28,6 +28,7 @@ class GeminiMediaGen:
         self,
         prompt: str,
         reference_image: Optional[ImageInput] = None,
+        **kwargs: Any
     ) -> types.GenerateContentResponse:
         """
         Generate image content with optional reference image for consistency.
@@ -74,6 +75,8 @@ class GeminiMediaGen:
             # contents is list[PartUnionDict] where PartUnionDict = str | PIL_Image | ...
             # So we pass [str, PIL_Image] as list of parts
             logger.info("📸 Calling Gemini with reference image for consistency")
+            logger.info(f"Prompt: {prompt}")
+            
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
                 model="gemini-2.5-flash-image",
@@ -92,6 +95,66 @@ class GeminiMediaGen:
                 config={"response_modalities": ["IMAGE"]},
             )
             logger.info("✅ Image generated successfully without reference")
+
+        return response
+
+    async def generate_content_with_images(
+        self, 
+        images: list[Image.Image], 
+        prompt: str, 
+        aspect_ratio: Optional[str] = "9:16",
+        **kwargs: Any
+    ) -> types.GenerateContentResponse:
+        """
+        Generate image content using multiple reference images (ingredients to image).
+
+        This is used for composing scenes with multiple character references.
+
+        Args:
+            images: List of PIL Images to use as references
+            prompt: Text prompt for image generation
+            **kwargs: Additional arguments (currently unused)
+
+        Returns:
+            Response from Gemini image generation
+        """
+        # Rate limit
+        await self.rate_limiter.acquire("gemini-2.5-flash-image")
+
+        logger.info(
+            "🎨 Generating image with multiple references (ingredients to image)"
+        )
+        logger.debug(f"Number of reference images: {len(images)}")
+        logger.debug(f"Prompt length: {len(prompt)} chars")
+
+        # Verify all images are PIL Images
+        for i, img in enumerate(images):
+            if not isinstance(img, Image.Image):
+                logger.error(f"Image {i} is not a PIL Image: {type(img).__name__}")
+                raise TypeError(f"Expected PIL Image, got {type(img).__name__}")
+
+        # Build contents list: [prompt, image1, image2, ...]
+        # contents is list[PartUnionDict] where PartUnionDict = str | PIL_Image | ...
+        # contents = [prompt] + images
+
+        logger.debug(f"Full prompt: {prompt}")
+
+        image_config = types.ImageConfig(
+            aspect_ratio=aspect_ratio,
+        )
+        config = types.GenerateContentConfig(
+            response_modalities=[types.Modality.IMAGE],
+            image_config=image_config,
+        )
+
+        logger.info(f"📸 Calling Gemini with {len(images)} reference images")
+        response = await asyncio.to_thread(
+            self.client.models.generate_content,
+            model="gemini-2.5-flash-image",
+            contents=[prompt, *images],
+            config=config,
+        )
+        logger.info("✅ Image generated successfully with multiple references")
 
         return response
 
@@ -156,7 +219,7 @@ class GeminiMediaGen:
         prompt: str,
         image: Optional[ImageInput] = None,
         last_image: Optional[ImageInput] = None,
-        reference_images: Optional[list[ImageInput]] = None,
+        reference_images: Optional[List[ImageInput]] = None,
         duration: Optional[float] = None,
     ):
         # Rate limit
@@ -164,7 +227,7 @@ class GeminiMediaGen:
 
         logger.info(f"🐟🐟🐟🐟 dsfsfsfsfd {image}")
         logger.info("🎬 Generating video with Gemini Veo")
-        logger.debug(f"Prompt: {prompt[:100]}...")
+        logger.debug(f"Prompt: {prompt}...")
         logger.debug(f"Duration: {duration}s")
         logger.debug(f"Has image: {image is not None}")
         logger.debug(f"Has last_image: {last_image is not None}")
@@ -193,6 +256,7 @@ class GeminiMediaGen:
                         reference_type=types.VideoGenerationReferenceType.ASSET,
                     )
                 )
+
             config_kwargs["reference_images"] = ref_list
             logger.debug(f"Added {len(ref_list)} reference images")
 
