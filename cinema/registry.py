@@ -231,7 +231,7 @@ OpenAiHerd = (
     .register_model(
         LLMThinkerIntent,
         ModelConfig(
-            name="openai/gpt-4.1",
+            name="openai/gpt-4.1-mini",  # used by bookwriter, can be llama3.1 long writer
             is_hosted=False,
             temp=0.8,
             lazy_load=True,
@@ -243,7 +243,7 @@ OpenAiHerd = (
     .register_model(
         LLMExecutorIntent,
         ModelConfig(
-            name="openai/gpt-4.1",
+            name="openai/gpt-4.1-mini",  # chapterbuilder, try llama3.1
             is_hosted=False,
             temp=0.0,
             loader=LLM,
