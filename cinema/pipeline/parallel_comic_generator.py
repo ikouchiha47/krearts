@@ -32,12 +32,14 @@ class ParallelComicGenerator:
         ctx: DirectorsContext,
         screenplay: str,
         max_concurrent: int = 3,
-        output_base_dir: Optional[str] = None  # Optional: if provided, saves chapter JSONs here
+        output_base_dir: Optional[str] = None,  # Optional: if provided, saves chapter JSONs here
+        use_mock: bool = False  # If True, use existing chapter JSONs instead of generating
     ):
         self.ctx = ctx
         self.screenplay = screenplay
         self.semaphore = asyncio.Semaphore(max_concurrent)
         self.output_base_dir = output_base_dir
+        self.use_mock = use_mock
         self._screenplay_kb = StringKnowledgeSource(content=self.screenplay)
     
     async def generate(self, novel: Novel, art_style: str) -> ComicBookOutput:
@@ -111,7 +113,7 @@ class ParallelComicGenerator:
                 crew = ChapterBuilder(
                     ctx=self.ctx,
                     outfile=outfile,
-                    use_mock=False,
+                    use_mock=self.use_mock,  # Use skipper config
                     knowledge_sources=[self._screenplay_kb],  # NOTE: can be singleton
                 )
                 

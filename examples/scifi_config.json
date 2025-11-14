@@ -16,8 +16,9 @@
     "_description": "Control which stages use mock/cached data vs actual generation",
     "p": false,
     "c": false,
+    "e": false,
     "w": false,
-    "s": true,
-    "_note": "p=plotbuilder, c=critique, w=writer(screenplay/book), s=storyboard. true=skip/mock, false=generate"
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
   }
 }

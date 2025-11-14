@@ -37,6 +37,34 @@ Each stage can be run independently and resumed if interrupted.
 
 ---
 
+## Quick Test (Mock Mode - 30 seconds)
+
+For rapid testing without LLM calls, use the test config with mocks enabled:
+
+```bash
+# Stage 1: Init (uses cached plot/critique)
+python cinema/cmd/krearts.py init book --config test_init_config.json
+# Output: ID: abc123 (completes in ~2 seconds)
+
+# Stage 2: Book generation (uses cached novel)
+python cinema/cmd/krearts.py book abc123 --continue
+# Output: novel.md created (completes in ~2 seconds)
+
+# Stage 3: Chapter generation (uses cached chapter JSON)
+python cinema/cmd/krearts.py book abc123 --chapters 1
+# Output: chapter_01.json created (completes in ~1 second)
+```
+
+**Mock files used:**
+- `detective_storyline.md` - Cached plot
+- `critique_storyline.md` - Cached critique
+- `novel.md` - Cached novel
+- `comic_generator.json` - Cached chapter
+
+**Total time:** ~5 seconds for complete workflow test
+
+---
+
 ## Complete Workflow Example
 
 ### Stage 1: Initialize (Generate Storyline)
@@ -63,21 +91,33 @@ python cinema/cmd/krearts.py init book --config my_config.json
 - Generates unique workflow ID (e.g., `a1b2c3d4`)
 - Runs DetectivePlotBuilder crew to create storyline
 - Runs PlotCritique crew to validate (loops until PASS or max retries)
+- Halts at bookerama stage
 - Saves storyline and state to `output/book_{id}/`
 - Saves input config to `output/book_{id}/input_config.json`
+- Saves flow state to `output/flow_states/storybuilder_{id}.json`
 
 **Output:**
 ```
 ✅ Initialization complete
    ID: a1b2c3d4
    Output: output/book_a1b2c3d4
-   Storyline: 5000 chars
+   Storyline: 20000 chars
    Critique: PASS
 
 Next: krearts book a1b2c3d4 --continue
 ```
 
 **Time:** ~5-10 minutes (depends on LLM speed and critique iterations)
+
+**Actual run log:**
+```
+2025-11-15 02:41:24 - ✅ Flow halted at: bookerama
+2025-11-15 02:41:24 - ✅ Storyline generated for: 68afdc95
+2025-11-15 02:41:24 - ✅ Initialization complete
+2025-11-15 02:41:24 -    ID: 68afdc95
+2025-11-15 02:41:24 -    Storyline: 19507 chars
+2025-11-15 02:41:24 -    Critique: PASS
+```
 
 ---
 
@@ -102,6 +142,15 @@ Next: krearts book a1b2c3d4 chapters all
 ```
 
 **Time:** ~10-20 minutes (generates ~10,000 words)
+
+**Actual run log:**
+```
+2025-11-15 02:48:11 - ✅ Book generated: output/book_68afdc95/novel.md
+2025-11-15 02:48:11 - ✅ Book generation complete
+2025-11-15 02:48:11 -    Output: output/book_68afdc95/novel.md
+```
+
+**Time taken:** 7 minutes (from 02:41 to 02:48)
 
 ---
 
@@ -142,6 +191,16 @@ Next: krearts chapters a1b2c3d4 --pages 1,10
 ```
 
 **Time:** ~30-60 minutes for 10 chapters (parallel processing)
+
+**Actual run log (1 chapter):**
+```
+2025-11-15 03:02:00 - Processing Chapter 1
+2025-11-15 03:02:00 - ✓ Chapter 1 complete: 6 scenes, 6 pages, 15 panels
+2025-11-15 03:02:00 - ✅ Chapters generated: [1]
+2025-11-15 03:02:00 -    Total generated: 1
+```
+
+**Time taken:** 3 minutes for 1 chapter
 
 ---
 
@@ -279,31 +338,48 @@ This creates `workflow_state.json` and detects existing chapters/pages.
 
 ## Example: Complete Run
 
+### Quick Test (Mock Mode)
+```bash
+# Complete workflow in ~5 seconds using cached data
+python cinema/cmd/krearts.py init book --config test_init_config.json
+# ID: abc123
+
+python cinema/cmd/krearts.py book abc123 --continue
+python cinema/cmd/krearts.py book abc123 --chapters 1
+python cinema/cmd/krearts.py status abc123
+```
+
+### Full Production Run
 ```bash
 # 1. Generate config
 python cinema/cmd/krearts.py template book --detective --output scifi.json
 
 # 2. Edit scifi.json with your story details
 
-# 3. Initialize (generate storyline)
+# 3. Initialize (generate storyline) - ~10 min
 python cinema/cmd/krearts.py init book --config scifi.json
-# Output: ID: a1b2c3d4
+# Output: ID: 68afdc95
 
 # 4. Check status
-python cinema/cmd/krearts.py status a1b2c3d4
+python cinema/cmd/krearts.py status 68afdc95
 
-# 5. Generate novel
-python cinema/cmd/krearts.py book a1b2c3d4 --continue
+# 5. Generate novel - ~7 min
+python cinema/cmd/krearts.py book 68afdc95 --continue
 
-# 6. Generate all chapters
-python cinema/cmd/krearts.py book a1b2c3d4 chapters all
+# 6. Generate chapter 1 - ~3 min
+python cinema/cmd/krearts.py book 68afdc95 --chapters 1
 
-# 7. Check status again
-python cinema/cmd/krearts.py status a1b2c3d4
+# 7. Generate all chapters - ~30 min
+python cinema/cmd/krearts.py book 68afdc95 --chapters all
 
-# 8. (Optional) Generate first 10 pages
-python cinema/cmd/krearts.py chapters a1b2c3d4 --pages 1,10
+# 8. Check final status
+python cinema/cmd/krearts.py status 68afdc95
+
+# 9. (Optional) Generate first 10 pages
+python cinema/cmd/krearts.py chapters 68afdc95 --pages 1,10
 ```
+
+**Total time:** ~20 minutes (plot + novel + 1 chapter) or ~50 minutes (complete with all 10 chapters)
 
 ---
 

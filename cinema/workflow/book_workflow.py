@@ -12,7 +12,7 @@ import asyncio
 import logging
 from typing import Optional, List, Dict, Any
 
-from cinema.workflow.interface import WorkflowInterface, WorkflowType, WorkflowStage
+from cinema.workflow.interface import WorkflowInterface, WorkflowType, WorkflowStage, WorkflowState
 from cinema.context import DirectorsContext
 
 logger = logging.getLogger(__name__)
@@ -143,9 +143,16 @@ class BookWorkflow(WorkflowInterface):
             ),
         )
         
+        # Pass config to flow state for eval skipper
+        flow.state.config = kwargs
+        
         # Run flow until halt
         logger.info("Running StoryBuilder flow (plan + critique)...")
         await flow.kickoff_async()
+        
+        # Check if flow halted as expected
+        if flow.state.halted_at:
+            logger.info(f"✅ Flow halted at: {flow.state.halted_at}")
         
         # Extract results
         output = flow.state.output
@@ -158,6 +165,7 @@ class BookWorkflow(WorkflowInterface):
             "characters": characters,
             "killer": killer,
             "victim": victim,
+            "halted_at": flow.state.halted_at,
         }
         
         self.state.storyline_done = True
@@ -226,7 +234,11 @@ class BookWorkflow(WorkflowInterface):
             
             # Set generation target and halt point
             flow.generation_target = "bookerama"
+            # ALWAYS halt at storyboard - chapter generation is handled separately
             flow.state.waits_at = {"storyboard": True}
+        
+        # Ensure storyboard halt is set even when resuming
+        flow.state.waits_at["storyboard"] = True
         
         # Run flow until halt at storyboard
         logger.info("Running StoryBuilder flow (bookerama generation)...")
@@ -319,21 +331,28 @@ class BookWorkflow(WorkflowInterface):
         filtered_chapters = [novel.chapters[i-1] for i in new_chapters]
         filtered_novel = Novel(
             title=novel.title,
+            setup=novel.setup,
             context=novel.context,
             metadata=novel.metadata,
             chapters=filtered_chapters
         )
         
+        # Get skipper config for chapter generation
+        skipper = self.state.config.get('skipper', {})
+        use_mock_chapters = skipper.get('s', False)
+        
         generator = ParallelComicGenerator(
             ctx=self.ctx,
             screenplay=novel_text,
             max_concurrent=3,
-            output_base_dir=self.output_dir
+            output_base_dir=self.output_dir,
+            use_mock=use_mock_chapters  # Pass skipper config
         )
         
         art_style = kwargs.get('art_style', 'Print Comic Noir Style')
         
         logger.info(f"   Running ParallelComicGenerator for {len(new_chapters)} chapters...")
+        logger.info(f"   use_mock={use_mock_chapters} (from skipper['s'])")
         comic_output = await generator.generate(
             novel=filtered_novel,
             art_style=art_style

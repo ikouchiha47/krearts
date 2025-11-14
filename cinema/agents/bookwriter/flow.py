@@ -49,6 +49,7 @@ class StoryBuilderState(BaseModel):
         "plan",
         "critique",
         "screenplay",
+        "bookerama",
         "storyboard",
         "success",
         "error",
@@ -62,11 +63,12 @@ class StoryBuilderState(BaseModel):
 
     # Configuration flags
     skip_storyboard: bool = False  # If True, stop after critique passes
+    config: Dict[str, Any] = {}  # Workflow config (includes skipper settings)
 
 
-_skippers = {
-    "e": True,
-}
+# Eval skipper - now controlled by config, not global
+# This is kept for backward compatibility with flows that don't have config
+_default_eval_skip = False
 
 
 class StoryBuilder(Flow[StoryBuilderState]):
@@ -276,9 +278,15 @@ class StoryBuilder(Flow[StoryBuilderState]):
         assert self.state.input.plotbuilder is not None, "PlotSchemaNotFound"
         assert self.state.output.critique is not None, "FeedbackNotFound"
 
-        if _skippers["e"]:
-            logger.info("Skipping eval")
-
+        # Check if eval should be skipped (from config or default)
+        skip_eval = _default_eval_skip
+        if self.state.input and hasattr(self.state.input, 'plotbuilder'):
+            # Try to get skipper config from state
+            if hasattr(self.state, 'config') and self.state.config:
+                skip_eval = self.state.config.get('skipper', {}).get('e', _default_eval_skip)
+        
+        if skip_eval:
+            logger.info("Skipping eval (skipper['e'] = True)")
             self.update_state(self.generation_target)
             return self.state.current_state
 
@@ -300,6 +308,16 @@ class StoryBuilder(Flow[StoryBuilderState]):
             logger.info("✓ Critique PASSED")
             self.state.output.critique = None
 
+            # Check if we should halt at the generation target (bookerama/screenplay)
+            if self.state.waits_at.get(self.generation_target, False):
+                logger.info(f"⏸️  Flow halted before {self.generation_target} stage (waits_at['{self.generation_target}'] = True)")
+                self.state.halted_at = self.generation_target
+                # Set current_state to the target so resume starts from there
+                self.update_state(self.generation_target)
+                self.save_state()
+                # Return success to end the flow
+                return "success"
+
             # Check if we should skip storyboarding
             if self.state.skip_storyboard:
                 logger.info("Skipping storyboard (skip_storyboard=True)")
@@ -307,10 +325,20 @@ class StoryBuilder(Flow[StoryBuilderState]):
             else:
                 self.update_state(self.generation_target)  # "screenplay")
 
-        elif self.state.output.retry_count > MAX_RETRIES:  # because 0 indexed
+        elif self.state.output.retry_count >= MAX_RETRIES:  # because 0 indexed
             logger.warning(f"⚠ Max retries ({MAX_RETRIES}) reached")
+            
+            # Check if we should halt at the generation target even after max retries
+            if self.state.waits_at.get(self.generation_target, False):
+                logger.info(f"⏸️  Flow halted before {self.generation_target} stage (waits_at['{self.generation_target}'] = True)")
+                self.state.halted_at = self.generation_target
+                # Set current_state to the target so resume starts from there
+                self.update_state(self.generation_target)
+                self.save_state()
+                # Return success to end the flow
+                return "success"
+            
             logger.info(f"Skipping? {self.state.skip_storyboard}")
-
             self.state.output.retry_count += 1
 
             if self.state.skip_storyboard:

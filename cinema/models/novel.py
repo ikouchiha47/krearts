@@ -100,8 +100,8 @@ class Novel:
         """Extract all chapters from the novel"""
         chapters = []
         
-        # Find all chapter headings (## Chapter N: Title)
-        chapter_pattern = r'## Chapter (\d+):\s*(.+?)(?=\n)'
+        # Find all chapter headings (## Chapter N: Title or # Chapter N: Title)
+        chapter_pattern = r'##? Chapter (\d+):\s*(.+?)(?=\n)'
         chapter_matches = list(re.finditer(chapter_pattern, content))
         
         for i, match in enumerate(chapter_matches):
