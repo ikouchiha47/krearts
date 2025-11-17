@@ -1,6 +1,8 @@
 // GSAP Animations
 gsap.registerPlugin(ScrollTrigger);
 
+POSTHOG_API_KEY = "phc_xhYo3tkCnQ2t2vOo8SlIb0qLguYhlfaIO8BfeSToq1l"
+
 // Initialize animations when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initAnimations();
