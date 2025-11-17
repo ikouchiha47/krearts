@@ -674,7 +674,7 @@ body {
     width: 80px;
     height: 80px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    background-image: url('assets/jack.png');
+    background-image: url('assets/jack.webp');
     background-size: cover;
     background-position: center;
     border-radius: 50%;
@@ -685,7 +685,7 @@ body {
 .char-avatar.veronica {
     border-color: var(--accent);
     background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
-    background-image: url('assets/veronica.png');
+    background-image: url('assets/veronica.webp');
     background-size: cover;
     background-position: center;
 }
@@ -693,7 +693,7 @@ body {
 .char-avatar.tommy {
     border-color: var(--text-muted);
     background: linear-gradient(135deg, #52525b 0%, #3f3f46 100%);
-    background-image: url('assets/tommy.png');
+    background-image: url('assets/tommy.webp');
     background-size: cover;
     background-position: center;
 }
@@ -743,12 +743,12 @@ body {
 
 .agent-avatar.jack {
     border-color: var(--primary);
-    background-image: url('assets/jack.png');
+    background-image: url('assets/jack.webp');
 }
 
 .agent-avatar.veronica {
     border-color: var(--accent);
-    background-image: url('assets/veronica.png');
+    background-image: url('assets/veronica.webp');
 }
 
 .thought-bubble {
@@ -940,12 +940,12 @@ body {
 
 .memory-avatar.jack {
     border-color: var(--primary);
-    background-image: url('assets/jack.png');
+    background-image: url('assets/jack.webp');
 }
 
 .memory-avatar.veronica {
     border-color: var(--accent);
-    background-image: url('assets/veronica.png');
+    background-image: url('assets/veronica.webp');
 }
 
 .memory-content {
@@ -1043,12 +1043,12 @@ body {
 }
 
 .node-avatar.jack {
-    background-image: url('assets/jack.png'), linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background-image: url('assets/jack.webp'), linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     border-color: var(--primary);
 }
 
 .node-avatar.veronica {
-    background-image: url('assets/veronica.png'), linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+    background-image: url('assets/veronica.webp'), linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
     border-color: var(--accent);
 }
 
@@ -1155,12 +1155,12 @@ body {
 
 .dialogue-avatar.jack {
     border-color: var(--primary);
-    background-image: url('assets/jack.png');
+    background-image: url('assets/jack.webp');
 }
 
 .dialogue-avatar.veronica {
     border-color: var(--accent);
-    background-image: url('assets/veronica.png');
+    background-image: url('assets/veronica.webp');
 }
 
 .dialogue-bubble {

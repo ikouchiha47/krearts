@@ -55,6 +55,16 @@ IMPORTANT:
 This structure is essential for tracking your decisions and maintaining continuity.
 """
 
+CHARACTER_BACKSTORY_SUFFIX = """
+### Instructions must abide by
+- Stay in character based on your role, backstory, and motivations
+- React authentically to other characters' actions and dialogue
+- Use your skills and knowledge appropriately
+- Consider your relationships and past interactions
+- Respond to stress according to your personality
+- Work toward your character's goals while interacting naturally
+"""
+
 class CharacterAgentBuilder:
     """Builder for creating a CrewAI Agent from a Character with optional context"""
     
@@ -149,6 +159,8 @@ class CharacterAgentBuilder:
             backstory_parts.append("\n\nAdditional Context:")
             for ctx in self._additional_context:
                 backstory_parts.append(ctx)
+
+        backstory_parts.append(f"\n {CHARACTER_BACKSTORY_SUFFIX} \n")
 
         return "\n".join(backstory_parts)
     

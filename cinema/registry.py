@@ -273,7 +273,8 @@ OpenAiHerd = (
         LLMImageGenIntent,
         ModelConfig(
             # name="gpt-5-mini-2025-08-07",
-            name="gemini/gemini-2.5-flash-image-preview",
+            # name="gemini/gemini-2.5-flash-image-preview",
+            name="imagen-3.0-generate-002",
             loader=LLM,
             is_hosted=False,
         ),
