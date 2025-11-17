@@ -1,3 +1,11 @@
+/* Hide MailerLite form */
+.ml-embedded {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
 /* Reset & Base */
 * {
     margin: 0;
