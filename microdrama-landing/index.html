@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Watch your stories come to life. Create character-consistent visual narratives and animated microdramas for Instagram with Krearts.">
+    <meta name="keywords" content="AI comics, Instagram carousel, character consistency, generative agents, visual storytelling, AI drama generator, noir detective, character-locked">
+    <meta property="og:title" content="Krearts - Watch Your Stories Come to Life">
+    <meta property="og:description" content="Create character-consistent visual narratives and animated microdramas for Instagram. Watch your characters interact and bring stories to life.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Krearts - Watch Your Stories Come to Life">
+    <meta name="twitter:description" content="Create character-consistent visual narratives and animated microdramas for Instagram.">
+    
+    <title>Krearts - Watch Your Stories Come to Life | Visual Storytelling Platform</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container nav-container">
+            <div class="logo">
+                <i data-feather="film" class="logo-icon"></i>
+                <span class="logo-text">Krearts</span>
+            </div>
+            <div class="nav-links">
+                <a href="#examples">Examples</a>
+                <a href="#cta" class="btn-primary btn-small">Get Access</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Stories That Tell Themselves</span>
+                </h1>
+                <p class="hero-tagline">Bring Your Characters to Life</p>
+                <p class="hero-subtitle">
+                    Create character-consistent visual narratives and animated microdramas for Instagram. Your characters remember past conversations, make decisions, and interact naturally.
+                </p>
+                <div class="hero-cta">
+                    <a href="#cta" class="btn-primary btn-large cta-track" data-cta="hero-primary">
+                        <i data-feather="arrow-right"></i>
+                        Get Early Access
+                    </a>
+                    <a href="#examples" class="btn-secondary btn-large scroll-link">
+                        <i data-feather="eye"></i>
+                        See Examples
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="carousel-preview">
+                    <div class="carousel-panel active">
+                        <img src="assets/panel1.png" alt="Blood Red Lotus Panel 1" class="panel-image">
+                        <div class="panel-caption">"The city never sleeps, only shivers."</div>
+                    </div>
+                    <div class="carousel-panel">
+                        <img src="assets/panel2.png" alt="Blood Red Lotus Panel 2" class="panel-image">
+                        <div class="panel-caption">"Jack, it's Eddie. He's missing."</div>
+                    </div>
+                    <div class="carousel-panel">
+                        <img src="assets/panel3.png" alt="Blood Red Lotus Panel 3" class="panel-image">
+                        <div class="panel-caption">"Rain-soaked streets of New Harbor."</div>
+                    </div>
+                </div>
+                <div class="carousel-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i data-feather="chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem" class="problem-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">The Problem</h2>
+                <p class="section-subtitle">What people hate about AI content generation</p>
+            </div>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i data-feather="user-x"></i>
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">"My AI characters look different in every panel."</h3>
+                        <p class="problem-description">You're fighting "Facial Feature Drift". Your protagonist's face and clothes change randomly, breaking immersion and ruining your story.</p>
+                        <div class="solution-preview">
+                            <strong><i data-feather="check-circle"></i> Our Solution:</strong>
+                            Character-Lock keeps faces and clothes consistent across all panels.
+                        </div>
+                    </div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i data-feather="file-text"></i>
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">"I have writer's block. I'm not a novelist."</h3>
+                        <p class="problem-description">The "blank page" is terrifying. You want to create a comic, but you don't have a script. Every "AI story generator" just gives you a wall of generic text.</p>
+                        <div class="solution-preview">
+                            <strong><i data-feather="check-circle"></i> Our Solution:</strong>
+                            Create Character Cards with conflicting goals. AI agents generate the story.
+                        </div>
+                    </div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">
+                        <i data-feather="meh"></i>
+                    </div>
+                    <div class="problem-content">
+                        <h3 class="problem-title">"My AI-generated stories are boring and predictable."</h3>
+                        <p class="problem-description">You're experiencing "AI fatigue". Every story you generate feels "standardized" and "lacks depth". It's not your story; it's a template.</p>
+                        <div class="solution-preview">
+                            <strong><i data-feather="check-circle"></i> Our Solution:</strong>
+                            Generative Agents create unique stories from character interactions, not templates.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="solution" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">From storyline to Instagram carousel in 4 steps</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">
+                        <span>01</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">
+                            <i data-feather="book-open"></i>
+                            Start with a Storyline
+                        </h3>
+                        <p class="step-description">Pick a genre (Detective Noir, Sci-Fi, Fantasy) or create your own. Define the world, conflict, and setting. No script needed, just the premise.</p>
+                        <div class="step-visual">
+                            <div class="storyline-example">
+                                <div class="storyline-tag"><i data-feather="target"></i> Detective Noir</div>
+                                <div class="storyline-text">"New Harbor City, 1952. Ex-cop Jack Malone investigates a missing person case that leads to murder, corruption, and betrayal."</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">
+                        <span>02</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">
+                            <i data-feather="users"></i>
+                            Create Your Cast
+                        </h3>
+                        <p class="step-description">Upload reference images or generate AI characters. Each character gets a "Character Card" with personality, backstory, quirks, and goals. This locks their appearance across all panels.</p>
+                        <div class="step-visual">
+                            <div class="character-cards">
+                                <div class="char-card">
+                                    <div class="char-avatar"></div>
+                                    <div class="char-name">Jack Malone</div>
+                                    <div class="char-trait"><i data-feather="shield"></i> Detective</div>
+                                </div>
+                                <div class="char-card">
+                                    <div class="char-avatar veronica"></div>
+                                    <div class="char-name">Veronica Steele</div>
+                                    <div class="char-trait"><i data-feather="music"></i> Club Owner</div>
+                                </div>
+                                <div class="char-card">
+                                    <div class="char-avatar tommy"></div>
+                                    <div class="char-name">Tommy Russo</div>
+                                    <div class="char-trait"><i data-feather="alert-triangle"></i> Enforcer</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">
+                        <span>03</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">
+                            <i data-feather="cpu"></i>
+                            Let Agents Generate Drama
+                        </h3>
+                        <p class="step-description">Our AI agents simulate your characters' behaviors, memories, and conflicts. They plan, reflect, and interact to create emergent narratives that surprise even you.</p>
+                        <div class="step-visual">
+                            <div class="agent-simulation">
+                                <div class="agent-thought">
+                                    <div class="agent-avatar jack"></div>
+                                    <div class="thought-bubble">
+                                        <strong>Jack's Memory:</strong> "Veronica's fingers trembled when she mentioned Eddie. She's hiding something."
+                                    </div>
+                                </div>
+                                <div class="agent-thought">
+                                    <div class="agent-avatar veronica"></div>
+                                    <div class="thought-bubble">
+                                        <strong>Veronica's Goal:</strong> "Protect my brother's secret. Don't let Jack find the ledger."
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">
+                        <span>04</span>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">
+                            <i data-feather="instagram"></i>
+                            Publish & Spin-off
+                        </h3>
+                        <p class="step-description">Export your 10-panel carousel to Instagram. Then hit "Spin-off" to create branching timelines. Ask "What if..." and generate infinite variations.</p>
+                        <div class="step-visual">
+                            <div class="export-preview">
+                                <div class="export-option">
+                                    <i data-feather="download"></i>
+                                    <span>Export to Instagram</span>
+                                </div>
+                                <div class="export-option spinoff">
+                                    <i data-feather="git-branch"></i>
+                                    <span>Create Spin-off</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section id="examples" class="examples">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Blood Red Lotus: A Real Example</h2>
+                <p class="section-subtitle">See character consistency, emergent dialogue, and memory in action</p>
+            </div>
+            
+            <div class="example-showcase">
+                <div class="showcase-panels">
+                    <div class="showcase-panel">
+                        <div class="panel-frame">
+                            <img src="assets/panel1.png" alt="Blood Red Lotus Panel 1">
+                        </div>
+                        <div class="panel-meta">
+                            <span class="panel-label">Panel 1 - Establishing Shot</span>
+                            <p class="panel-narration">"The city never sleeps, only shivers."</p>
+                        </div>
+                    </div>
+                    <div class="showcase-panel">
+                        <div class="panel-frame">
+                            <img src="assets/panel2.png" alt="Blood Red Lotus Panel 2">
+                        </div>
+                        <div class="panel-meta">
+                            <span class="panel-label">Panel 4 - Character Consistency</span>
+                            <p class="panel-dialogue"><strong>Veronica:</strong> "Jack, it's Eddie. He's missing."</p>
+                        </div>
+                    </div>
+                    <div class="showcase-panel">
+                        <div class="panel-frame">
+                            <img src="assets/panel3.png" alt="Blood Red Lotus Panel 3">
+                        </div>
+                        <div class="panel-meta">
+                            <span class="panel-label">Panel 8 - Atmospheric Detail</span>
+                            <p class="panel-narration">"Rain-soaked streets of New Harbor."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-memory-demo">
+                    <h3 class="demo-title">
+                        <i data-feather="database"></i>
+                        Character Memory System
+                    </h3>
+                    <div class="memory-cards">
+                        <div class="memory-card">
+                            <div class="memory-header">
+                                <div class="memory-avatar jack"></div>
+                                <strong>Jack Malone</strong>
+                            </div>
+                            <div class="memory-content">
+                                <div class="memory-item">
+                                    <i data-feather="eye"></i>
+                                    <span><strong>Observation:</strong> "Veronica's fingers trembled when she passed me the note. She's hiding something."</span>
+                                </div>
+                                <div class="memory-item">
+                                    <i data-feather="clock"></i>
+                                    <span><strong>Reflection:</strong> "Last time I trusted someone in this city, it almost killed me."</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="memory-card">
+                            <div class="memory-header">
+                                <div class="memory-avatar veronica"></div>
+                                <strong>Veronica Steele</strong>
+                            </div>
+                            <div class="memory-content">
+                                <div class="memory-item">
+                                    <i data-feather="shield"></i>
+                                    <span><strong>Goal:</strong> "Protect Eddie's secret. Don't let Jack find the ledger."</span>
+                                </div>
+                                <div class="memory-item">
+                                    <i data-feather="heart"></i>
+                                    <span><strong>Emotion:</strong> "The old electric charge passed between us. But I can't trust him. Not yet."</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dialogue-example">
+                    <h3 class="demo-title">
+                        <i data-feather="git-branch"></i>
+                        Emergent Dialogue (Agent-Generated)
+                    </h3>
+                    
+                    <!-- Node-based view -->
+                    <div class="dialogue-nodes">
+                        <div class="dialogue-node jack-node">
+                            <div class="node-header">
+                                <div class="node-avatar jack"></div>
+                                <span class="node-name">Jack Malone</span>
+                            </div>
+                            <div class="node-content">
+                                "You lied about Eddie. Hid evidence. Why?"
+                            </div>
+                            <div class="node-meta">
+                                <span class="node-state">Suspicious</span>
+                                <span class="node-goal">Seek truth</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dialogue-connector"></div>
+                        
+                        <div class="dialogue-node veronica-node">
+                            <div class="node-header">
+                                <div class="node-avatar veronica"></div>
+                                <span class="node-name">Veronica Steele</span>
+                            </div>
+                            <div class="node-content">
+                                "I wanted to protect him. But it's my fault he's dead."
+                            </div>
+                            <div class="node-meta">
+                                <span class="node-state">Guilty</span>
+                                <span class="node-goal">Confess</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dialogue-connector"></div>
+                        
+                        <div class="dialogue-node jack-node">
+                            <div class="node-header">
+                                <div class="node-avatar jack"></div>
+                                <span class="node-name">Jack Malone</span>
+                            </div>
+                            <div class="node-content">
+                                "You can't save everyone, Veronica. But you can tell me the truth."
+                            </div>
+                            <div class="node-meta">
+                                <span class="node-state">Empathetic</span>
+                                <span class="node-goal">Build trust</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat-style view -->
+                    <div class="dialogue-thread">
+                        <div class="dialogue-line jack">
+                            <div class="dialogue-avatar jack"></div>
+                            <div class="dialogue-bubble">
+                                <strong>Jack:</strong> "You lied about Eddie. Hid evidence. Why?"
+                            </div>
+                        </div>
+                        <div class="dialogue-line veronica">
+                            <div class="dialogue-avatar veronica"></div>
+                            <div class="dialogue-bubble">
+                                <strong>Veronica:</strong> "I wanted to protect him. But it's my fault he's dead."
+                            </div>
+                        </div>
+                        <div class="dialogue-line jack">
+                            <div class="dialogue-avatar jack"></div>
+                            <div class="dialogue-bubble">
+                                <strong>Jack:</strong> "You can't save everyone, Veronica. But you can tell me the truth."
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="dialogue-note">
+                        <i data-feather="cpu"></i>
+                        Generated by AI agents simulating character goals, memories, and emotional states. Not from a pre-written script.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="cta" class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Build Your Story?</h2>
+                <p class="cta-subtitle">Join creators using AI agents to generate character-consistent visual narratives.</p>
+                <form class="signup-form" id="signupForm">
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="Enter your email for early access" required class="email-input">
+                        <button type="submit" class="btn-primary btn-large cta-track" data-cta="signup-form">
+                            <i data-feather="send"></i>
+                            Request Access
+                        </button>
+                    </div>
+                    <p class="form-note">
+                        <i data-feather="shield"></i>
+                        Early access program • No credit card required
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i data-feather="film" class="logo-icon"></i>
+                        <span class="logo-text">Krearts</span>
+                    </div>
+                    <p class="footer-tagline">Character-locked visual narratives and animated microdramas for Instagram</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Krearts. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram"><i data-feather="instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i data-feather="twitter"></i></a>
+                    <a href="#" aria-label="GitHub"><i data-feather="github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i data-feather="check-circle"></i>
+            </div>
+            <h3 class="modal-title">Welcome to Krearts!</h3>
+            <p class="modal-text">Check your email for early access instructions. Your first character-locked drama awaits.</p>
+            <button class="btn-primary" onclick="closeModal()">
+                <i data-feather="arrow-right"></i>
+                Got it!
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+    </script>
+</body>
+</html>
