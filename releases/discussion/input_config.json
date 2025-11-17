@@ -1,0 +1,25 @@
+{
+  "_description": "Classic noir detective story - gritty, atmospheric, morally complex",
+  "characters": "Jack Malone (45, weathered detective, ex-cop turned PI), Veronica Steele (32, femme fatale, nightclub owner), Tommy 'The Knife' Russo (38, mob enforcer), Eddie Chen (28, murdered informant), Captain Morrison (55, corrupt police captain)",
+  "relationships": "Veronica hired Jack to find her missing brother Eddie. Tommy works for the mob boss who ordered the hit. Morrison is on the mob's payroll and trying to bury the case. Jack and Veronica develop a dangerous attraction.",
+  "killer": "Tommy 'The Knife' Russo",
+  "victim": "Eddie Chen",
+  "accomplices": "Captain Morrison",
+  "witnesses": "Veronica Steele",
+  "betrayals": "Morrison betrayed the police force for money, Veronica initially lied about her brother's criminal connections, Tommy betrayed Eddie who was his childhood friend",
+  "art_style": "Classic noir - high contrast black and white, dramatic shadows, rain-slicked streets, cigarette smoke, venetian blind shadows",
+  "aspect_ratio": "4:5",
+  "genre": "Noir Detective Mystery",
+  "setting": "1947, Los Angeles - smoky jazz clubs, rain-soaked alleys, seedy hotels, corrupt police stations",
+  "theme": "Moral ambiguity, corruption, redemption, the price of truth",
+  "tone": "Dark, cynical, atmospheric, morally complex with moments of humanity",
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "e": false,
+    "w": false,
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
+  }
+}

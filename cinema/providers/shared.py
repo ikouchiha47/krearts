@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from crewai import Task
 from crewai.agents.agent_builder.base_agent import BaseAgent
@@ -21,4 +21,5 @@ class CrewConfig(BaseModel):
     agents: List[BaseAgent] = []
     tasks: List[Task] = []
 
+    manager_agent: Optional[BaseAgent] = None
     tools: List[BaseTool] = []

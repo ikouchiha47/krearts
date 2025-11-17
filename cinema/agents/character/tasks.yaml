@@ -1,6 +1,39 @@
 discussion:
   expected_output: >
-    A text with discussion between characters
+    A structured dialogue transcript showing the conversation between characters,
+    including their thoughts, observations, actions, and reasoning at each turn.
+    The discussion should reveal information, create tension, and advance the narrative.
 
   description: |
-    Given a storyline, proof and characters.
+    Facilitate a multi-turn discussion between characters to explore a specific topic or conflict.
+    
+    ## Context:
+    
+    ### Storyline
+    {storyline}
+
+    ### Topic/Goal
+    {discussion_goal}
+    
+    ### Characters involved
+    {character_names}
+    
+    Each character has their own agenda:
+    {character_agendas}
+
+    The discussion should:
+    1. Allow each character to pursue their agenda
+    2. Reveal information gradually through dialogue
+    3. Show character observations of each other's behavior
+    4. Create dramatic tension and conflict
+    5. Lead to one of these outcomes:
+       - New questions raised (requires further investigation)
+       - Goal validated (consensus reached)
+       - Goal invalidated (conflict unresolved)
+
+    Coordinate the conversation ensuring:
+    - Each character speaks in turn
+    - Responses are in character with proper structure (Thoughts/Observations/Actions/Reasoning)
+    - The conversation flows naturally
+    - Information is revealed strategically
+    - The outcome emerges organically from the dialogue

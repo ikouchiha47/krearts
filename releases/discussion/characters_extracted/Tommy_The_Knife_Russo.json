@@ -1,0 +1,28 @@
+{
+  "name": "Tommy \"The Knife\" Russo",
+  "physical_traits": "Stocky, muscular, broken nose, slicked-back dark hair, perpetual five o'clock shadow, snake tattoo on forearm, cheap cologne.",
+  "ethnicity": "Italian-American",
+  "age": 38,
+  "quirks": [
+    "Whistles opera arias at crime scenes",
+    "Keeps a lucky rabbit's foot on his keychain",
+    "Always wears leather gloves (one pair, unique stitching)",
+    "Collects baseball cards as a private, sentimental vice"
+  ],
+  "backstory": "Tommy grew up poor in the same neighborhood as Eddie-once best friends, now on opposite sides of the law. The mob offered Tommy protection, purpose, and power.  \nHe rose as enforcer for New Harbor's crime boss, specializing in intimidation and \"clean-up.\"  \nKilling Eddie was ordered from above, but it tore Tommy up inside. He left a childhood baseball card at the crime scene-a twisted gesture of regret and warning.",
+  "role": "killer",
+  "actions_locations": "- **Day before murder:** Visits Black Lotus to collect debts; threatened by Eddie.\n- **Night of murder:** Follows Eddie to the warehouse, kills him after a heated argument.\n- **After murder:** Disposes of weapon, tries to intimidate Veronica into silence.  \n- **Alibi:** Claims to be at the docks all night; witness places him near crime scene.\n- **Evidence:** Jack finds Tommy's backup gloves with matching stitching and fibers at his apartment, matching those at the crime scene.  \n- **Mob Order Proof:** Jack uncovers a coded ledger entry showing a large debt owed by Tommy, marked \"Forgiven\" the night of Eddie's murder-traceable to the mob boss's books.",
+  "motivations": "Bound by mob loyalty, haunted by guilt. Acts to survive and maintain his position, but cannot shake regret over Eddie.",
+  "identity_anchors": "- Loyalty to the mob is his shield, even as it corrodes his soul.\n- Nostalgia for lost innocence-baseball cards, opera, old friends.\n- Violence is a job, not a pleasure.\n- Guilt is a constant, unwelcome companion.",
+  "long_term_goals": "- Rise in the mob, but secretly harbors desire to escape.\n- Avoid police attention at all costs.\n- Keep the truth of his friendship with Eddie buried.",
+  "relationships": "- Betrayed his oldest friend (Eddie).\n- Mutual animosity with Jack, whom he once outwitted in a sting.\n- Uses Veronica's secrets against her for leverage.\n- Respects Morrison's ruthlessness, but fears his unpredictability.",
+  "triggers_stress": "- Haunted by ghosts of the past; becomes violent or withdrawn when confronted.\n- Resorts to intimidation when cornered.\n- Has panic attacks when faced with reminders of childhood.",
+  "skills_toolkit": "- Expert with knives, brawling, and street fighting.\n- Skilled at intimidation and quick getaways.\n- Familiar with underworld codes and police procedures.",
+  "memory_hooks": [
+    "Left a bloodstained baseball card at crime scene.",
+    "Opera whistling recognized by witness.",
+    "Gloves with unique stitching found at scene and matched to backup pair at home.",
+    "Ledger entry proof of \"forgiven\" mob debt tied to murder date.",
+    "Longtime friend of Eddie, now his killer."
+  ]
+}

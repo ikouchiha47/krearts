@@ -49,6 +49,33 @@ class Character:
         
         return text
     
+    @staticmethod
+    def _normalize_filename(name: str) -> str:
+        """
+        Normalize name for use in filenames.
+        - Remove all quotes
+        - Replace spaces with underscores
+        - Remove other special characters
+        """
+        if not name:
+            return name
+        
+        # First clean text (normalize quotes)
+        name = Character._clean_text(name)
+        
+        # Remove all quotes
+        name = name.replace('"', '').replace("'", '')
+        
+        # Replace spaces with underscores
+        name = name.replace(' ', '_')
+        
+        # Remove other problematic characters
+        import re
+        name = re.sub(r'[^\w\s-]', '', name)
+        name = re.sub(r'[-\s]+', '_', name)
+        
+        return name.strip('_')
+    
     def _clean_all_fields(self) -> None:
         """Clean all text fields in the character"""
         self.name = self._clean_text(self.name)
@@ -84,7 +111,7 @@ class Character:
         self._clean_all_fields()
         
         # Sanitize filename
-        filename = self.name.replace(" ", "_").replace('"', "").replace("'", "")
+        filename = self._normalize_filename(self.name)
         filepath = output_dir / f"{filename}.json"
         
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -294,7 +321,7 @@ class Storyline:
             hook_lines = memory_section.group(1).strip().split('\n')
             memory_hooks = [line.strip('- ').strip() for line in hook_lines if line.strip()]
         
-        return Character(
+        char = Character(
             name=name,
             physical_traits=physical_traits,
             ethnicity=ethnicity,
@@ -311,6 +338,11 @@ class Storyline:
             skills_toolkit=skills_toolkit,
             memory_hooks=memory_hooks,
         )
+        
+        # Clean all text fields to normalize quotes and dashes
+        char._clean_all_fields()
+        
+        return char
     
     def save_characters(self, output_dir: Path) -> List[Path]:
         """Save all characters to JSON files"""
@@ -331,7 +363,7 @@ class Storyline:
                     "name": char.name,
                     "role": char.role,
                     "age": char.age,
-                    "file": f"{char.name.replace(' ', '_').replace('\"', '').replace(chr(39), '')}.json"
+                    "file": f"{Character._normalize_filename(char.name)}.json"
                 }
                 for char in self.characters
             ]

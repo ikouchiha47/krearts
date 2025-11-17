@@ -1,0 +1,29 @@
+{
+  "name": "Captain Morrison",
+  "physical_traits": "Burly, balding, always chewing an unlit cigar, cold gray eyes, crisp uniform with a hidden flask.",
+  "ethnicity": "Anglo-American",
+  "age": 55,
+  "quirks": [
+    "Obsessed with polishing his badge",
+    "Keeps meticulous, falsified logs",
+    "Hates jazz music-calls it \"criminal racket\"",
+    "Recites police code like scripture"
+  ],
+  "backstory": "Morrison rose through the ranks by bending every rule necessary. He built his power by controlling both the police and criminal elements of New Harbor, taking payoffs and burying evidence.  \nHe once partnered with Jack, but felt threatened by his integrity. After orchestrating Jack's fall from grace, he assumed near-total control.  \nMorrison's ties to the mob, and his obstruction of justice in Eddie's case, are critical to the city's corrosion.",
+  "role": "accomplice",
+  "actions_locations": "- **Day before murder:** At precinct, receives \"donation\" from mob; alters case files.\n- **Night of murder:** Meets Tommy to assure him police will \"stand down.\"\n- **After murder:** Overwrites logs, tampers with evidence, threatens Jack.\n- **Alibi:** Claims to be at precinct all night-partial alibi, falsified logs.\n- **Evidence:** Mob's financial ledger shows a \"donation\" to Morrison's retirement fund on the same night as the murder, and witness (night janitor) saw Morrison leave precinct for 45 minutes.",
+  "motivations": "Maintains power above all. Fears exposure by Jack or press. Sees himself as a necessary evil.",
+  "identity_anchors": "- Power and control over chaos.\n- Cynical belief: \"Justice is for those who can afford it.\"\n- Loyalty only to himself.\n- Shame buried under bravado.",
+  "long_term_goals": "- Hold his position until retirement or higher office.\n- Eliminate Jack as a threat.\n- Keep mob money flowing.",
+  "relationships": "- Sees Jack as a dangerous idealist.\n- Fears the mob's reach but profits from it.\n- Manipulates Tommy and Veronica as pawns.\n- Dismisses Eddie as \"collateral damage.\"",
+  "triggers_stress": "- Fury when questioned or defied.\n- Intimidates, threatens, and bullies under stress.\n- Drinks heavily when alone.",
+  "skills_toolkit": "- Master at falsifying records and covering tracks.\n- Skilled in bureaucratic manipulation, intimidation, and coercion.\n- Has informants throughout the city.",
+  "memory_hooks": [
+    "Falsified evidence in Eddie's case.",
+    "Was Jack's former boss and nemesis.",
+    "Was paid off by Tommy and the mob.",
+    "Committed multiple betrayals to stay in power.",
+    "Mob ledger and witness statement break his alibi.",
+    ""
+  ]
+}

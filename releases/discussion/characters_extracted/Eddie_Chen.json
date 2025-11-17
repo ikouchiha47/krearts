@@ -1,0 +1,27 @@
+{
+  "name": "Eddie Chen",
+  "physical_traits": "Slim, nervy, short black hair, wire-rimmed glasses, always in a wrinkled suit, hands ink-stained from notes.",
+  "ethnicity": "Chinese-American",
+  "age": 28,
+  "quirks": [
+    "Fidgets with a fountain pen",
+    "Carries a folded paper crane in his wallet",
+    "Hums jazz while working",
+    "Wears mismatched socks"
+  ],
+  "backstory": "Eddie was Veronica's younger brother, the \"brains\" of the duo, but drawn to danger.  \nHe worked as a bartender and bookkeeper at the Black Lotus, supplementing income by informing for Jack in hopes of buying freedom from the mob.  \nDesperate to save his sister and himself, he attempted to double-cross the mob-giving up just enough information to keep both sides guessing.  \nHis murder is the catalyst for the story; his secrets echo through every relationship.",
+  "role": "victim",
+  "actions_locations": "- **Day before murder:** Argued with Veronica at club; met Tommy in alley; slipped Jack a tip about Morrison.\n- **Night of murder:** Fled club; lured to warehouse under false pretense of escape.\n- **After murder:** Body discovered by Jack.",
+  "motivations": "Wanted to escape the city's criminal grip with his sister, regardless of the cost.  \nDriven by hope and fear in equal measure.",
+  "identity_anchors": "- Family first, but prone to risky shortcuts.\n- Loyalty split between Veronica and Jack.\n- Guilt over his double-dealing.\n- Dreamed of a better life elsewhere.",
+  "long_term_goals": "- Buy freedom for himself and Veronica.\n- Settle debts with mob and corrupt police.\n- Protect sister's future at all costs.",
+  "relationships": "- Idolized Veronica; felt responsible for her safety.\n- Trusted Jack but feared disappointing him.\n- Torn friendship and fatal betrayal by Tommy.\n- Blackmailed Morrison, thinking it would secure his escape.",
+  "triggers_stress": "- Panics when threatened; blurts secrets.\n- Becomes evasive under interrogation.\n- Withdraws to jazz and origami as coping.",
+  "skills_toolkit": "- Excellent bookkeeper, skilled at codes and ciphers.\n- Quick-witted, persuasive, but not tough.\n- Knew how to play both sides-until it caught up to him.",
+  "memory_hooks": [
+    "Gave Jack a crucial tip about Morrison.",
+    "Slipped away from Black Lotus night of death.",
+    "Found holding a torn ledger page and baseball card.",
+    "Last seen arguing with both Veronica and Tommy."
+  ]
+}

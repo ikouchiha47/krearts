@@ -1,0 +1,37 @@
+{
+  "title": "Blood Red Lotus",
+  "subtitle": "Shadows of New Harbor",
+  "character_count": 5,
+  "characters": [
+    {
+      "name": "Jack Malone",
+      "role": "detective",
+      "age": 45,
+      "file": "Jack_Malone.json"
+    },
+    {
+      "name": "Veronica Steele",
+      "role": "witness",
+      "age": 32,
+      "file": "Veronica_Steele.json"
+    },
+    {
+      "name": "Tommy \"The Knife\" Russo",
+      "role": "killer",
+      "age": 38,
+      "file": "Tommy_The_Knife_Russo.json"
+    },
+    {
+      "name": "Eddie Chen",
+      "role": "victim",
+      "age": 28,
+      "file": "Eddie_Chen.json"
+    },
+    {
+      "name": "Captain Morrison",
+      "role": "accomplice",
+      "age": 55,
+      "file": "Captain_Morrison.json"
+    }
+  ]
+}

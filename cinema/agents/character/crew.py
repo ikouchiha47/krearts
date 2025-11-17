@@ -28,6 +28,32 @@ logger = logging.getLogger(__name__)
 # Type alias for knowledge sources
 KnowledgeSources = Union[BaseKnowledgeSource, BaseFileKnowledgeSource, None]
 
+CHARACTER_TASK_DESC = """
+CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THIS FORMAT:
+
+Your response MUST be structured with these four sections. Do NOT skip any section:
+
+## Thoughts
+[Your internal reasoning, motivations, and mental state - REQUIRED]
+
+## Observations
+[What you notice in the environment, people, or situation - REQUIRED]
+
+## Actions
+[Physical actions you take, movements, gestures - REQUIRED]
+
+## Reasoning
+[Explicit explanation of WHY you took those actions - REQUIRED]
+
+IMPORTANT:
+- All four sections are MANDATORY for every response
+- Include the character's thoughts and reasons for any decision taken
+- Actions and Reasoning must be coherent with the character's traits
+- Maintain consistency with your personality, quirks, and backstory
+- If you have past memories, reference them when relevant
+
+This structure is essential for tracking your decisions and maintaining continuity.
+"""
 
 class CharacterAgentBuilder:
     """Builder for creating a CrewAI Agent from a Character with optional context"""
@@ -70,7 +96,13 @@ class CharacterAgentBuilder:
         return self
     
     def _build_role(self) -> str:
-        return f"{self.character.role.title()} - {self.character.name}"
+        """Build normalized role name without special characters"""
+        # Normalize name: remove quotes, special chars, use underscores
+        import re
+        normalized = re.sub(r'["\'/\\]', '', self.character.name)
+        normalized = re.sub(r'[^\w\s-]', '', normalized)
+        normalized = re.sub(r'[-\s]+', '_', normalized)
+        return normalized.strip('_')
     
     def _build_goal(self) -> str:
         """Build goal from character motivations and long-term goals"""
@@ -133,33 +165,8 @@ class CharacterAgentBuilder:
         )
 
     def build_task(self):
-        """Build task instructions that enforce structured response format"""
-        return """
-CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THIS FORMAT:
-
-Your response MUST be structured with these four sections. Do NOT skip any section:
-
-## Thoughts
-[Your internal reasoning, motivations, and mental state - REQUIRED]
-
-## Observations
-[What you notice in the environment, people, or situation - REQUIRED]
-
-## Actions
-[Physical actions you take, movements, gestures - REQUIRED]
-
-## Reasoning
-[Explicit explanation of WHY you took those actions - REQUIRED]
-
-IMPORTANT:
-- All four sections are MANDATORY for every response
-- Include the character's thoughts and reasons for any decision taken
-- Actions and Reasoning must be coherent with the character's traits
-- Maintain consistency with your personality, quirks, and backstory
-- If you have past memories, reference them when relevant
-
-This structure is essential for tracking your decisions and maintaining continuity.
-"""
+        """Instructions that enforce structured response format"""
+        return CHARACTER_TASK_DESC
 
 
 class CharacterMemoryStore:

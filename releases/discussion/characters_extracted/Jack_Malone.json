@@ -1,0 +1,29 @@
+{
+  "name": "Jack Malone",
+  "physical_traits": "Tall, broad-shouldered, graying dark hair, haunted blue eyes, prominent limp from an old injury, scar on left cheek.",
+  "ethnicity": "Irish-American",
+  "age": 45,
+  "quirks": [
+    "Rubs a silver dollar for luck during tense moments",
+    "Smokes half-cigarettes and leaves them smoldering",
+    "Keeps a battered notebook of cryptic clues",
+    "Hides whiskey bottles in hollowed-out books"
+  ],
+  "backstory": "Jack Malone was once a decorated homicide detective, known for his sharp instincts and bullheaded sense of justice. Six years ago, he exposed a police corruption ring involving Captain Morrison, but the case went nowhere and he was forced off the force after a \"botched\" raid left him with a permanent limp. Now a private investigator eking out a living in New Harbor's shadows, Jack survives on routine cases and old favors.  \nHe met Eddie Chen years prior, when Eddie was a streetwise informant feeding Jack tips about the city's criminal underbelly. Their relationship was transactional but tinged with mutual respect. Jack's dogged pursuit of the truth cost him his badge, his marriage, and nearly his life.  \nVeronica Steele entered Jack's life by hiring him to find her missing brother. Her presence stirs up old feelings Jack thought he'd buried-longing, regret, and the dangerous hope for redemption.",
+  "role": "detective",
+  "actions_locations": "- **Day before murder:** At office, receives call from Veronica. Meets her at the Black Lotus Club.\n- **Night of murder:** Shadows Eddie to O'Reilly's Bar; sees argument with Veronica. Loses Eddie's trail near docks.\n- **Morning after:** Finds body at warehouse, calls in anonymous tip. Collects clues: torn ledger, bloodstained card (later matched to Tommy's collection), glove fiber (distinctive thread), later confirmed by direct glove match.\n- **Week after:** Investigates Tommy, tails Morrison, confronts Veronica. Collects Tommy's second pair of gloves (with matching stitching and fibers) in Tommy's apartment-direct forensic match to crime scene.\n- **Alibi:** At O'Reilly's during time of death, confirmed by bartender and bar regular.",
+  "motivations": "Driven by guilt-he couldn't protect Eddie or salvage his own career. Desires justice, but torn by cynicism. Underneath, hopes to redeem himself and, perhaps, reconnect with someone who sees the man he was meant to be.",
+  "identity_anchors": "- Believes the system is broken, but good men must fight regardless.\n- Loyalty is earned, not given.\n- Haunted by the past; refuses to let it define him.\n- Hides pain behind sarcasm and alcohol.",
+  "long_term_goals": "- Restore reputation-if not publicly, at least in his own eyes.\n- Help Veronica find closure.\n- Expose Morrison and cripple the mob's hold on the city.",
+  "relationships": "- Tenuous trust with Veronica; attraction laced with suspicion.\n- Bitter rivalry with Morrison; mutual respect-turned-enmity.\n- Regretful connection to Eddie-feels responsible for his fate.\n- Sees Tommy as a tragic mirror: what he could become if he surrendered to darkness.",
+  "triggers_stress": "- Escalates when justice is obstructed or innocents threatened.\n- Becomes laconic, hyperfocused, and caustic under pressure.\n- Relapses into drinking and self-doubt after failures.",
+  "skills_toolkit": "- Expert in interrogation, tailing suspects, and deduction.\n- Proficient in old-school forensics, pistol marksmanship.\n- Streetwise; skilled in reading people and city maps.",
+  "memory_hooks": [
+    "Once exposed Morrison but was ruined for it.",
+    "Keeps Eddie's baseball card as a silent token of regret.",
+    "Carries a silver dollar-a gift from a long-lost friend.",
+    "Never talks about the night he was shot.",
+    "Was seen at O'Reilly's minutes before murder-has a solid alibi.",
+    "Found matching glove at Tommy's apartment, providing forensic link."
+  ]
+}
