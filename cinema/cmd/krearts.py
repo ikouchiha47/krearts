@@ -384,6 +384,130 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
             cleanup()
 
 
+@cli.group()
+def character():
+    """Character management commands"""
+    pass
+
+
+@character.command()
+@click.argument('workflow_id')
+def list(workflow_id: str):
+    """List all characters in a workflow"""
+    _list_characters(workflow_id)
+
+
+@character.command()
+@click.argument('workflow_id')
+@click.argument('character_name')
+def info(workflow_id: str, character_name: str):
+    """Show detailed information about a character"""
+    _show_character_info(workflow_id, character_name)
+
+
+def _list_characters(workflow_id: str):
+    """List all characters"""
+    from cinema.models.storyline import Storyline
+    
+    try:
+        storyline = Storyline.from_flow_state(workflow_id)
+        
+        user_section(f"Characters in {workflow_id}")
+        user_info(f"Total: {len(storyline.characters)}\n")
+        
+        for char in storyline.characters:
+            user_info(f"  {char.name:30} ({char.role})")
+            user_info(f"    Age: {char.age}, Ethnicity: {char.ethnicity}")
+            user_info(f"    Quirks: {len(char.quirks)}, Memory Hooks: {len(char.memory_hooks)}")
+            user_info("")
+        
+        user_info("=" * 80)
+        user_info("To see detailed info:")
+        user_output("Character Info", f"  krearts character info {workflow_id} <character_name>")
+        user_info("=" * 80)
+        
+    except FileNotFoundError as e:
+        user_error(f"Workflow not found: {workflow_id}")
+        user_info(f"  {e}")
+    except Exception as e:
+        user_error(f"Error loading characters: {e}")
+
+
+def _show_character_info(workflow_id: str, character_name: str):
+    """Show detailed character information"""
+    from cinema.models.storyline import Storyline
+    
+    try:
+        storyline = Storyline.from_flow_state(workflow_id)
+        
+        # Try exact match first
+        character = storyline.get_character_by_name(character_name)
+        
+        # If not found, try prefix match
+        if character is None:
+            search_lower = character_name.lower()
+            matches = [char for char in storyline.characters if char.name.lower().startswith(search_lower)]
+            
+            if len(matches) == 1:
+                character = matches[0]
+                user_info(f"✓ Matched character: {character.name}\n")
+            elif len(matches) > 1:
+                user_error(f"Multiple characters match '{character_name}':")
+                for char in matches:
+                    user_info(f"  - {char.name} ({char.role})")
+                return
+            else:
+                user_error(f"Character '{character_name}' not found!")
+                user_info("\nAvailable characters:")
+                for char in storyline.characters:
+                    user_info(f"  - {char.name} ({char.role})")
+                return
+        
+        # Display character info
+        user_section(f"Character: {character.name}")
+        
+        user_info(f"Role: {character.role}")
+        user_info(f"Age: {character.age}")
+        user_info(f"Ethnicity: {character.ethnicity}")
+        user_info(f"Physical Traits: {character.physical_traits}")
+        
+        user_info(f"\nQuirks:")
+        for quirk in character.quirks:
+            user_info(f"  - {quirk}")
+        
+        user_info(f"\nBackstory:")
+        user_info(f"  {character.backstory[:200]}..." if len(character.backstory) > 200 else f"  {character.backstory}")
+        
+        user_info(f"\nMotivations:")
+        user_info(f"  {character.motivations}")
+        
+        user_info(f"\nLong-term Goals:")
+        user_info(f"  {character.long_term_goals}")
+        
+        user_info(f"\nSkills:")
+        user_info(f"  {character.skills_toolkit[:200]}..." if len(character.skills_toolkit) > 200 else f"  {character.skills_toolkit}")
+        
+        user_info(f"\nMemory Hooks:")
+        for hook in character.memory_hooks:
+            user_info(f"  - {hook}")
+        
+        user_info("\n" + "=" * 80)
+        
+        # Show JSON file location if exists
+        from pathlib import Path
+        json_file = Path(f"output/book_{workflow_id}/characters_extracted/{character.name.replace(' ', '_')}.json")
+        if json_file.exists():
+            user_info(f"Full data: {json_file}")
+        
+        user_info("=" * 80)
+        
+    except FileNotFoundError as e:
+        user_error(f"Workflow not found: {workflow_id}")
+        user_info(f"  {e}")
+    except Exception as e:
+        user_error(f"Error loading character: {e}")
+
+
 @cli.command()
 @click.argument('workflow_id')
 def characters(workflow_id: str):
