@@ -1,0 +1,6 @@
+discussion:
+  expected_output: >
+    A text with discussion between characters
+
+  description: |
+    Given a storyline, proof and characters.
