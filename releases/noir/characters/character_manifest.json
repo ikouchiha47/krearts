@@ -1,0 +1,26 @@
+{
+  "Veronica_Steele": {
+    "front": "output/book_43e21caa/characters/Veronica_Steele_front.png",
+    "side": "output/book_43e21caa/characters/Veronica_Steele_side.png",
+    "full_body": "output/book_43e21caa/characters/Veronica_Steele_full_body.png",
+    "back": "output/book_43e21caa/characters/Veronica_Steele_back.png"
+  },
+  "Tommy_\u201cThe_Knife\u201d_Russo": {
+    "front": "output/book_43e21caa/characters/Tommy_\u201cThe_Knife\u201d_Russo_front.png",
+    "side": "output/book_43e21caa/characters/Tommy_\u201cThe_Knife\u201d_Russo_side.png",
+    "full_body": "output/book_43e21caa/characters/Tommy_\u201cThe_Knife\u201d_Russo_full_body.png",
+    "back": "output/book_43e21caa/characters/Tommy_\u201cThe_Knife\u201d_Russo_back.png"
+  },
+  "Eddie_Chen": {
+    "front": "output/book_43e21caa/characters/Eddie_Chen_front.png",
+    "side": "output/book_43e21caa/characters/Eddie_Chen_side.png",
+    "full_body": "output/book_43e21caa/characters/Eddie_Chen_full_body.png",
+    "back": "output/book_43e21caa/characters/Eddie_Chen_back.png"
+  },
+  "Captain_Morrison": {
+    "front": "output/book_43e21caa/characters/Captain_Morrison_front.png",
+    "side": "output/book_43e21caa/characters/Captain_Morrison_side.png",
+    "full_body": "output/book_43e21caa/characters/Captain_Morrison_full_body.png",
+    "back": "output/book_43e21caa/characters/Captain_Morrison_back.png"
+  }
+}

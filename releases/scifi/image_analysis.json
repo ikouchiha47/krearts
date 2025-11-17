@@ -1,0 +1,117 @@
+[
+  {
+    "file": "output/book_6021a791/pages/ch1_sc1_page1.png",
+    "page_number": 1,
+    "scene_number": 1,
+    "vips": {
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGB",
+      "format": "PNG",
+      "brightness": 116.38,
+      "file_size_kb": 2227.1
+    },
+    "ocr": {
+      "text_detected": false,
+      "text_blocks": 0,
+      "text_preview": null,
+      "confidence": 21.15
+    },
+    "moondream": {
+      "analysis": "[0.01, 0.17, 1.0, 0.83]",
+      "model": "moondream:v2"
+    }
+  },
+  {
+    "file": "output/book_6021a791/pages/ch1_sc2_page2.png",
+    "page_number": 2,
+    "scene_number": 2,
+    "vips": {
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGB",
+      "format": "PNG",
+      "brightness": 120.29,
+      "file_size_kb": 1967.2
+    },
+    "ocr": {
+      "text_detected": false,
+      "text_blocks": 0,
+      "text_preview": null,
+      "confidence": 18.2
+    },
+    "moondream": {
+      "analysis": "1. A woman with blue eyes looking at a computer screen in an office setting.",
+      "model": "moondream:v2"
+    }
+  },
+  {
+    "file": "output/book_6021a791/pages/ch1_sc3_page3.png",
+    "page_number": 3,
+    "scene_number": 3,
+    "vips": {
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGB",
+      "format": "PNG",
+      "brightness": 109.98,
+      "file_size_kb": 1843.1
+    },
+    "ocr": {
+      "text_detected": false,
+      "text_blocks": 0,
+      "text_preview": null,
+      "confidence": 18.2
+    },
+    "moondream": {
+      "analysis": "1. A woman in a trench coat standing near an open doorway with her hand on her hip.",
+      "model": "moondream:v2"
+    }
+  },
+  {
+    "file": "output/book_6021a791/pages/ch1_sc4_page4.png",
+    "page_number": 4,
+    "scene_number": 4,
+    "vips": {
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGB",
+      "format": "PNG",
+      "brightness": 108.52,
+      "file_size_kb": 1992.4
+    },
+    "ocr": {
+      "text_detected": false,
+      "text_blocks": 0,
+      "text_preview": null,
+      "confidence": 18.2
+    },
+    "moondream": {
+      "analysis": "1. Left panel: A woman with long dark hair stands in front of a window, looking out at the rain. She is wearing a black outfit that contrasts with the colorful neon lights outside. The background features a cityscape filled with bright lights and buildings.",
+      "model": "moondream:v2"
+    }
+  },
+  {
+    "file": "output/book_6021a791/pages/ch1_sc4_page5.png",
+    "page_number": null,
+    "scene_number": null,
+    "vips": {
+      "width": 1024,
+      "height": 1280,
+      "mode": "RGB",
+      "format": "PNG",
+      "brightness": 126.29,
+      "file_size_kb": 2012.5
+    },
+    "ocr": {
+      "text_detected": false,
+      "text_blocks": 0,
+      "text_preview": null,
+      "confidence": 18.2
+    },
+    "moondream": {
+      "analysis": "Overall composition and layout: The image is a collage of two distinct scenes. On the left, there's an illustration depicting a person holding a cell phone in their hand against a backdrop of neon lights. On the right side, another illustration shows a woman with blue eyes wearing glasses and looking at the camera.",
+      "model": "moondream:v2"
+    }
+  }
+]

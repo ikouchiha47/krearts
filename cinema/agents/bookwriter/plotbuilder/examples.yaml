@@ -101,6 +101,10 @@ screenplay:
             Narrator: "Clean is a story; patterns betray the editor."
         </example>
 
+plotbuilder:
+  detective:
+    examples: ""
+
 stripper:
   examples: |
     IMPORTANT: shot_type must be one of these EXACT values (lowercase, no "Shot" suffix):

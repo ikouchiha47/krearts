@@ -386,6 +386,44 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
 
 @cli.command()
 @click.argument('workflow_id')
+def characters(workflow_id: str):
+    """Generate character reference images"""
+    asyncio.run(_generate_characters(workflow_id))
+
+
+async def _generate_characters(workflow_id: str):
+    """Generate character references"""
+    # Setup logging
+    global logger
+    logger, log_file, cleanup = setup_logging(workflow_id)
+    
+    try:
+        user_section(f"Generating Characters: {workflow_id}")
+        user_info(f"Log file: {log_file}")
+        
+        ctx = DirectorsContext(llmstore=OpenAiHerd, debug=True)
+        workflow = BookWorkflow(workflow_id, ctx)
+        
+        result = await workflow.generate_characters()
+        
+        user_section("Character Generation Complete")
+        user_success(f"Characters generated: {len(result.get('characters', []))}")
+        user_info(f"Output: {result['output_dir']}")
+        
+        # Show generated characters
+        for char_id, views in result.get('characters', {}).items():
+            user_info(f"\n  Character {char_id}:")
+            for view, path in views.items():
+                user_info(f"    - {view}: {path}")
+        
+        user_info("=" * 80)
+    finally:
+        if cleanup:
+            cleanup()
+
+
+@cli.command()
+@click.argument('workflow_id')
 @click.option('--pages', help='Generate specific pages (e.g., 1,20 or "all")')
 @click.option('--continue', 'continue_from', is_flag=True, help='Continue from last page')
 def chapters(workflow_id: str, pages: Optional[str], continue_from: bool):
@@ -697,6 +735,79 @@ async def _read_content(workflow_id: str, chapter: Optional[int], list_chapters:
     user_info(f"  krearts read {workflow_id} --list          # List all chapters")
     user_info(f"  krearts read {workflow_id} --chapter 1     # Read chapter 1")
     user_info("=" * 80)
+
+
+@cli.command()
+@click.argument('workflow_id')
+@click.option('--stage', type=click.Choice(['bookerama', 'screenplay', 'storyboard']), default='bookerama', help='Stage to reset to')
+def reset(workflow_id: str, stage: str):
+    """Reset flow state to force regeneration of a stage"""
+    asyncio.run(_reset_flow_state(workflow_id, stage))
+
+
+async def _reset_flow_state(workflow_id: str, stage: str):
+    """Reset flow state to force regeneration"""
+    from pathlib import Path
+    import json
+    
+    flow_state_file = Path(f"output/flow_states/storybuilder_{workflow_id}.json")
+    
+    if not flow_state_file.exists():
+        user_error(f"Flow state not found: {flow_state_file}")
+        user_info(f"Available flow states:")
+        flow_states_dir = Path("output/flow_states")
+        if flow_states_dir.exists():
+            for f in sorted(flow_states_dir.glob("storybuilder_*.json")):
+                user_info(f"  - {f.stem.replace('storybuilder_', '')}")
+        return
+    
+    # Load current state
+    with open(flow_state_file, 'r') as f:
+        state = json.load(f)
+    
+    user_section(f"Resetting Flow State: {workflow_id}")
+    user_info(f"Current state: {state.get('current_state')}")
+    user_info(f"Halted at: {state.get('halted_at')}")
+    user_info("")
+    
+    # Clear the generated content based on stage
+    if state.get('output'):
+        if stage in ['bookerama', 'screenplay']:
+            state['output']['screenplay'] = None
+            user_success("✓ Cleared screenplay/novel")
+        
+        if stage == 'storyboard':
+            state['output']['storystructure'] = None
+            user_success("✓ Cleared storystructure")
+    
+    # Reset state to the specified stage
+    state['current_state'] = stage
+    state['halted_at'] = None
+    
+    # Ensure the stage will run (not be skipped)
+    if 'waits_at' not in state:
+        state['waits_at'] = {}
+    
+    state['waits_at'][stage] = False
+    
+    # Keep storyboard halt if resetting earlier stages
+    if stage in ['bookerama', 'screenplay']:
+        state['waits_at']['storyboard'] = True
+    
+    user_success(f"✓ Reset current_state to: {stage}")
+    user_success(f"✓ Cleared halted_at")
+    user_info(f"  waits_at: {state['waits_at']}")
+    user_info("")
+    
+    # Save modified state
+    with open(flow_state_file, 'w') as f:
+        json.dump(state, f, indent=2)
+    
+    user_success("💾 Saved modified flow state")
+    user_info("")
+    user_info("Now run:")
+    user_info(f"  krearts book {workflow_id} --continue")
+    user_info("")
 
 
 if __name__ == '__main__':

@@ -218,7 +218,7 @@ class GenerationHerd(LLMStore):
 OpenAiHerd = (
     GenerationHerd()
     .register_model(
-        LLMPlannerIntent,
+        LLMPlannerIntent,  # used by plotbuilder,
         ModelConfig(
             name="openai/gpt-4.1",
             is_hosted=False,
@@ -229,26 +229,28 @@ OpenAiHerd = (
         ),
     )
     .register_model(
-        LLMThinkerIntent,
+        LLMThinkerIntent,  # used by bookwriter/novel, try gemini is novely
         ModelConfig(
-            name="openai/gpt-4.1-mini",  # used by bookwriter, can be llama3.1 long writer
+            # name="openai/gpt-4.1",
+            name="gemini/gemini-2.5-pro",
             is_hosted=False,
             temp=0.8,
             lazy_load=True,
             loader=LLM,
             max_tokens=30000,
-            reasoning_effort="low",
+            reasoning_effort="medium",
         ),
     )
     .register_model(
         LLMExecutorIntent,
         ModelConfig(
-            name="openai/gpt-4.1-mini",  # chapterbuilder, try llama3.1
+            name="openai/gpt-4.1",  # chapterbuilder, gpt for better thinking
+            # name="gemini/gemini-2.5-pro",
             is_hosted=False,
-            temp=0.0,
+            temp=0.2,
             loader=LLM,
             max_tokens=12000,
-            reasoning_effort="medium",  # For prose-to-comic adaptation
+            reasoning_effort="low",  # For prose-to-comic adaptation
         ),
     )
     .register_model(

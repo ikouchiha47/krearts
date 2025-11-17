@@ -45,6 +45,7 @@ class CharacterReferenceManager:
         character_description: Dict[str, Any],
         output_dir: str,
         include_back_view: bool = True,
+        art_style: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Generate all character reference views using seeding chain.
@@ -75,7 +76,11 @@ class CharacterReferenceManager:
 
         results = {}
 
-        # Step 1: Generate front view (canonical, no reference)
+        # Add art_style to character description if provided
+        if art_style:
+            character_description = {**character_description, "art_style": art_style}
+        
+        # Step 1: Generate front view (canonical, with aspect ratio template)
         logger.info("📸 Step 1/3: Generating canonical front view")
         front_prompt = self._build_character_prompt(
             character_description,
@@ -83,10 +88,14 @@ class CharacterReferenceManager:
         )
         logger.debug(f"Front view prompt: {front_prompt[:100]}...")
 
+        # Use transparent 4:5 template to set aspect ratio
+        template_path = Path(__file__).parent.parent / "templates" / "transparent_4_5.png"
+        logger.debug(f"Using aspect ratio template: {template_path}")
+
         front_response = await self.gemini.generate_content(
             prompt=front_prompt,
-            reference_image=None,
-            # No reference for canonical view
+            reference_image=str(template_path) if template_path.exists() else None,
+            aspect_ratio="4:5",
         )
 
         front_path = str(output_path / f"{character_id}_front.png")
@@ -107,6 +116,7 @@ class CharacterReferenceManager:
         side_response = await self.gemini.generate_content(
             prompt=side_prompt,
             reference_image=front_path,  # ← Seeded from front
+            aspect_ratio="4:5",
         )
 
         side_path = str(output_path / f"{character_id}_side.png")
@@ -127,6 +137,7 @@ class CharacterReferenceManager:
         full_body_response = await self.gemini.generate_content(
             prompt=full_body_prompt,
             reference_image=front_path,
+            aspect_ratio="4:5",
         )
 
         full_body_path = str(output_path / f"{character_id}_full_body.png")
@@ -149,6 +160,7 @@ class CharacterReferenceManager:
             back_response = await self.gemini.generate_content(
                 prompt=back_prompt,
                 reference_image=front_path,
+                aspect_ratio="4:5",
             )
 
             back_path = str(output_path / f"{character_id}_back.png")
@@ -178,29 +190,31 @@ class CharacterReferenceManager:
         """
         appearance = character_description.get("physical_appearance", "")
         style = character_description.get("style", "")
+        art_style = character_description.get("art_style", "")
 
         base = f"{appearance}, {style}"
+        style_suffix = f" Art style: {art_style}." if art_style else ""
 
         if view == "front":
-            return f"""Neutral portrait photograph of {base}. 
+            return f"""Character reference sheet. {base}. 
 Front view, centered, neutral expression, plain white background. 
-Professional reference photo, studio lighting, high quality, 4K."""
+Professional character design, high quality, 4K.{style_suffix}"""
 
         elif view == "side":
-            return f"""Side profile photograph of {base}. 
+            return f"""Character reference sheet. {base}. 
 90-degree side view, neutral expression, plain white background. 
-Professional reference photo, studio lighting, high quality, 4K.
+Professional character design, high quality, 4K.{style_suffix}
 IMPORTANT: Maintain exact same appearance as front view."""
 
         elif view == "full_body":
-            return f"""Full body photograph of {base}. 
+            return f"""Character reference sheet. {base}. 
 Standing pose, front view, neutral expression, plain white background. 
-Professional reference photo, studio lighting, high quality, 4K.
+Professional character design, high quality, 4K.{style_suffix}
 IMPORTANT: Maintain exact same appearance as front view."""
 
         elif view == "back":
-            return f"""Back view photograph of {base}. 
-Rear view showing back of head and shoulders, neutral pose, plain white background. 
+            return f"""Character reference sheet. {base}. 
+Rear view showing back of head and shoulders, neutral pose, plain white background.{style_suffix} 
 Professional reference photo, studio lighting, high quality, 4K.
 IMPORTANT: Maintain exact same appearance as front view (hair, clothing, build)."""
 
@@ -522,7 +536,7 @@ IMPORTANT: Maintain exact same appearance as front view (hair, clothing, build).
         logger.info(f"📸 Generating canonical front view for {character_id}")
         front_prompt = self._build_character_prompt(character_description, "front")
         front_response = await self.gemini.generate_content(
-            prompt=front_prompt, reference_image=None
+            prompt=front_prompt, reference_image=None, aspect_ratio="4:5"
         )
         front_path = str(output_path / f"{character_id}_front.png")
         self.gemini.render_image(front_path, front_response)
@@ -541,6 +555,7 @@ IMPORTANT: Maintain exact same appearance as front view (hair, clothing, build).
             view_response = await self.gemini.generate_content(
                 prompt=view_prompt,
                 reference_image=front_path,  # ← Seeded from canonical front
+                aspect_ratio="4:5",
             )
             view_path = str(output_path / f"{character_id}_{view}.png")
             self.gemini.render_image(view_path, view_response)

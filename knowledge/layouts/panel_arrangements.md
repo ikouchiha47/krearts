@@ -11,13 +11,13 @@ For a prompt template designed for different layouts, breaking down the content 
 Different panel arrangements work best with specific aspect ratios:
 
 ### Horizontal Layouts (2-3 panels side-by-side)
-- **Recommended Aspect Ratio**: 16:9 (Landscape)
+- **Recommended Aspect Ratio**: 5:4 (Landscape)
 - **Orientation**: Landscape
 - **Best for**: Wide establishing shots, action sequences, dialogue exchanges
 - **Layouts**: horizontal-2-panel, horizontal-3-panel
 
 ### Vertical Layouts (2-3 panels stacked)
-- **Recommended Aspect Ratio**: 9:16 (Portrait)
+- **Recommended Aspect Ratio**: 4:5 (Portrait)
 - **Orientation**: Portrait
 - **Best for**: Descent/ascent sequences, character focus, zoom progressions
 - **Layouts**: vertical-2-panel, vertical-3-panel, zoom-progression

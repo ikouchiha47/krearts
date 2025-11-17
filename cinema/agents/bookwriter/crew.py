@@ -170,10 +170,14 @@ class DetectivePlotBuilder:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     @classmethod
     def load_examples(cls):
@@ -299,10 +303,14 @@ class PlotCritique:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     def _validate_ctx(self):
         assert self.ctx is not None, "EmptyCtx"
@@ -408,10 +416,14 @@ class ScreenplayWriter:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     @classmethod
     def load_examples(cls):
@@ -541,10 +553,14 @@ class BookWriter:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     def bootstrap(self):
         assert self.ctx is not None
@@ -590,7 +606,7 @@ class ChapterBuilderSchema(BaseModel):
     chapter_id: int
     chapter_content: str
     art_style: str
-    aspect_ratio: Optional[str] = "16:9"  # Default to landscape
+    aspect_ratio: Optional[str] = "4:5"  # or 5:4
 
 KnowledgeSources: TypeAlias = Union[BaseKnowledgeSource, BaseFileKnowledgeSource]
 @CrewBase
@@ -651,10 +667,14 @@ class ChapterBuilder:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     @classmethod
     def load_examples(cls):
@@ -766,10 +786,14 @@ class ComicStripStoryBoarding:
         output_model: Optional[Type[BaseModel]] = None,
     ) -> BaseModel | str | None:
 
-        if not output_model:
-            return result.raw
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
 
-        return output_model.model_validate(result.pydantic)
+        return None
 
     @classmethod
     def load_examples(cls):

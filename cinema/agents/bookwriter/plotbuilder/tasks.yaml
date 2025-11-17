@@ -68,25 +68,32 @@ plotbuilder:
       ---
 
       Respond in the markdown heirarchical format
+      **STRICTLY ADHERE TO THE BELOW FORMAT**
+
+      ---
 
       ## World & Era Context
-      Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
-      Geography and Setting: <city/region, urban/rural, climate>
-      Culture and Traditions: <norms impacting behavior/conflict>
-      Geopolitics and Legal Context: <jurisdiction, legal constraints>
-      Technology Level and Forensics: <tools available, limitations>
-      Policing Style and Jurisdiction: <detective’s authority, procedures>
-      Media Environment: <press influence, public perception>
-      Thematic Constraints: <tone, taboos, social dynamics>
+
+      - Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
+      - Geography and Setting: <city/region, urban/rural, climate>
+      - Culture and Traditions: <norms impacting behavior/conflict>
+      - Geopolitics and Legal Context: <jurisdiction, legal constraints>
+      - Technology Level and Forensics: <tools available, limitations>
+      - Policing Style and Jurisdiction: <detective's authority, procedures>
+      - Media Environment: <press influence, public perception>
+      - Thematic Constraints: <tone, taboos, social dynamics>
 
       ## Characters
 
-      ### Character 1
-      Name:
-      Physical Traits:
-      Ethnicity:
-      Age:
-      Quirks:
+      ---
+  
+      ### Character 1 (index)
+      
+      **Name:** <full name>
+      **Physical Traits:** <description>
+      **Ethnicity:** <ethnicity>
+      **Age:** <age>
+      **Quirks:** <list of quirks>
 
       #### Backstory
       (in details)
@@ -138,6 +145,13 @@ plotbuilder:
       - Canonical facts to persist in the character node for future evolution.
       - 3-6 bullet points, specific and verifiable from backstory/actions.
 
+
+      ---
+
+      ### Character N
+      [repeat the above structure for each character]
+      ...
+
       ---
 
       ## Storyline
@@ -168,6 +182,8 @@ plotbuilder:
       ## Context
       {storyline}
 
+      ---
+
       ## Improvement Feedback
 
       {feedback}
@@ -182,6 +198,7 @@ plotbuilder:
       else:
         Ignore, and do nothing to influence the storyline.
       </logic>
+
       ---
 
       ## MANDATORY GUIDELINES
@@ -199,6 +216,9 @@ plotbuilder:
       - Detective Primacy Rule: You MUST designate exactly one Primary Detective by name. Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`. If multiples exist, provide a POV Plan (primary ≥ 60%).
 
       ---
+
+      ## Examples
+      {examples}
 
 chapterbuilder:
   expected_output: >
@@ -372,6 +392,7 @@ chapterbuilder:
     - 2-4 pages per scene (4-12 panels total per scene)
     - 8-32 pages per chapter (typically ~15-20 pages per chapter)
     - Each page contains 2-3 panels with layout metadata
+    - **Aspect ratio**: {aspect_ratio} (**MUST BE RESPECTED**)
 
     ---
 
@@ -821,13 +842,13 @@ chapterbuilder:
     **Target Aspect Ratio**: {aspect_ratio}
     
     **IMPORTANT**: Choose panel arrangements that match the aspect ratio:
-    - For 16:9 (Landscape): Use horizontal-2-panel, horizontal-3-panel, cross-over-bleed
-    - For 9:16 (Portrait): Use vertical-2-panel, vertical-3-panel, zoom-progression
+    - For 4:5 or 9:16 (Portrait): Use vertical-2-panel, vertical-3-panel, zoom-progression
+    - For 5:4 or 16:9 (Landscape): Use horizontal-2-panel, horizontal-3-panel, cross-over-bleed
     - For 1:1 (Square): Use dynamic-grid, fractured-overlapping
     
     Set the `page_aspect_ratio` field on each ComicPage to match the target aspect ratio.
     Set the `aspect_ratio` field on each ComicPanel to match the target aspect ratio.
-    Include aspect ratio in the visual_description orientation line (e.g., "Landscape 16:9" or "Portrait 9:16").
+    Include aspect ratio in the visual_description orientation line (e.g., "Portrait 4:5" or "Landscape 5:4").
     
     **REMEMBER**: This is PROSE text. You must ADAPT it into comic format following the rules above.
     DO NOT copy prose sentences directly into dialogue fields.
@@ -1738,14 +1759,16 @@ novelist:
 
     ## Example Output Format
 
+    ---
+
     # [TITLE](ex:  BLACKWOOD'S SILENCE)
     ## Subtitle: [catch 2-3 word title]
 
     ## Metadata
-      - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
-      - Art Style: <description>
-      - Story Telling Style: <description>
-      - Short Summary (100-200 words)
+    - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
+    - Art Style: <description>
+    - Story Telling Style: <description>
+    - Short Summary (100-200 words)
 
     ## Context
 
@@ -1766,14 +1789,15 @@ novelist:
     ## Characters
     [Transparently pass the characters from the Stroyline]
 
+    ## Chapters
 
-    ## Chapter 1: The Fractured Monument
+    ### Chapter 1: The Fractured Monument
 
-    [800-1200 words of expanded narrative]
+    [800-1200 words, minimum, of expanded narrative]
 
-    ## Chapter 2: The Staged Geometry
+    ### Chapter 2: The Staged Geometry
 
-    [800-1200 words]
+    [800-1200 words minimum]
 
     [...continues through all chapters based on calculated mapping...]
 
@@ -1782,3 +1806,4 @@ novelist:
     - **DO NOT use anything from the examples, only use as refernce**
     - The chapter organisation will depend on the story telling methods
       and narrative structures.
+    - **STRICTLY ADHERE TO THE OUTPUT FORMAT**

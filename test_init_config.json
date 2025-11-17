@@ -1,0 +1,11 @@
+{
+  "characters": "Test Detective, Test Killer, Test Victim",
+  "killer": "Test Killer",
+  "victim": "Test Victim",
+  "skipper": {
+    "p": true,
+    "c": true,
+    "w": true,
+    "s": true
+  }
+}

@@ -28,6 +28,7 @@ class GeminiMediaGen:
         self,
         prompt: str,
         reference_image: Optional[ImageInput] = None,
+        aspect_ratio: Optional[str] = "4:5",
         **kwargs: Any
     ) -> types.GenerateContentResponse:
         """
@@ -36,6 +37,7 @@ class GeminiMediaGen:
         Args:
             prompt: Text prompt for image generation
             reference_image: Optional reference image for character/environment consistency
+            aspect_ratio: Aspect ratio for generated image (default: "4:5" for portrait)
 
         Returns:
             Response from Gemini image generation
@@ -46,6 +48,7 @@ class GeminiMediaGen:
         logger.info("🎨 Generating image with Gemini")
         logger.debug(f"Prompt length: {len(prompt)} chars")
         logger.debug(f"Reference image provided: {reference_image is not None}")
+        logger.debug(f"Aspect ratio: {aspect_ratio}")
 
         if reference_image is not None:
             # Convert to PIL Image - contents needs PIL_Image, not ImageDict
@@ -77,22 +80,37 @@ class GeminiMediaGen:
             logger.info("📸 Calling Gemini with reference image for consistency")
             logger.info(f"Prompt: {prompt}")
             
+            # Build config with aspect ratio
+            image_config = types.ImageConfig(aspect_ratio=aspect_ratio)
+            config = types.GenerateContentConfig(
+                response_modalities=[types.Modality.IMAGE],
+                image_config=image_config,
+            )
+            
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
                 model="gemini-2.5-flash-image",
                 contents=[prompt, ref_img],
-                config={"response_modalities": ["IMAGE"]},
+                config=config,
             )
             logger.info("✅ Image generated successfully with reference")
 
         else:
             # Generate without reference - single string is also valid PartUnionDict
             logger.info("📸 Calling Gemini without reference (seed generation)")
+            
+            # Build config with aspect ratio
+            image_config = types.ImageConfig(aspect_ratio=aspect_ratio)
+            config = types.GenerateContentConfig(
+                response_modalities=[types.Modality.IMAGE],
+                image_config=image_config,
+            )
+            
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
                 model="gemini-2.5-flash-image",
                 contents=prompt,
-                config={"response_modalities": ["IMAGE"]},
+                config=config,
             )
             logger.info("✅ Image generated successfully without reference")
 

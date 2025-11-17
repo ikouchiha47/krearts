@@ -268,6 +268,196 @@ class BookWorkflow(WorkflowInterface):
         logger.info(f"✅ Book generated: {result['output_file']}")
         return result
     
+    async def generate_characters(self) -> Dict[str, Any]:
+        """
+        Generate character reference images from storyline.
+        
+        Extracts character descriptions from the flow state and generates
+        reference images (front, side, full_body, back views) for each character.
+        These references are used for consistent character appearance in page generation.
+        
+        Returns:
+            Dict with:
+                - characters: Dict[str, Dict[str, str]] - character_id -> {view: path}
+                - output_dir: str - directory where images were saved
+        """
+        from pathlib import Path
+        import json
+        from cinema.workflow.character_manager import CharacterReferenceManager
+        from cinema.providers.gemini import GeminiMediaGen
+        
+        logger.info(f"📄 Generating characters: {self.workflow_id}")
+        
+        # Load flow state to get character descriptions
+        flow_state_file = Path(f"output/flow_states/storybuilder_{self.workflow_id}.json")
+        if not flow_state_file.exists():
+            raise FileNotFoundError(f"Flow state not found: {flow_state_file}")
+        
+        with open(flow_state_file, 'r') as f:
+            flow_data = json.load(f)
+        
+        storyline = flow_data.get('output', {}).get('storyline', '')
+        if not storyline:
+            raise ValueError("Storyline not found in flow state")
+        
+        # Parse characters from storyline (they're in markdown format)
+        characters = self._extract_characters_from_storyline(storyline)
+        
+        if not characters:
+            logger.warning("No characters found in storyline")
+            return {"characters": {}, "output_dir": f"{self.output_dir}/characters"}
+        
+        logger.info(f"   Found {len(characters)} characters to generate")
+        
+        # Initialize character manager
+        gemini = GeminiMediaGen()
+        char_manager = CharacterReferenceManager(gemini)
+        
+        # Generate references for each character
+        output_dir = f"{self.output_dir}/characters"
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        
+        all_characters = {}
+        for char_id, char_desc in characters.items():
+            logger.info(f"   Generating references for: {char_id}")
+            
+            try:
+                # Get art_style from config
+                art_style = self._get_art_style()
+                
+                refs = await char_manager.generate_character_references(
+                    character_id=char_id,
+                    character_description=char_desc,
+                    output_dir=output_dir,
+                    include_back_view=True,
+                    art_style=art_style
+                )
+                all_characters[char_id] = refs
+                logger.info(f"   ✅ Generated {len(refs)} views for {char_id}")
+            except Exception as e:
+                logger.error(f"   ❌ Failed to generate {char_id}: {e}")
+                continue
+        
+        # Save character manifest
+        manifest_file = Path(output_dir) / "character_manifest.json"
+        with open(manifest_file, 'w') as f:
+            json.dump(all_characters, f, indent=2)
+        
+        logger.info(f"✅ Characters generated: {len(all_characters)}")
+        logger.info(f"   Manifest: {manifest_file}")
+        
+        return {
+            "characters": all_characters,
+            "output_dir": output_dir
+        }
+    
+    def _get_layout_description(self, panel_arrangement: str) -> str:
+        """Get detailed description of panel layout style."""
+        layout_descriptions = {
+            "horizontal-2-panel": "Two panels side-by-side horizontally with equal or dynamic widths",
+            "horizontal-3-panel": "Three panels in a horizontal row with varying widths for emphasis",
+            "vertical-2-panel": "Two panels stacked vertically, equal or dynamic heights",
+            "vertical-3-panel": "Three panels stacked vertically for descent/ascent sequences",
+            "fractured-overlapping": "Overlapping panels with broken borders for chaos/simultaneous events",
+            "zoom-progression": "Progressive zoom sequence (wide → medium → close-up) for building suspense",
+            "cross-over-bleed": "Dominant element bleeds across multiple panels for dramatic impact",
+            "shattered-exploded": "Broken, irregular panel borders for psychological distress or action",
+            "dynamic-grid": "Irregular grid layout with varying panel sizes for general purpose flexibility",
+        }
+        return layout_descriptions.get(panel_arrangement, "Standard comic book panel layout with gutters")
+    
+    def _get_art_style(self) -> str:
+        """Get art_style from novel.md or config file."""
+        from pathlib import Path
+        import json
+        import re
+        
+        # Try novel.md first (has the actual art style from generation)
+        novel_file = Path(self.output_dir) / "novel.md"
+        if novel_file.exists():
+            content = novel_file.read_text()
+            # Look for "- **Art Style:** ..." pattern
+            match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', content)
+            if match:
+                art_style = match.group(1).strip()
+                logger.info(f"   Art style from novel.md: {art_style}")
+                return art_style
+        
+        # Fallback to config file
+        config_file = Path(self.output_dir) / "input_config.json"
+        if config_file.exists():
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+                art_style = config.get('art_style', 'Print Comic Noir Style')
+                logger.info(f"   Art style from config: {art_style}")
+                return art_style
+        
+        logger.warning("   No art style found, using default")
+        return 'Print Comic Noir Style'
+    
+    def _extract_characters_from_storyline(self, storyline: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Extract character descriptions from storyline markdown.
+        
+        Parses the ## Characters section and extracts physical traits,
+        age, ethnicity, etc. for each character.
+        
+        Returns:
+            Dict[character_name, character_description]
+        """
+        import re
+        
+        characters = {}
+        
+        # Find the Characters section (with optional number)
+        # Use negative lookahead to avoid matching ### (three hashes)
+        char_section_match = re.search(r'##\s*Characters\s*\d*\s*\n(.*?)(?=\n##(?!#)|\Z)', storyline, re.DOTALL)
+        if not char_section_match:
+            # Try alternative format
+            char_section_match = re.search(r'##\s*\d+\.\s*Characters\s*\n(.*?)(?=\n##(?!#)|\Z)', storyline, re.DOTALL)
+        if not char_section_match:
+            return characters
+        
+        char_section = char_section_match.group(1)
+        
+        # Find character blocks: ### Character N
+        char_pattern = r'###\s+Character\s+\d+\s*\n(.*?)(?=\n###\s+Character\s+\d+|\Z)'
+        char_matches = re.finditer(char_pattern, char_section, re.DOTALL)
+        
+        for match in char_matches:
+            block = match.group(1)
+            
+            if not block.strip():
+                continue
+            
+            # Extract name
+            name_match = re.search(r'\*\*Name:\*\*\s*(.+?)(?=\n|$)', block)
+            if not name_match:
+                continue
+            name = name_match.group(1).strip()
+            
+            # Extract physical traits
+            physical_match = re.search(r'\*\*Physical Traits:\*\*\s*(.+?)(?=\n\*\*|\Z)', block, re.DOTALL)
+            physical = physical_match.group(1).strip() if physical_match else ""
+            
+            # Extract age
+            age_match = re.search(r'\*\*Age:\*\*\s*(\d+)', block)
+            age = age_match.group(1) if age_match else "unknown"
+            
+            # Extract ethnicity
+            ethnicity_match = re.search(r'\*\*Ethnicity:\*\*\s*(.+?)(?=\n|$)', block)
+            ethnicity = ethnicity_match.group(1).strip() if ethnicity_match else ""
+            
+            # Build description
+            char_id = name.replace(" ", "_").replace(".", "").replace("Dr_", "")
+            characters[char_id] = {
+                "name": name,
+                "physical_appearance": f"{name}, {age} years old, {ethnicity}. {physical}",
+                "style": "photorealistic, detailed, high quality"
+            }
+        
+        return characters
+    
     async def generate_chapters(
         self,
         chapters: Optional[List[int]] = None,
@@ -290,6 +480,19 @@ class BookWorkflow(WorkflowInterface):
         novel_file = Path(self.output_dir) / "novel.md"
         if not novel_file.exists():
             raise FileNotFoundError(f"Novel not found: {novel_file}")
+        
+        # Auto-generate character references if not already done
+        char_manifest_file = Path(self.output_dir) / "characters" / "character_manifest.json"
+        if not char_manifest_file.exists():
+            logger.info("📸 Character references not found - generating now...")
+            try:
+                char_result = await self.generate_characters()
+                logger.info(f"✅ Generated {len(char_result['characters'])} character sets")
+            except Exception as e:
+                logger.warning(f"⚠️  Character generation failed: {e}")
+                logger.warning("   Continuing without character references")
+        else:
+            logger.info("✅ Character references already exist")
         
         novel_text = novel_file.read_text()
         novel = Novel.from_str(novel_text)
@@ -350,12 +553,16 @@ class BookWorkflow(WorkflowInterface):
         )
         
         art_style = kwargs.get('art_style', 'Print Comic Noir Style')
+        aspect_ratio = kwargs.get('aspect_ratio', '4:5')
         
         logger.info(f"   Running ParallelComicGenerator for {len(new_chapters)} chapters...")
+        logger.info(f"   Art style: {art_style}")
+        logger.info(f"   Aspect ratio: {aspect_ratio}")
         logger.info(f"   use_mock={use_mock_chapters} (from skipper['s'])")
         comic_output = await generator.generate(
             novel=filtered_novel,
-            art_style=art_style
+            art_style=art_style,
+            aspect_ratio=aspect_ratio
         )
         
         # Update state
@@ -397,6 +604,16 @@ class BookWorkflow(WorkflowInterface):
         from google import genai
         from PIL import Image
         from io import BytesIO
+        
+        # Load character references if available
+        char_manifest_file = Path(self.output_dir) / "characters" / "character_manifest.json"
+        character_references = {}
+        if char_manifest_file.exists():
+            with open(char_manifest_file, 'r') as f:
+                character_references = json.load(f)
+            logger.info(f"   Loaded {len(character_references)} character reference sets")
+        else:
+            logger.warning("   No character references found - images may be inconsistent")
         
         # Load chapter JSONs to get page info
         chapter_files = sorted(Path(self.output_dir).glob("chapter_*.json"))
@@ -480,44 +697,102 @@ class BookWorkflow(WorkflowInterface):
                 continue
             
             try:
-                # Generate page
                 page_data = page_info['page_data']
                 panel_arrangement = page_data.get("panel_arrangement", "vertical-2-panel")
                 panels = page_data.get("panels", [])
+                logger.info(f"     Multi-panel generation ({panel_arrangement}) with {len(panels)} panels")
+                from google.genai import types
+                image_config = types.ImageConfig(aspect_ratio="4:5")
+                config = types.GenerateContentConfig(
+                    response_modalities=[types.Modality.IMAGE],
+                    image_config=image_config,
+                )
+                art_style = self._get_art_style()
+                contents = []
+                if character_references:
+                    unique_chars = []
+                    for p in panels:
+                        for cp in p.get("characters_present", []):
+                            if cp not in unique_chars:
+                                unique_chars.append(cp)
+                    added_refs = 0
+                    for cp in unique_chars:
+                        for char_id, char_refs in character_references.items():
+                            name_match = char_id.lower() in cp.lower() or cp.lower() in char_id.lower()
+                            if name_match:
+                                ref_path = char_refs.get('front')
+                                if ref_path and Path(ref_path).exists():
+                                    with open(ref_path, 'rb') as f:
+                                        ref_image_data = f.read()
+                                    contents.append({
+                                        "inline_data": {
+                                            "mime_type": "image/png",
+                                            "data": ref_image_data
+                                        }
+                                    })
+                                    contents.append(f"Use as character reference: {char_id}")
+                                    added_refs += 1
+                                break
+                        if added_refs >= 3:
+                            break
+                # Build detailed layout prompt
+                panel_borders = page_data.get("panel_borders", "clean-sharp")
+                panel_transition = page_data.get("panel_transition_style", "hard-cuts")
                 
-                logger.info(f"     Generating {len(panels)} panels ({panel_arrangement})")
-                
-                # Generate panel images
-                panel_images = []
+                prompt_lines = []
+                prompt_lines.append(f"Generate a multi-panel comic page in {art_style}")
+                prompt_lines.append(f"Page: 4:5 portrait, {panel_arrangement} layout ({self._get_layout_description(panel_arrangement)})")
+                prompt_lines.append(f"Borders: {panel_borders}, Transitions: {panel_transition}")
+                prompt_lines.append(f"")
+                prompt_lines.append(f"QUALITY REQUIREMENTS:")
+                prompt_lines.append(f"- Sharp, high-detail rendering")
+                prompt_lines.append(f"- Accurate human anatomy and proportions")
+                prompt_lines.append(f"- Objects sized realistically relative to characters and surroundings")
+                prompt_lines.append(f"- Fill full vertical frame, no letterboxing")
+                prompt_lines.append(f"")
+                prompt_lines.append(f"TEXT STYLE:")
+                prompt_lines.append(f"- Character dialogue: Speech bubbles (rounded, white, with pointer to speaker)")
+                prompt_lines.append(f"- Narration: Caption boxes (rectangular, white, 3px black border, no pointer)")
+                prompt_lines.append(f"- Font: Sans-serif, black text, readable size")
+                prompt_lines.append(f"")
+                prompt_lines.append(f"PANELS ({len(panels)}):")
                 for i, panel in enumerate(panels, 1):
                     visual_desc = panel.get("visual_description", "")
-                    if not visual_desc:
-                        logger.warning(f"       Panel {i} has no visual description, skipping")
-                        continue
+                    chars = ", ".join(panel.get("characters_present", []))
+                    prompt_lines.append(f"{i}. {visual_desc}")
+                    if chars:
+                        prompt_lines.append(f"   Characters: {chars}")
                     
-                    logger.info(f"       Panel {i}/{len(panels)}...")
-                    
-                    # Generate panel image
-                    response = await asyncio.to_thread(
-                        client.models.generate_content,
-                        model="gemini-2.5-flash-image",
-                        contents=visual_desc,
-                        config={"response_modalities": ["IMAGE"]},
-                    )
-                    
-                    # Extract image
-                    for part in response.candidates[0].content.parts:
-                        if part.inline_data is not None:
-                            img = Image.open(BytesIO(part.inline_data.data))
-                            panel_images.append(img)
-                            break
+                    # Add text if present
+                    dialogue = panel.get("dialogue", [])
+                    if dialogue:
+                        for line in dialogue:
+                            char = line.get("character", "")
+                            text = line.get("text", "")
+                            if char == "Narrator":
+                                prompt_lines.append(f"   Caption: \"{text}\"")
+                            else:
+                                prompt_lines.append(f"   {char}: \"{text}\"")
+                prompt = "\n".join(prompt_lines)
+                contents.append(prompt)
+                logger.info(f"     📝 Prompt:\n{prompt}")
+                response = await asyncio.to_thread(
+                    client.models.generate_content,
+                    model="gemini-2.5-flash-image",
+                    contents=contents,
+                    config=config,
+                )
+                generated_image = None
+                for part in response.candidates[0].content.parts:
+                    if part.inline_data is not None:
+                        generated_image = Image.open(BytesIO(part.inline_data.data))
+                        break
                 
-                # Composite panels into page
-                logger.info(f"     Compositing {len(panel_images)} panels...")
-                page_image = self._composite_page(panel_images, panel_arrangement)
+                if generated_image is None:
+                    logger.error(f"     ❌ Gemini did not return image for {filename}")
+                    continue
                 
-                # Save
-                page_image.save(output_file)
+                generated_image.save(output_file)
                 logger.info(f"     ✅ Saved: {filename}")
                 
                 if page_idx not in self.state.pages_generated:
@@ -536,49 +811,73 @@ class BookWorkflow(WorkflowInterface):
         }
         
         logger.info(f"✅ Pages generated: {new_pages}")
+        
+        # Text overlays are now handled by Gemini during generation
+        # No need for post-processing text overlay
+        logger.info("📝 Text included in Gemini generation (no post-processing needed)")
+        
         return result
     
-    def _composite_page(self, panel_images: List, panel_arrangement: str, page_size=(1200, 1600)):
-        """Composite multiple panel images into a single comic page."""
+    def _add_text_overlays_to_pages(self, page_numbers: List[int]):
+        """Add text overlays to generated pages."""
+        from cinema.utils.text_overlay import ComicTextOverlay
         from PIL import Image
+        from pathlib import Path
+        import json
         
-        # Layout configurations
-        LAYOUT_CONFIGS = {
-            "horizontal-2-panel": {"rows": 1, "cols": 2},
-            "horizontal-3-panel": {"rows": 1, "cols": 3},
-            "vertical-2-panel": {"rows": 2, "cols": 1},
-            "vertical-3-panel": {"rows": 3, "cols": 1},
-            "zoom-progression": {"rows": 3, "cols": 1},
-            "dynamic-grid": {"rows": 2, "cols": 2},
-        }
+        overlay = ComicTextOverlay()
+        pages_dir = Path(self.output_dir) / "pages"
         
-        page_width, page_height = page_size
-        config = LAYOUT_CONFIGS.get(panel_arrangement, LAYOUT_CONFIGS["vertical-2-panel"])
+        # Load chapter data
+        chapter_files = sorted(Path(self.output_dir).glob("chapter_*.json"))
         
-        # Create blank page
-        page = Image.new('RGB', (page_width, page_height), color='white')
+        # Build page info map
+        page_info_map = {}
+        for chapter_file in chapter_files:
+            with open(chapter_file) as f:
+                data = json.load(f)
+            
+            for chapter in data.get('chapters', []):
+                ch_num = chapter.get('chapter_number')
+                for scene in chapter.get('scenes', []):
+                    scene_num = scene.get('scene_number')
+                    for page in scene.get('pages', []):
+                        page_num = page.get('page_number')
+                        key = f"ch{ch_num}_sc{scene_num}_page{page_num}.png"
+                        page_info_map[key] = {
+                            'panels': page.get('panels', []),
+                            'layout': page.get('panel_arrangement', 'vertical-2-panel')
+                        }
         
-        rows = config["rows"]
-        cols = config["cols"]
-        gutter = 20
+        # Add text to each page
+        text_added = 0
+        for page_file in pages_dir.glob("*.png"):
+            if "_with_text" in page_file.name:
+                continue
+            
+            page_info = page_info_map.get(page_file.name)
+            if not page_info:
+                continue
+            
+            # Check if page has text
+            has_text = any(p.get('dialogue') or p.get('narration') for p in page_info['panels'])
+            if not has_text:
+                continue
+            
+            # Load image and add text
+            img = Image.open(page_file)
+            img_with_text = overlay.add_text_to_page(
+                img,
+                page_info['panels'],
+                page_info['layout'],
+                (img.width, img.height)
+            )
+            
+            # Save with _with_text suffix
+            output_file = pages_dir / f"{page_file.stem}_with_text.png"
+            img_with_text.save(output_file)
+            text_added += 1
         
-        # Calculate panel dimensions
-        panel_height = (page_height - (rows + 1) * gutter) // rows
-        panel_width = (page_width - (cols + 1) * gutter) // cols
-        
-        # Place panels
-        panel_idx = 0
-        for row in range(rows):
-            for col in range(cols):
-                if panel_idx >= len(panel_images):
-                    break
-                
-                x = gutter + col * (panel_width + gutter)
-                y = gutter + row * (panel_height + gutter)
-                
-                panel = panel_images[panel_idx].resize((panel_width, panel_height), Image.Resampling.LANCZOS)
-                page.paste(panel, (x, y))
-                
-                panel_idx += 1
-        
-        return page
+        logger.info(f"✅ Text overlays added to {text_added} pages")
+    
+

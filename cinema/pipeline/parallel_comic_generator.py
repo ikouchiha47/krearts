@@ -42,13 +42,14 @@ class ParallelComicGenerator:
         self.use_mock = use_mock
         self._screenplay_kb = StringKnowledgeSource(content=self.screenplay)
     
-    async def generate(self, novel: Novel, art_style: str) -> ComicBookOutput:
+    async def generate(self, novel: Novel, art_style: str, aspect_ratio: str = "4:5") -> ComicBookOutput:
         """
         Generate comic book output from a novel by processing chapters in parallel.
         
         Args:
             novel: Parsed novel with chapters
             art_style: Art style for comic generation
+            aspect_ratio: Aspect ratio for panels (default: "4:5" portrait)
             
         Returns:
             Complete ComicBookOutput with all chapters
@@ -58,7 +59,7 @@ class ParallelComicGenerator:
         
         # Process chapters in parallel - pass chapter content directly
         tasks = [
-            self._process_chapter(chapter, art_style)
+            self._process_chapter(chapter, art_style, aspect_ratio)
             for chapter in novel.chapters
         ]
         
@@ -94,7 +95,8 @@ class ParallelComicGenerator:
     async def _process_chapter(
         self,
         chapter: NovelChapter,
-        art_style: str
+        art_style: str,
+        aspect_ratio: str = "4:5"
     ) -> ComicChapter:
         """Process a single chapter using ComicStripStoryBoarding"""
         async with self.semaphore:
@@ -126,7 +128,7 @@ class ParallelComicGenerator:
                     chapter_id=chapter.number,
                     chapter_content=chapter_content,
                     art_style=art_style,
-                    aspect_ratio="16:9",  # Default to landscape, can be parameterized later
+                    aspect_ratio=aspect_ratio,  # Configurable aspect ratio
                 )
                 
                 # Run the crew

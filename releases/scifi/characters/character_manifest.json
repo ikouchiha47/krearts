@@ -1,0 +1,32 @@
+{
+  "Sarah_Chen": {
+    "front": "output/book_6021a791/characters/Sarah_Chen_front.png",
+    "side": "output/book_6021a791/characters/Sarah_Chen_side.png",
+    "full_body": "output/book_6021a791/characters/Sarah_Chen_full_body.png",
+    "back": "output/book_6021a791/characters/Sarah_Chen_back.png"
+  },
+  "Marcus_Webb": {
+    "front": "output/book_6021a791/characters/Marcus_Webb_front.png",
+    "side": "output/book_6021a791/characters/Marcus_Webb_side.png",
+    "full_body": "output/book_6021a791/characters/Marcus_Webb_full_body.png",
+    "back": "output/book_6021a791/characters/Marcus_Webb_back.png"
+  },
+  "Elena_Volkov": {
+    "front": "output/book_6021a791/characters/Elena_Volkov_front.png",
+    "side": "output/book_6021a791/characters/Elena_Volkov_side.png",
+    "full_body": "output/book_6021a791/characters/Elena_Volkov_full_body.png",
+    "back": "output/book_6021a791/characters/Elena_Volkov_back.png"
+  },
+  "James_Park": {
+    "front": "output/book_6021a791/characters/James_Park_front.png",
+    "side": "output/book_6021a791/characters/James_Park_side.png",
+    "full_body": "output/book_6021a791/characters/James_Park_full_body.png",
+    "back": "output/book_6021a791/characters/James_Park_back.png"
+  },
+  "AI-CORE": {
+    "front": "output/book_6021a791/characters/AI-CORE_front.png",
+    "side": "output/book_6021a791/characters/AI-CORE_side.png",
+    "full_body": "output/book_6021a791/characters/AI-CORE_full_body.png",
+    "back": "output/book_6021a791/characters/AI-CORE_back.png"
+  }
+}
