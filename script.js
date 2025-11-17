@@ -1,8 +1,6 @@
 // GSAP Animations
 gsap.registerPlugin(ScrollTrigger);
 
-POSTHOG_API_KEY = "phc_xhYo3tkCnQ2t2vOo8SlIb0qLguYhlfaIO8BfeSToq1l"
-
 // Initialize animations when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initAnimations();
@@ -10,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormHandling();
     initMobileMenu();
     initCarousel();
+    
+
 });
 
 // GSAP Animations
@@ -223,19 +223,9 @@ function initFormHandling() {
         if (validateEmail(email)) {
             // Track signup
             trackCTAClick('signup-submit');
-            
-            // Store email (in production, send to backend)
-            console.log(`New signup: ${email}`);
-            
-            // In production, send to backend:
-            // fetch('/api/signup', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ email })
-            // });
-            
-            // Show success modal
-            showSuccessModal();
+
+            // Submit to MailerLite (will submit to iframe, no redirect)
+            submitToMailerLite(email);
             
             // Reset form
             form.reset();
@@ -243,6 +233,55 @@ function initFormHandling() {
             showError('Please enter a valid email address');
         }
     });
+}
+
+function submitToMailerLite(email) {
+    // Wait for MailerLite to load, then submit
+    const maxAttempts = 20;
+    let attempts = 0;
+    
+    const trySubmit = () => {
+        attempts++;
+        
+        try {
+            // Find the hidden MailerLite form
+            const mlForm = document.querySelector('.ml-embedded form');
+            const mlEmailInput = document.querySelector('.ml-embedded input[type="email"]');
+            
+            console.log('Attempt', attempts, '- Form:', !!mlForm, 'Input:', !!mlEmailInput);
+            
+            if (mlForm && mlEmailInput) {
+                // Set form target to iframe so it doesn't redirect the main page
+                mlForm.setAttribute('target', 'mailerlite_iframe');
+                
+                // Fill the email
+                mlEmailInput.value = email;
+                
+                // Submit the form to iframe
+                mlForm.submit();
+                
+                console.log('Form submitted to MailerLite iframe');
+                
+                // Show success modal immediately
+                showSuccessModal();
+            } else if (attempts < maxAttempts) {
+                // Try again after a short delay
+                setTimeout(trySubmit, 200);
+            } else {
+                console.error('MailerLite form not found after', maxAttempts, 'attempts');
+                showError('Unable to submit. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting to MailerLite:', error);
+            if (attempts < maxAttempts) {
+                setTimeout(trySubmit, 200);
+            } else {
+                showError('Unable to submit. Please try again.');
+            }
+        }
+    };
+    
+    trySubmit();
 }
 
 function validateEmail(email) {
@@ -283,15 +322,23 @@ function showError(message) {
 
 function showSuccessModal() {
     const modal = document.getElementById('successModal');
+    const modalContent = modal.querySelector('.modal-content');
+    
     modal.classList.add('active');
     
-    // Animate modal content
-    gsap.from('.modal-content', {
-        scale: 0.8,
-        opacity: 0,
-        duration: 0.3,
-        ease: 'back.out(1.7)'
-    });
+    // Set initial state and animate in
+    gsap.fromTo(modalContent, 
+        {
+            scale: 0.8,
+            opacity: 0
+        },
+        {
+            scale: 1,
+            opacity: 1,
+            duration: 0.3,
+            ease: 'back.out(1.7)'
+        }
+    );
 }
 
 function closeModal() {
@@ -363,13 +410,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         const target = document.querySelector(this.getAttribute('href'));
         
         if (target) {
-            gsap.to(window, {
-                duration: 1,
-                scrollTo: {
-                    y: target,
-                    offsetY: 80
-                },
-                ease: 'power3.inOut'
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
             });
         }
     });
