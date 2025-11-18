@@ -119,8 +119,9 @@ plotbuilder:
       - allibies
 
       All the actions before, during and after the discovery of the crime has to be accounted for.
-
       ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
+
+      The Actions done should deeply matter to the character, and hence the reader.
 
       #### Motivations
       The actions commited by the person, and the reasons for doing so. It has to come from
@@ -128,6 +129,7 @@ plotbuilder:
 
       #### Identity Anchors
       Core beliefs, values, vices, secrets that drive decisions.
+      These should be set with respect to the World context.
 
       #### Long-term Goals
       Career/personal goals and current constraints.
@@ -211,9 +213,16 @@ plotbuilder:
       - Use the knowledgebase to have a better understading on writer better detective plotline
 
       - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
-        like, **lives of people depend on it**.
+        like, **lives of people depend on it**.      
 
       - Detective Primacy Rule: You MUST designate exactly one Primary Detective by name. Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`. If multiples exist, provide a POV Plan (primary ≥ 60%).
+
+      ---
+
+      To invoke suspense and anticipation (Zeigarnik effect):
+      Build up to climatic events where they occur, choosing the final action as a countdown
+      - Anchor the plot to a tangible central event
+      - Underlying current of momentum, leading upto it (central event)
 
       ---
 
@@ -232,6 +241,10 @@ chapterbuilder:
     ⚠️ You MUST generate ACTUAL scene/page/panel content - NO placeholders or comments.
     ⚠️ DO NOT write "// ... [full breakdown]" - write the ACTUAL objects.
     ⚠️ DO NOT copy prose text directly into dialogue - ADAPT it for comic format.
+    
+    🎯 **NARRATOR CAPTION RULE**: Maximum 12-20 words. Comics show, don't tell.
+       ✅ GOOD: "Rain. The warehouse loomed in darkness."
+       ❌ BAD: "The warehouse squatted on the waterfront—rusted tin, broken glass, the air thick with salt, diesel, and something metallic."
 
     ---
     
@@ -926,6 +939,82 @@ chapterbuilder:
           }]
         }]
       }]
+    }
+    ```
+
+    ---
+
+    ## IMPORTANT OBJECTS DETECTION (MANDATORY)
+
+    For EACH panel, you MUST identify important objects that should NOT be covered by text overlays.
+    
+    Add an `important_objects` field to each panel with bounding boxes for:
+    - **Character faces and hands**: Faces during emotional moments, hands holding/examining objects
+    - **Evidence and clues**: cigarette butts, glove fibers, ledger pages, blood pools, weapons, baseball cards, torn documents
+    - **Key props**: Items being examined, held, pointed at, or referenced in dialogue
+    - **Story-critical details**: Door handles, locks, specific windows, specific architectural details (NOT entire buildings)
+    - **Emotional details**: Tears, expressions, gestures that convey emotion
+    
+    **DO NOT mark as important:**
+    - Large background elements (entire buildings, walls, floors)
+    - Generic environmental objects (rain, puddles, sky) unless they're the focus
+    - Decorative elements that don't advance the story
+    
+    **Focus on:**
+    - Objects that would be ruined if covered by text
+    - Details the reader needs to see clearly
+    - Visual clues that advance the mystery/story
+    
+    Bounding box format:
+    ```json
+    "important_objects": [
+      {
+        "box_2d": [y_min, x_min, y_max, x_max],
+        "label": "cigarette butt with lipstick"
+      },
+      {
+        "box_2d": [100, 200, 300, 400],
+        "label": "Jack's face"
+      }
+    ]
+    ```
+    
+    Coordinates are normalized (0-1000 range) where:
+    - [0, 0] = top-left corner
+    - [1000, 1000] = bottom-right corner
+    - Format: [y_min, x_min, y_max, x_max]
+    
+    **Guidelines:**
+    - **Limit to 2-4 most important objects per panel** (the things that MUST NOT be covered)
+    - For close-ups: The main subject (face, object) fills 40-80% of frame
+    - For medium shots: Character faces/hands are in upper-middle area (30-60% of frame)
+    - For wide/establishing shots: Usually NO important objects (text can go anywhere)
+    - **Think like a letterer**: What would ruin the panel if covered by a speech bubble?
+    
+    **Examples of GOOD important objects:**
+    - "Jack's face" (close-up of detective)
+    - "cigarette butt with lipstick" (evidence clue)
+    - "door handle" (specific detail Jack is reaching for)
+    - "torn ledger page in hand" (evidence being examined)
+    
+    **Examples of BAD important objects:**
+    - "warehouse exterior" (too large, just background)
+    - "rain puddles" (decorative, not story-critical)
+    - "city skyline" (background element)
+    - "warehouse door" (unless it's being opened/examined specifically)
+    
+    **Example:**
+    ```json
+    {
+      "panel_number": 5,
+      "shot_type": "close-up",
+      "visual_description": "Close-up of cigarette butt with red lipstick on filter, lying on concrete...",
+      "important_objects": [
+        {
+          "box_2d": [300, 350, 700, 650],
+          "label": "cigarette butt with lipstick"
+        }
+      ]
     }
     ```
 
@@ -1775,7 +1864,7 @@ novelist:
 
     ---
 
-    ## Step 4: Humanize (MANDATORY)
+    ## Step 4: Humanize (MANDATORY AUDIT)
 
     0. Anytime a character is introduced, make sure to explain:
       - Who is the character?
@@ -1805,6 +1894,8 @@ novelist:
        and should serve the actions performed by characters.
     13. Do not over-inflate non consequential or essential characters, if they don't matter to the plotline.
         Avoid giving any names to such characters.
+    14. **IMPORTANT**: End the chapters with some anticipation to keep the suspense keep going.
+    15. **IMPORTANT**: Always build up to climatic events where they occur, choosing the final action as a countdown, via plotbuilding. (Zeigarnik effect)
     
     ---
 

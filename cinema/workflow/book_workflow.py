@@ -370,12 +370,40 @@ class BookWorkflow(WorkflowInterface):
         return layout_descriptions.get(panel_arrangement, "Standard comic book panel layout with gutters")
     
     def _get_art_style(self) -> str:
-        """Get art_style from novel.md or config file."""
+        """
+        Get art_style from generated content (storyline/novel), NOT from user config.
+        
+        Priority:
+        1. Flow state storyline (what the LLM actually generated)
+        2. Novel.md (final generated content)
+        3. Chapter JSON (from comic generation)
+        4. Default fallback
+        
+        We explicitly DO NOT use the user's input config, as the LLM may have
+        refined or changed the art style during generation.
+        """
         from pathlib import Path
         import json
         import re
         
-        # Try novel.md first (has the actual art style from generation)
+        # Priority 1: Try flow state storyline (most authoritative)
+        flow_state_file = Path(f"output/flow_states/storybuilder_{self.workflow_id}.json")
+        if flow_state_file.exists():
+            try:
+                with open(flow_state_file, 'r') as f:
+                    flow_data = json.load(f)
+                storyline = flow_data.get('output', {}).get('storyline', '')
+                if storyline:
+                    # Look for "- **Art Style:** ..." pattern in storyline
+                    match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', storyline)
+                    if match:
+                        art_style = match.group(1).strip()
+                        logger.info(f"   ✅ Art style from storyline: {art_style}")
+                        return art_style
+            except Exception as e:
+                logger.debug(f"   Could not read flow state: {e}")
+        
+        # Priority 2: Try novel.md (generated content)
         novel_file = Path(self.output_dir) / "novel.md"
         if novel_file.exists():
             content = novel_file.read_text()
@@ -383,19 +411,24 @@ class BookWorkflow(WorkflowInterface):
             match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', content)
             if match:
                 art_style = match.group(1).strip()
-                logger.info(f"   Art style from novel.md: {art_style}")
+                logger.info(f"   ✅ Art style from novel.md: {art_style}")
                 return art_style
         
-        # Fallback to config file
-        config_file = Path(self.output_dir) / "input_config.json"
-        if config_file.exists():
-            with open(config_file, 'r') as f:
-                config = json.load(f)
-                art_style = config.get('art_style', 'Print Comic Noir Style')
-                logger.info(f"   Art style from config: {art_style}")
-                return art_style
+        # Priority 3: Try chapter JSON (from comic generation)
+        chapter_files = sorted(Path(self.output_dir).glob("chapter_*.json"))
+        if chapter_files:
+            try:
+                with open(chapter_files[0], 'r') as f:
+                    chapter_data = json.load(f)
+                art_style = chapter_data.get('art_style')
+                if art_style:
+                    logger.info(f"   ✅ Art style from chapter JSON: {art_style}")
+                    return art_style
+            except Exception as e:
+                logger.debug(f"   Could not read chapter JSON: {e}")
         
-        logger.warning("   No art style found, using default")
+        # Fallback: Use default (DO NOT use user config)
+        logger.warning("   ⚠️  No art style found in generated content, using default")
         return 'Print Comic Noir Style'
     
     def _extract_characters_from_storyline(self, storyline: str) -> Dict[str, Dict[str, Any]]:
@@ -832,6 +865,13 @@ class BookWorkflow(WorkflowInterface):
                 generated_image.save(output_file)
                 logger.info(f"     ✅ Saved: {filename}")
                 
+                # Detect bounding boxes for important objects
+                await self._detect_and_save_bounding_boxes(
+                    generated_image,
+                    page_info,
+                    output_file
+                )
+                
                 if page_idx not in self.state.pages_generated:
                     self.state.pages_generated.append(page_idx)
                 
@@ -854,6 +894,228 @@ class BookWorkflow(WorkflowInterface):
         logger.info("📝 Text included in Gemini generation (no post-processing needed)")
         
         return result
+    
+    async def _detect_and_save_bounding_boxes(
+        self,
+        image,  # PIL Image
+        page_info: dict,
+        image_path  # Path
+    ):
+        """
+        Detect bounding boxes for important objects in the generated image.
+        
+        Splits multi-panel pages into individual panels and detects objects per panel.
+        
+        Args:
+            image: Generated PIL Image
+            page_info: Page metadata including panels with important_objects
+            image_path: Path where image was saved
+        """
+        from cinema.providers.gemini import GeminiMediaGen
+        from PIL import Image
+        import json
+        
+        panels = page_info['page_data'].get('panels', [])
+        if not panels:
+            logger.debug(f"     No panels to process")
+            return
+        
+        panel_arrangement = page_info['page_data'].get('panel_arrangement', 'vertical-2-panel')
+        
+        logger.info(f"     🔍 Detecting objects per panel ({panel_arrangement})")
+        
+        # Split image into panels based on arrangement
+        panel_images = self._split_page_into_panels(image, panel_arrangement, len(panels))
+        
+        if len(panel_images) != len(panels):
+            logger.warning(f"     ⚠️  Panel count mismatch: {len(panel_images)} images vs {len(panels)} metadata")
+            return
+        
+        # Initialize Gemini for object detection
+        gemini = GeminiMediaGen()
+        
+        all_detections = []
+        
+        # Detect objects in each panel
+        for i, (panel_img, panel_data) in enumerate(zip(panel_images, panels)):
+            panel_num = panel_data.get('panel_number', i + 1)
+            
+            # Get labels for this panel
+            labels = [obj.get('label') for obj in panel_data.get('important_objects', []) if obj.get('label')]
+            
+            if not labels:
+                logger.debug(f"     Panel {panel_num}: No objects to detect")
+                continue
+            
+            logger.info(f"     Panel {panel_num}: Detecting {len(labels)} objects")
+            
+            try:
+                # Detect objects in this panel
+                detections = await gemini.detect_objects(panel_img, labels)
+                
+                if detections:
+                    # Map coordinates back to full page
+                    panel_offset = self._get_panel_offset(i, panel_arrangement, image.size, len(panels))
+                    
+                    for detection in detections:
+                        # Convert panel-local coordinates to page coordinates
+                        box_2d = detection.get('box_2d', [])
+                        if len(box_2d) == 4:
+                            detection['box_2d'] = self._map_panel_to_page_coords(
+                                box_2d, panel_offset, panel_img.size, image.size
+                            )
+                            detection['panel_number'] = panel_num
+                            all_detections.append(detection)
+                    
+                    logger.info(f"     Panel {panel_num}: ✅ Detected {len(detections)} objects")
+                else:
+                    logger.warning(f"     Panel {panel_num}: ⚠️  No objects detected")
+            
+            except Exception as e:
+                logger.error(f"     Panel {panel_num}: ❌ Detection failed: {e}")
+        
+        if not all_detections:
+            logger.warning(f"     ⚠️  No objects detected in any panel")
+            return
+        
+        # Save detections to JSON file alongside image
+        detection_file = image_path.with_suffix('.detections.json')
+        with open(detection_file, 'w') as f:
+            json.dump({
+                'image': str(image_path.name),
+                'panel_arrangement': panel_arrangement,
+                'num_panels': len(panels),
+                'detections': all_detections
+            }, f, indent=2)
+        
+        logger.info(f"     ✅ Total detected: {len(all_detections)} objects across {len(panels)} panels")
+        
+        # Update the chapter JSON with actual detected bounding boxes
+        await self._update_chapter_with_detections(page_info, all_detections)
+    
+    def _split_page_into_panels(self, image, panel_arrangement: str, num_panels: int):
+        """Split a multi-panel page into individual panel images."""
+        from PIL import Image
+        
+        width, height = image.size
+        panels = []
+        
+        if 'vertical' in panel_arrangement:
+            # Vertical split (stacked panels)
+            panel_height = height // num_panels
+            for i in range(num_panels):
+                y1 = i * panel_height
+                y2 = (i + 1) * panel_height if i < num_panels - 1 else height
+                panel = image.crop((0, y1, width, y2))
+                panels.append(panel)
+        
+        elif 'horizontal' in panel_arrangement:
+            # Horizontal split (side-by-side panels)
+            panel_width = width // num_panels
+            for i in range(num_panels):
+                x1 = i * panel_width
+                x2 = (i + 1) * panel_width if i < num_panels - 1 else width
+                panel = image.crop((x1, 0, x2, height))
+                panels.append(panel)
+        
+        else:
+            # Default: treat as single panel
+            panels.append(image)
+        
+        return panels
+    
+    def _get_panel_offset(self, panel_index: int, panel_arrangement: str, page_size: tuple, num_panels: int) -> tuple:
+        """Get the (x, y) offset of a panel within the full page."""
+        width, height = page_size
+        
+        if 'vertical' in panel_arrangement:
+            # Vertical arrangement: panels stacked top to bottom
+            panel_height = height // num_panels
+            return (0, panel_index * panel_height)
+        
+        elif 'horizontal' in panel_arrangement:
+            # Horizontal arrangement: panels side by side
+            panel_width = width // num_panels
+            return (panel_index * panel_width, 0)
+        
+        else:
+            return (0, 0)
+    
+    def _map_panel_to_page_coords(self, box_2d: list, panel_offset: tuple, panel_size: tuple, page_size: tuple) -> list:
+        """Map panel-local coordinates to full page coordinates."""
+        y_min, x_min, y_max, x_max = box_2d
+        offset_x, offset_y = panel_offset
+        panel_width, panel_height = panel_size
+        page_width, page_height = page_size
+        
+        # Convert from normalized panel coords to pixel coords
+        panel_x1 = x_min * panel_width / 1000
+        panel_y1 = y_min * panel_height / 1000
+        panel_x2 = x_max * panel_width / 1000
+        panel_y2 = y_max * panel_height / 1000
+        
+        # Add panel offset
+        page_x1 = panel_x1 + offset_x
+        page_y1 = panel_y1 + offset_y
+        page_x2 = panel_x2 + offset_x
+        page_y2 = panel_y2 + offset_y
+        
+        # Convert back to normalized page coords
+        norm_x_min = int(page_x1 * 1000 / page_width)
+        norm_y_min = int(page_y1 * 1000 / page_height)
+        norm_x_max = int(page_x2 * 1000 / page_width)
+        norm_y_max = int(page_y2 * 1000 / page_height)
+        
+        return [norm_y_min, norm_x_min, norm_y_max, norm_x_max]
+    
+    async def _update_chapter_with_detections(self, page_info: dict, detections: List[dict]):
+        """Update chapter JSON file with actual detected bounding boxes."""
+        import json
+        from pathlib import Path
+        
+        chapter_file = Path(page_info['chapter_file'])
+        
+        # Load chapter data
+        with open(chapter_file, 'r') as f:
+            chapter_data = json.load(f)
+        
+        # Find the matching page and update important_objects
+        chapter_num = page_info['chapter_number']
+        scene_num = page_info['scene_number']
+        page_num = page_info['page_number']
+        
+        for chapter in chapter_data.get('chapters', []):
+            if chapter.get('chapter_number') != chapter_num:
+                continue
+            
+            for scene in chapter.get('scenes', []):
+                if scene.get('scene_number') != scene_num:
+                    continue
+                
+                for page in scene.get('pages', []):
+                    if page.get('page_number') != page_num:
+                        continue
+                    
+                    # Update each panel's important_objects with detected boxes
+                    for panel in page.get('panels', []):
+                        panel_objects = panel.get('important_objects', [])
+                        
+                        # Match detections to panel objects by label
+                        for obj in panel_objects:
+                            label = obj.get('label')
+                            for detection in detections:
+                                if detection.get('label') == label:
+                                    # Update with actual detected box
+                                    obj['box_2d'] = detection['box_2d']
+                                    obj['confidence'] = detection.get('confidence', 1.0)
+                                    obj['detected'] = True
+                                    break
+        
+        # Save updated chapter data
+        with open(chapter_file, 'w') as f:
+            json.dump(chapter_data, f, indent=2)
+        
+        logger.debug(f"     Updated {chapter_file.name} with detected bounding boxes")
     
     def _add_text_overlays_to_pages(self, page_numbers: List[int]):
         """Add text overlays to generated pages."""

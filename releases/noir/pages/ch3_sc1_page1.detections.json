@@ -1,0 +1,29 @@
+{
+  "image": "ch3_sc1_page1.png",
+  "panel_arrangement": "vertical-2-panel",
+  "num_panels": 2,
+  "detections": [
+    {
+      "label": "Jack's face",
+      "box_2d": [
+        513,
+        417,
+        550,
+        478
+      ],
+      "confidence": 0.91,
+      "panel_number": 2
+    },
+    {
+      "label": "Jack's hand on door handle",
+      "box_2d": [
+        672,
+        264,
+        701,
+        305
+      ],
+      "confidence": 0.91,
+      "panel_number": 2
+    }
+  ]
+}

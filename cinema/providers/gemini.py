@@ -186,6 +186,111 @@ class GeminiMediaGen:
 
         return 8
 
+    async def detect_objects(
+        self,
+        image: ImageInput,
+        labels: List[str],
+        **kwargs: Any
+    ) -> List[dict]:
+        """
+        Detect bounding boxes for specified objects in an image using Gemini.
+
+        Args:
+            image: Image to analyze (PIL Image, bytes, or path)
+            labels: List of object labels to detect (e.g., ["Jack's face", "cigarette butt"])
+
+        Returns:
+            List of detected objects with bounding boxes:
+            [
+                {
+                    "label": "Jack's face",
+                    "box_2d": [y_min, x_min, y_max, x_max],
+                    "confidence": 0.95
+                },
+                ...
+            ]
+        """
+        # Rate limit
+        await self.rate_limiter.acquire("gemini-2.0-flash-exp")
+
+        logger.info(f"🔍 Detecting objects in image: {labels}")
+
+        # Convert image to PIL if needed
+        if isinstance(image, Image.Image):
+            pil_image = image
+        elif isinstance(image, (bytes, bytearray)):
+            pil_image = Image.open(BytesIO(image))
+        elif isinstance(image, str):
+            pil_image = Image.open(image)
+        else:
+            raise ValueError(f"Unsupported image type: {type(image)}")
+
+        # Get image dimensions for normalization
+        img_width, img_height = pil_image.size
+
+        # Build detection prompt
+        labels_str = ", ".join([f'"{label}"' for label in labels])
+        prompt = f"""Analyze this comic book panel image and identify the bounding boxes for these objects: {labels_str}.
+
+For each object you can identify, provide:
+1. The object label (exactly as provided)
+2. Bounding box coordinates as [y_min, x_min, y_max, x_max] where:
+   - Coordinates are normalized to 0-1000 range
+   - [0, 0] is top-left corner
+   - [1000, 1000] is bottom-right corner
+3. Confidence score (0.0 to 1.0)
+
+Return ONLY a JSON array with this structure:
+[
+  {{"label": "object name", "box_2d": [y_min, x_min, y_max, x_max], "confidence": 0.95}},
+  ...
+]
+
+If an object is not visible or cannot be identified, omit it from the results.
+Be precise with bounding boxes - they should tightly fit the object."""
+
+        # Call Gemini for object detection
+        config = types.GenerateContentConfig(
+            response_modalities=[types.Modality.TEXT],
+        )
+
+        response = await asyncio.to_thread(
+            self.client.models.generate_content,
+            model="gemini-2.0-flash-exp",
+            contents=[prompt, pil_image],
+            config=config,
+        )
+
+        # Parse response
+        response_text = (response.text or "").strip()
+        logger.debug(f"Detection response: {response_text}")
+
+        # Extract JSON from response (handle markdown code blocks)
+        import json
+        import re
+
+        # Try to extract JSON from markdown code blocks
+        json_match = re.search(r'```(?:json)?\s*(\[.*?\])\s*```', response_text, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(1)
+        else:
+            # Try to find JSON array directly
+            json_match = re.search(r'\[.*?\]', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            else:
+                logger.warning("No JSON array found in response")
+                return []
+
+        try:
+            detections = json.loads(json_str)
+            logger.info(f"✅ Detected {len(detections)} objects")
+            return detections
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse detection response: {e}")
+            logger.error(f"Response text: {response_text}")
+            return []
+
     # helpers
     @staticmethod
     def to_api_image(img: Optional[ImageInput]) -> Optional[types.ImageDict]:

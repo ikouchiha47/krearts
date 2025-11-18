@@ -12,6 +12,22 @@ from pydantic import BaseModel, Field, model_validator
 logger = logging.getLogger(__name__)
 
 
+class BoundingBox(BaseModel):
+    """
+    Represents a bounding box for important objects that shouldn't be covered by text.
+    
+    Coordinates are normalized [y_min, x_min, y_max, x_max] in range 0-1000.
+    """
+    box_2d: List[int] = Field(
+        ...,
+        description="Normalized 2D coordinates [y_min, x_min, y_max, x_max] in range 0-1000"
+    )
+    label: str = Field(
+        ...,
+        description="Label describing the object (e.g., 'cigarette butt', 'Jack's face', 'blood pool')"
+    )
+
+
 class DialogueLine(BaseModel):
     """Single line of dialogue with character attribution"""
     character: str = Field(..., description="Character name speaking (or 'Narrator' for captions)")
@@ -104,6 +120,12 @@ class ComicPanel(BaseModel):
     panel_size: Optional[Literal["small", "medium", "large", "splash"]] = Field(
         None,
         description="Relative size of panel on page"
+    )
+    
+    # Important objects (for text overlay avoidance)
+    important_objects: List[BoundingBox] = Field(
+        default_factory=list,
+        description="Bounding boxes for important objects that shouldn't be covered by text overlays (evidence, faces, key props)"
     )
 
 
