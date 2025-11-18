@@ -353,13 +353,16 @@ class BookWorkflow(WorkflowInterface):
     
     def _get_layout_description(self, panel_arrangement: str) -> str:
         """Get detailed description of panel layout style."""
+
+        # TODO: Get these descriptions from the LLM Output
+        #       Because the knowledgebase has better text in it
         layout_descriptions = {
             "horizontal-2-panel": "Two panels side-by-side horizontally with equal or dynamic widths",
             "horizontal-3-panel": "Three panels in a horizontal row with varying widths for emphasis",
             "vertical-2-panel": "Two panels stacked vertically, equal or dynamic heights",
             "vertical-3-panel": "Three panels stacked vertically for descent/ascent sequences",
             "fractured-overlapping": "Overlapping panels with broken borders for chaos/simultaneous events",
-            "zoom-progression": "Progressive zoom sequence (wide → medium → close-up) for building suspense",
+            "zoom-progression": "Progressive zoom sequence (wide -> medium -> close-up) for building suspense",
             "cross-over-bleed": "Dominant element bleeds across multiple panels for dramatic impact",
             "shattered-exploded": "Broken, irregular panel borders for psychological distress or action",
             "dynamic-grid": "Irregular grid layout with varying panel sizes for general purpose flexibility",
@@ -739,40 +742,74 @@ class BookWorkflow(WorkflowInterface):
                 panel_borders = page_data.get("panel_borders", "clean-sharp")
                 panel_transition = page_data.get("panel_transition_style", "hard-cuts")
                 
+                # Get unique characters in this page
+                unique_chars = set()
+                for p in panels:
+                    for cp in p.get("characters_present", []):
+                        unique_chars.add(cp)
+                
+                # Load character descriptions from chapter JSON
+                char_descriptions = {}
+                with open(page_info['chapter_file'], 'r') as f:
+                    chapter_data = json.load(f)
+                for char in chapter_data.get('characters', []):
+                    char_name = char.get('name', '')
+                    if char_name in unique_chars:
+                        char_descriptions[char_name] = {
+                            'physical': char.get('physical_traits', ''),
+                            'age': char.get('age', ''),
+                            'attire': char.get('typical_attire', ''),
+                            'role': char.get('role', '')
+                        }
+                
                 prompt_lines = []
-                prompt_lines.append(f"Generate a multi-panel comic page in {art_style}")
-                prompt_lines.append(f"Page: 4:5 portrait, {panel_arrangement} layout ({self._get_layout_description(panel_arrangement)})")
+                prompt_lines.append(f"COMIC PAGE GENERATION")
+                prompt_lines.append(f"")
+                prompt_lines.append(f"STYLE: {art_style}")
+                prompt_lines.append(f"Layout: 4:5 portrait, {panel_arrangement} ({self._get_layout_description(panel_arrangement)})")
                 prompt_lines.append(f"Borders: {panel_borders}, Transitions: {panel_transition}")
                 prompt_lines.append(f"")
-                prompt_lines.append(f"QUALITY REQUIREMENTS:")
-                prompt_lines.append(f"- Sharp, high-detail rendering")
-                prompt_lines.append(f"- Accurate human anatomy and proportions")
-                prompt_lines.append(f"- Objects sized realistically relative to characters and surroundings")
+                
+                # Add character descriptions
+                if char_descriptions:
+                    prompt_lines.append(f"CHARACTERS IN THIS PAGE:")
+                    for char_name, desc in char_descriptions.items():
+                        role_note = f" ({desc['role']})" if desc['role'] else ""
+                        prompt_lines.append(f"- {char_name}{role_note}: {desc['physical']}, {desc['age']} years old. Wears: {desc['attire']}")
+                    prompt_lines.append(f"")
+                
+                prompt_lines.append(f"RENDERING REQUIREMENTS:")
+                prompt_lines.append(f"- High-contrast noir comic book style")
+                prompt_lines.append(f"- Sharp, detailed rendering with accurate anatomy")
+                prompt_lines.append(f"- Realistic object sizing and proportions")
                 prompt_lines.append(f"- Fill full vertical frame, no letterboxing")
-                prompt_lines.append(f"")
-                prompt_lines.append(f"TEXT STYLE:")
-                prompt_lines.append(f"- Character dialogue: Speech bubbles (rounded, white, with pointer to speaker)")
-                prompt_lines.append(f"- Narration: Caption boxes (rectangular, white, 3px black border, no pointer)")
-                prompt_lines.append(f"- Font: Sans-serif, black text, readable size")
+                prompt_lines.append(f"- NO text, speech bubbles, or caption boxes (text added later)")
                 prompt_lines.append(f"")
                 prompt_lines.append(f"PANELS ({len(panels)}):")
                 for i, panel in enumerate(panels, 1):
                     visual_desc = panel.get("visual_description", "")
-                    chars = ", ".join(panel.get("characters_present", []))
-                    prompt_lines.append(f"{i}. {visual_desc}")
-                    if chars:
-                        prompt_lines.append(f"   Characters: {chars}")
+                    # Strip redundant style info from visual_desc
+                    visual_desc = visual_desc.replace("A single comic book panel in High-contrast noir comic book style. ", "")
+                    visual_desc = visual_desc.replace("Portrait 4:5.", "").strip()
                     
-                    # Add text if present
+                    chars = panel.get("characters_present", [])
+                    shot = panel.get("shot_type", "")
+                    angle = panel.get("camera_angle", "")
+                    
+                    prompt_lines.append(f"{i}. [{shot} shot, {angle}] {visual_desc}")
+                    if chars:
+                        prompt_lines.append(f"   Characters: {', '.join(chars)}")
+                    
+                    # Add dialogue for context
                     dialogue = panel.get("dialogue", [])
                     if dialogue:
                         for line in dialogue:
                             char = line.get("character", "")
                             text = line.get("text", "")
                             if char == "Narrator":
-                                prompt_lines.append(f"   Caption: \"{text}\"")
+                                prompt_lines.append(f"   [Context] Narration: \"{text}\"")
                             else:
-                                prompt_lines.append(f"   {char}: \"{text}\"")
+                                prompt_lines.append(f"   [Context] {char}: \"{text}\"")
                 prompt = "\n".join(prompt_lines)
                 contents.append(prompt)
                 logger.info(f"     📝 Prompt:\n{prompt}")

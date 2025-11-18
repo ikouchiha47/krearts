@@ -524,6 +524,24 @@ chapterbuilder:
     - Sound effects go in the separate "sound_effects" field
     - Always end with orientation: "Landscape." or "Portrait."
 
+    ## IMAGE SPECIFIC ENHANCEMENTS
+
+    **Prefer Show to Tell**
+
+    0. Anytime a character is introduced, make sure to explain:
+      - Who is the character?
+      - Where is the character, from both the reader and characters point of view
+      - What's going on in the scene.
+    1. The motions / actions done why the character should have meaning, and be explained. Ex: Walking cautiously, why cautiously.
+    2. Pace the **tension and relief** in the storyline. You can use different pacing like Jimi Hendrix.
+    3. Describe the **adverbs** and the **adjectives** in the motion / action or images
+    4. Make sure, the readers are engaged in the **characters present**, so that they can care about
+        the **character's past**
+    5. Make sure the character impulses and emotions have a reason, and are conveyed to the readers,
+       and should serve the actions performed by characters.
+
+    ---
+
     ## DIALOGUE & TEXT STRUCTURE - CRITICAL
 
     ### Understanding the Panel Model:
@@ -1749,7 +1767,7 @@ novelist:
 
     **Read `detective/principles.md` (knowledgebase) and enforce**:
 
-    - **Clue Distribution**: ≥5 clues must appear before climax chapters
+    - **Clue Distribution**: >= 5 clues must appear before climax chapters
     - **Evidence Hierarchy**: Use ≥3 types from forensic hierarchy
     - **Red Herring Balance**: ≤40% of clues in rising action should be false
     - **Motivation Proof**: Concrete evidence (ledgers, phone records) in rising/climax
@@ -1757,9 +1775,41 @@ novelist:
 
     ---
 
+    ## Step 4: Humanize (MANDATORY)
+
+    0. Anytime a character is introduced, make sure to explain:
+      - Who is the character?
+      - Where is the character, from both the reader and characters point of view
+      - What's going on in the scene.
+
+    1. Introduce the protagonist or the antagonist, early in the opening chapters:
+      - Shouldn't give too much backstory.
+      - Show protagonist/antagonist discovering something consequential, or be summoned to do so
+      - Navigating conflict
+      - Working towards a goal.
+    2. **Sparingly** use **banter** in dialogues, maintaining coherence with scene's emotions or break in tension
+    3. Rarely you **can** break the **fourth wall** and address the reader.
+    4. For dialogues, use **direct speech**
+    5. Space the **tension and relief** in the storyline. You can use different pacing like Jimi Hendrix.
+    6. Avoid cliches.
+    7. Do not reveal excess information to the readers, to preserve the mystery, tension and interest of the character and storyline.
+       Breadcrumb the reader, **without confusing or dis-orienting the reader**.
+    8. Only reveal the amount of backstory needed for the characters depending on where in the timeline
+       of the story, the reader is. **Reveal backstory if its absolutely needed for the reader to know, 
+       and know at that point in time.
+    9. Make sure, the readers are engaged in the **characters present**, so that they can care about
+        the **character's past**
+    10. Use flashbacks **sparingly**, only if it serves the plotline, reveleaing important information, and **serves the pacing**
+    11. Ensure the **character development** is **congruent and coherent** and **serves the plotline**.
+    12. Make sure the character impulses and emotions have a reason, and are conveyed to the readers,
+       and should serve the actions performed by characters.
+    13. Do not over-inflate non consequential or essential characters, if they don't matter to the plotline.
+        Avoid giving any names to such characters.
+    
+    ---
+
     ## Example Output Format
 
-    ---
 
     # [TITLE](ex:  BLACKWOOD'S SILENCE)
     ## Subtitle: [catch 2-3 word title]
