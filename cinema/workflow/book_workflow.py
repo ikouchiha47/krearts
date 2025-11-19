@@ -687,7 +687,7 @@ class BookWorkflow(WorkflowInterface):
             pages = [last_page + 1]
         
         if not pages:
-            pages = list(range(1, min(11, len(all_pages) + 1)))  # Default to first 10 pages
+            pages = list(range(1, len(all_pages) + 1))  # Default to all pages
         
         # Filter to only pages that exist and haven't been generated
         available_pages = [p for p in pages if 1 <= p <= len(all_pages)]
@@ -816,7 +816,16 @@ class BookWorkflow(WorkflowInterface):
                 prompt_lines.append(f"- Sharp, detailed rendering with accurate anatomy")
                 prompt_lines.append(f"- Realistic object sizing and proportions")
                 prompt_lines.append(f"- Fill full vertical frame, no letterboxing")
-                prompt_lines.append(f"- NO text, speech bubbles, or caption boxes (text added later)")
+                
+                # Check if we should include text in generation
+                # Default to False - generate clean images first, add text in second pass
+                include_text = kwargs.get('gemini_text', False)
+                if include_text:
+                    prompt_lines.append(f"- INCLUDE text, speech bubbles, and caption boxes as appropriate")
+                    prompt_lines.append(f"- Use comic book lettering style with clear, readable text")
+                else:
+                    prompt_lines.append(f"- NO text, speech bubbles, or caption boxes (text added later)")
+                
                 prompt_lines.append(f"")
                 prompt_lines.append(f"PANELS ({len(panels)}):")
                 for i, panel in enumerate(panels, 1):
@@ -862,15 +871,33 @@ class BookWorkflow(WorkflowInterface):
                     logger.error(f"     ❌ Gemini did not return image for {filename}")
                     continue
                 
-                generated_image.save(output_file)
-                logger.info(f"     ✅ Saved: {filename}")
+                # Save clean image (no text)
+                clean_filename = f"ch{page_info['chapter_number']}_sc{page_info['scene_number']}_page{page_info['page_number']}_clean.png"
+                clean_output_file = pages_dir / clean_filename
+                generated_image.save(clean_output_file)
+                logger.info(f"     ✅ Saved clean image: {clean_filename}")
                 
-                # Detect bounding boxes for important objects
-                await self._detect_and_save_bounding_boxes(
+                # Stage 2: Add text with controlled placement
+                logger.info(f"     📝 Adding text to image...")
+                from cinema.providers.gemini import GeminiMediaGen
+                gemini = GeminiMediaGen()
+                
+                image_with_text = await gemini.add_text_to_image(
                     generated_image,
-                    page_info,
-                    output_file
+                    panels
                 )
+                
+                # Save final image with text
+                image_with_text.save(output_file)
+                logger.info(f"     ✅ Saved with text: {filename}")
+                
+                # TODO: Bounding box detection - commented out for now
+                # We'll come back to this later for text overlay placement
+                # await self._detect_and_save_bounding_boxes(
+                #     generated_image,
+                #     page_info,
+                #     output_file
+                # )
                 
                 if page_idx not in self.state.pages_generated:
                     self.state.pages_generated.append(page_idx)

@@ -77,6 +77,7 @@ plotbuilder:
       - Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
       - Geography and Setting: <city/region, urban/rural, climate>
       - Culture and Traditions: <norms impacting behavior/conflict>
+      - Socital Constructs: <how society was defined during the era, the definitions of good and bad>
       - Geopolitics and Legal Context: <jurisdiction, legal constraints>
       - Technology Level and Forensics: <tools available, limitations>
       - Policing Style and Jurisdiction: <detective's authority, procedures>
@@ -90,7 +91,7 @@ plotbuilder:
       ### Character 1 (index)
       
       **Name:** <full name>
-      **Physical Traits:** <description>
+      **Physical Traits:** <detailed physical description. this should emobody the characters beliefs, allowing the reader to feel the differences or similarites>
       **Ethnicity:** <ethnicity>
       **Age:** <age>
       **Quirks:** <list of quirks>
@@ -127,8 +128,23 @@ plotbuilder:
       The actions commited by the person, and the reasons for doing so. It has to come from
       the backstory, their role and their actions.
 
+      #### World View and Cultural Context
+      This is individual character's:
+      - Cultural
+      - Emotional, and
+      - Philosophical beliefs.
+
+      How the character feels in the world era and context of the story timeline.
+      How are the pros and cons of the socital constructs, as seen from the character's ideology
+
       #### Identity Anchors
-      Core beliefs, values, vices, secrets that drive decisions.
+      - Core beliefs
+      - Core values
+      - **Behavioral Patterns**
+      - vices
+      - secrets, and
+      - ideologies that drive decisions.
+      
       These should be set with respect to the World context.
 
       #### Long-term Goals
@@ -139,6 +155,8 @@ plotbuilder:
 
       #### Triggers and Stress Responses
       What escalates them and how they react under pressure.
+      Emotional conflicts
+      Philosophical conflicts
 
       #### Skills / Toolkit (Era-Appropriate)
       Practical skills and tools available given the era and context.
@@ -153,6 +171,11 @@ plotbuilder:
       ### Character N
       [repeat the above structure for each character]
       ...
+
+
+      All the character definitions and attributes, should be designed
+      to serve the conflicts and tensions and evolution of the characters
+      in the detailed storyline, later.
 
       ---
 
@@ -949,21 +972,28 @@ chapterbuilder:
     For EACH panel, you MUST identify important objects that should NOT be covered by text overlays.
     
     Add an `important_objects` field to each panel with bounding boxes for:
-    - **Character faces and hands**: Faces during emotional moments, hands holding/examining objects
-    - **Evidence and clues**: cigarette butts, glove fibers, ledger pages, blood pools, weapons, baseball cards, torn documents
-    - **Key props**: Items being examined, held, pointed at, or referenced in dialogue
-    - **Story-critical details**: Door handles, locks, specific windows, specific architectural details (NOT entire buildings)
-    - **Emotional details**: Tears, expressions, gestures that convey emotion
+    - **Main character/person**: Use VISUAL descriptions, not names
+      - ✅ GOOD: "man in trenchcoat and fedora", "detective in dark coat", "person in center"
+      - ❌ BAD: "Jack", "Detective Morgan" (vision AI doesn't know character names)
+      - Only mark if character is prominent (medium/close shots, not background figures)
+    - **Faces**: ONLY in extreme close-ups where face fills 60%+ of frame
+      - Use: "man's face", "woman's face", "person's face with hat"
+    - **Evidence and clues**: cigarette butts, glove fibers, ledger pages, blood pools, weapons, baseball cards
+      - Be specific: "cigarette butt with red lipstick", "torn ledger page"
+    - **Props being interacted with**: "door handle", "gun in hand", "photograph being held"
+    - **Story-critical details**: Specific objects that advance the plot
     
     **DO NOT mark as important:**
+    - Background people/figures
     - Large background elements (entire buildings, walls, floors)
-    - Generic environmental objects (rain, puddles, sky) unless they're the focus
-    - Decorative elements that don't advance the story
+    - Generic environmental objects (rain, puddles, sky)
+    - Decorative elements
     
-    **Focus on:**
-    - Objects that would be ruined if covered by text
-    - Details the reader needs to see clearly
-    - Visual clues that advance the mystery/story
+    **Guidelines by shot type:**
+    - **Close-up/Medium shot**: Mark "man in trenchcoat" or "detective figure"
+    - **Extreme close-up of face**: Mark "man's face with fedora"
+    - **Wide/Establishing shot**: Usually NO important objects
+    - **Action shot**: Mark main person + props they're using
     
     Bounding box format:
     ```json
@@ -992,16 +1022,21 @@ chapterbuilder:
     - **Think like a letterer**: What would ruin the panel if covered by a speech bubble?
     
     **Examples of GOOD important objects:**
-    - "Jack's face" (close-up of detective)
-    - "cigarette butt with lipstick" (evidence clue)
-    - "door handle" (specific detail Jack is reaching for)
+    - "man in trenchcoat and fedora" (medium shot - protects whole figure)
+    - "detective in dark coat" (character is the focus)
+    - "man's face with hat" (extreme close-up only)
+    - "cigarette butt with red lipstick" (evidence clue)
+    - "door handle" (prop being touched)
     - "torn ledger page in hand" (evidence being examined)
+    - "woman in black dress" (character description)
     
     **Examples of BAD important objects:**
+    - "Jack" or "Detective Morgan" (vision AI doesn't know names!)
+    - "Jack's face" (use "man's face" instead)
+    - "his hand" (use "hand on door handle" or just mark the person)
     - "warehouse exterior" (too large, just background)
-    - "rain puddles" (decorative, not story-critical)
-    - "city skyline" (background element)
-    - "warehouse door" (unless it's being opened/examined specifically)
+    - "rain puddles" (decorative)
+    - "city skyline" (background)
     
     **Example:**
     ```json
@@ -1774,7 +1809,7 @@ novelist:
 
     ---
 
-    ### 🎨 Part 2: Translating Senses to Comics & Manga
+    ### 🎨 Part 2: Translating Senses to Graphic Novel, Comics or Manga
 
     This is where things get fascinatingly different. A comic or manga is a **visual-textual medium**. It has tools the novelist doesn't (art) and lacks tools the novelist has (a direct line to the reader's inner senses).
 
@@ -1864,7 +1899,37 @@ novelist:
 
     ---
 
-    ## Step 4: Humanize (MANDATORY AUDIT)
+    ## Step 4: Character Development & Conflict Design
+
+    Conflicts are of three layers:
+    - External Conflict: what's happening in the scene, the physcial obstacle
+    - Emotional Conflicts: what emotionally burdens the character, from overcoming an obstacle
+    - Philosophical Conflicts
+
+    Conflicts can be presented in many ways, a few examples are below.
+
+    - Chatacter vs Self (Internal conflicts, change of beliefs)
+    - Character vs Character
+      - Different opposing beliefs with their pros and cons, and how they conflict
+      - Belive in the same things for different reasons, ex: War because of Peace vs No War for Peace)
+    - Character vs Society (Movie: The Fugitive)
+    - Character vs Supernatural (mostly sci-fi)
+
+
+    **Scenes should always have conflicts at some level. **
+  
+    #### Character Development
+
+    Character developments needs conflicts. And conflicts can span multiple chapters.
+    They can be broken down in 4 phases:
+    1. Old world beliefs, what the character beliefs are, how are they shaped, what patterns they follow
+    2. Benefits of the new world (characters transition phase). They can be positive or negative
+    3. The reverse of the new world, if the new world beliefs have positive, the reverse would be the downsides, and vice-versa
+    4. The final act, the synthesis of the old world and the new world, and the person they became with the culmination of beliefs.
+
+    ---
+
+    ## Step 5: Humanize (MANDATORY AUDIT)
 
     0. Anytime a character is introduced, make sure to explain:
       - Who is the character?

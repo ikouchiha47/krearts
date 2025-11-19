@@ -143,6 +143,7 @@ class GenerationHerd(LLMStore):
 
         self._llm_store[model_intent] = llmref
 
+        print("🐟" * 10, model_intent, llmref)
         return self
 
     def get_model(self, model_intent: str):
@@ -256,9 +257,11 @@ OpenAiHerd = (
     .register_model(
         LLMVideoGenIntent,
         ModelConfig(
-            name="openai/sora-2",
+            # name="openai/sora-2",
+            name="veo-3.1-fast-generate-preview",
             loader=LLM,  # NOTE: override with api calls
             is_hosted=False,
+            lazy_load=True,
         ),
     )
     .register_model(
@@ -267,16 +270,18 @@ OpenAiHerd = (
             name="whisper",
             loader=LLM,  # NOTE: custom llm
             is_hosted=False,
+            lazy_load=True,
         ),
     )
     .register_model(
         LLMImageGenIntent,
         ModelConfig(
             # name="gpt-5-mini-2025-08-07",
-            # name="gemini/gemini-2.5-flash-image-preview",
-            name="imagen-3.0-generate-002",
+            name="gemini-2.5-flash-image",
+            # name="imagen-3.0-generate-002",
             loader=LLM,
             is_hosted=False,
+            lazy_load=True,
         ),
     )
     .register_model(
@@ -358,74 +363,6 @@ GeminiHerd = OpenAiHerd
 #             loader=LLM,
 #             is_hosted=False,
 #             max_tokens=22000,
-#         ),
-#     )
-# )
-
-# OpenAiPlannerAndQwenExecutorHerd = (
-#     GenerationHerd()
-#     .register_model(
-#         LLMExecutorIntent,
-#         ModelConfig(
-#             name="ollama/qwen2.5-coder:7b",
-#             is_hosted=True,
-#             base_url="http://localhost:11434",
-#             temp=0.0,
-#             lazy_load=True,
-#             loader=LLM,
-#         ),
-#     )
-#     .register_model(
-#         LLMPlannerIntent,
-#         ModelConfig(
-#             name="openai/gpt-4.1-nano",
-#             is_hosted=False,
-#             temp=0.0,
-#             lazy_load=True,
-#             loader=LLM,
-#         ),
-#     )
-#     .register_model(
-#         LLMEmbedderIntent,
-#         ModelConfig(
-#             name="all-MiniLM-L6-v2",
-#             is_hosted=True,
-#             loader=SentenceTransformer,
-#         ),
-#     )
-# )
-#
-#
-# VLLMQwenPlannerAndExecutor = (
-#     GenerationHerd()
-#     .register_model(
-#         LLMPlannerIntent,
-#         ModelConfig(
-#             name="hosted_vllm/Qwen/Qwen2.5-Coder-7B-Instruct",
-#             is_hosted=True,
-#             base_url="http://10.147.20.55:8181/{model}/v1",
-#             temp=0.0,
-#             lazy_load=True,
-#             loader=LLM,
-#         ),
-#     )
-#     .register_model(
-#         LLMExecutorIntent,
-#         ModelConfig(
-#             name="hosted_vllm/Qwen/Qwen2.5-Coder-7B-Instruct",
-#             is_hosted=True,
-#             base_url="http://10.147.20.55:8181/{model}/v1",
-#             temp=0.0,
-#             lazy_load=True,
-#             loader=LLM,
-#         ),
-#     )
-#     .register_model(
-#         LLMEmbedderIntent,
-#         ModelConfig(
-#             name="all-MiniLM-L6-v2",
-#             is_hosted=True,
-#             loader=SentenceTransformer,
 #         ),
 #     )
 # )

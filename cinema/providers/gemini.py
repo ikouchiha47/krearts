@@ -8,7 +8,9 @@ from google import genai
 from google.genai import types
 from google.genai.types import Image as RefImage
 from PIL import Image
+import os
 
+from cinema.registry import LLMImageGenIntent, LLMStore, LLMVideoGenIntent, OpenAiHerd
 from cinema.utils.rate_limiter import RateLimiterManager
 
 logger = logging.getLogger(__name__)
@@ -17,10 +19,68 @@ logger = logging.getLogger(__name__)
 ImageInput = Union[Image.Image, bytes, bytearray, str, types.ImageDict]
 
 
+OBJECT_BOUNDING_BOX_PROMPT = """Analyze this comic book panel image
+of size {width}x{height} and identify the bounding boxes for these objects: {labels_str}.
+
+IMPORTANT: These are VISUAL descriptions of what you can see in the image:
+- "man in trenchcoat" = the person wearing a trenchcoat
+- "woman's face" = the face of a woman
+- "cigarette butt" = the cigarette on the ground
+- Look for the VISUAL features described, not character names
+
+For each object you can identify, provide:
+1. The object label (exactly as provided in the list)
+2. Bounding box coordinates as [y_min, x_min, y_max, x_max] where:
+   - Coordinates are normalized to 0-1000 range
+   - [0, 0] is top-left corner
+   - [1000, 1000] is bottom-right corner
+   - Box should tightly fit the object
+3. Confidence score (0.0 to 1.0)
+
+Return ONLY a JSON array with this structure:
+[
+  {{"label": "object name", "box_2d": [y_min, x_min, y_max, x_max], "confidence": 0.95}},
+  ...
+]
+
+If an object is not visible or cannot be identified, omit it from the results.
+Be precise with bounding boxes - they should tightly fit the entire object (e.g., for "man in trenchcoat", 
+include his whole figure from hat to feet)."""
+
+
+ADD_TEXT_TO_IMAGE_PROMPT = """Add text elements to this comic book panel image.
+
+CRITICAL INSTRUCTIONS:
+1. For NARRATION captions: You may rephrase creatively to fit noir style
+2. For SPEECH bubbles: Use EXACT text provided - DO NOT change wording
+3. For THOUGHT bubbles: Use EXACT text provided - DO NOT change wording
+
+TEXT ELEMENTS TO ADD:
+{text_elements}
+
+STYLE REQUIREMENTS:
+- Use classic comic book lettering (bold, uppercase for emphasis)
+- Narration captions: Rectangular boxes with beige/yellow background, black border
+- Speech bubbles: White rounded bubbles with black border and tail pointing to speaker
+- Thought bubbles: Cloud-like bubbles with scalloped edges
+- Ensure text is readable and properly sized
+- Place text to avoid covering important visual elements
+
+IMPORTANT: Keep the existing artwork unchanged - only add text elements."""
+
+
 class GeminiMediaGen:
-    def __init__(self, rate_limiter: Optional[RateLimiterManager] = None):
+    def __init__(
+        self,
+        rate_limiter: Optional[RateLimiterManager] = None,
+        llmstore: Optional[LLMStore] = None,
+    ):
+        # api_key = os.environ.get('GEMINI_API_KEY')
         self.client: genai.Client = genai.Client()
         self.rate_limiter = rate_limiter or RateLimiterManager()
+
+        if llmstore is None:
+            self.llmstore = OpenAiHerd
 
     # generators
 
@@ -89,7 +149,7 @@ class GeminiMediaGen:
             
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
-                model="gemini-2.5-flash-image",
+                model=self.llmstore.get_model(LLMImageGenIntent).name,
                 contents=[prompt, ref_img],
                 config=config,
             )
@@ -108,7 +168,7 @@ class GeminiMediaGen:
             
             response = await asyncio.to_thread(
                 self.client.models.generate_content,
-                model="gemini-2.5-flash-image",
+                model=self.llmstore.get_model(LLMImageGenIntent).name,
                 contents=prompt,
                 config=config,
             )
@@ -168,7 +228,7 @@ class GeminiMediaGen:
         logger.info(f"📸 Calling Gemini with {len(images)} reference images")
         response = await asyncio.to_thread(
             self.client.models.generate_content,
-            model="gemini-2.5-flash-image",
+            model=self.llmstore.get_model(LLMImageGenIntent).name,
             contents=[prompt, *images],
             config=config,
         )
@@ -185,6 +245,138 @@ class GeminiMediaGen:
             return 6
 
         return 8
+
+    async def detect_caption_boxes(
+        self,
+        image: ImageInput,
+        **kwargs: Any
+    ) -> List[dict]:
+        """
+        Detect all text elements (captions, speech bubbles, text on objects) in a comic panel.
+
+        Args:
+            image: Image to analyze (PIL Image, bytes, or path)
+
+        Returns:
+            List of detected text elements with bounding boxes:
+            [
+                {
+                    "type": "narration_caption" | "speech_bubble" | "thought_bubble" | "text_on_object",
+                    "text": "The actual text content",
+                    "box_2d": [y_min, x_min, y_max, x_max],
+                    "confidence": 0.95
+                },
+                ...
+            ]
+        """
+        # Rate limit
+        await self.rate_limiter.acquire("gemini-2.0-flash-exp")
+
+        logger.info(f"🔍 Detecting caption boxes and text elements")
+
+        # Convert image to PIL if needed
+        if isinstance(image, Image.Image):
+            pil_image = image
+        elif isinstance(image, (bytes, bytearray)):
+            pil_image = Image.open(BytesIO(image))
+        elif isinstance(image, str):
+            pil_image = Image.open(image)
+        else:
+            raise ValueError(f"Unsupported image type: {type(image)}")
+
+        # Build detection prompt
+        prompt = """Analyze this comic book panel image and identify ALL text elements.
+
+Find and classify each text element as one of these types:
+
+1. **narration_caption**: Rectangular caption boxes (usually at top/bottom corners)
+   - Typically beige/yellow background with black border
+   - Contains narrative text or scene description
+   - Sharp corners, no tail
+
+2. **speech_bubble**: Speech bubbles with rounded edges
+   - White background with black border
+   - Has a tail pointing to the speaker
+   - Contains dialogue
+
+3. **thought_bubble**: Thought bubbles with cloud-like edges
+   - White background, scalloped/cloud edges
+   - Has small bubble tail
+   - Contains internal thoughts
+
+4. **text_on_object**: Text written/printed on objects in the scene
+   - Signs, newspapers, notes, labels, graffiti
+   - Not in a bubble or caption box
+   - Part of the scene itself
+
+For EACH text element you find, provide:
+1. type: One of the 4 types above
+2. text: The actual text content (transcribe it exactly)
+3. box_2d: Bounding box as [y_min, x_min, y_max, x_max] in 0-1000 normalized coordinates
+4. confidence: 0.0 to 1.0
+
+Return ONLY a JSON array:
+[
+  {
+    "type": "narration_caption",
+    "text": "The warehouse loomed in darkness.",
+    "box_2d": [10, 10, 80, 300],
+    "confidence": 0.95
+  },
+  {
+    "type": "speech_bubble",
+    "text": "Another body. Another case.",
+    "box_2d": [850, 200, 950, 450],
+    "confidence": 0.92
+  }
+]
+
+IMPORTANT:
+- Include ALL text you can see, even if partially visible
+- Transcribe text exactly as written
+- Box should tightly fit the entire text element (including borders/tails)
+- If no text is visible, return empty array []
+"""
+
+        # Call Gemini
+        config = types.GenerateContentConfig(
+            response_modalities=[types.Modality.TEXT],
+        )
+
+        response = await asyncio.to_thread(
+            self.client.models.generate_content,
+            model="gemini-2.0-flash-exp",
+            contents=[prompt, pil_image],
+            config=config,
+        )
+
+        # Parse response
+        response_text = (response.text or "").strip()
+        logger.debug(f"Caption detection response: {response_text}")
+
+        # Extract JSON
+        import json
+        import re
+
+        json_match = re.search(r'```(?:json)?\s*(\[.*?\])\s*```', response_text, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(1)
+        else:
+            json_match = re.search(r'\[.*?\]', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            else:
+                logger.warning("No JSON array found in response")
+                return []
+
+        try:
+            detections = json.loads(json_str)
+            logger.info(f"✅ Detected {len(detections)} text elements")
+            return detections
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse caption detection response: {e}")
+            logger.error(f"Response text: {response_text}")
+            return []
 
     async def detect_objects(
         self,
@@ -230,24 +422,11 @@ class GeminiMediaGen:
 
         # Build detection prompt
         labels_str = ", ".join([f'"{label}"' for label in labels])
-        prompt = f"""Analyze this comic book panel image and identify the bounding boxes for these objects: {labels_str}.
-
-For each object you can identify, provide:
-1. The object label (exactly as provided)
-2. Bounding box coordinates as [y_min, x_min, y_max, x_max] where:
-   - Coordinates are normalized to 0-1000 range
-   - [0, 0] is top-left corner
-   - [1000, 1000] is bottom-right corner
-3. Confidence score (0.0 to 1.0)
-
-Return ONLY a JSON array with this structure:
-[
-  {{"label": "object name", "box_2d": [y_min, x_min, y_max, x_max], "confidence": 0.95}},
-  ...
-]
-
-If an object is not visible or cannot be identified, omit it from the results.
-Be precise with bounding boxes - they should tightly fit the object."""
+        prompt = OBJECT_BOUNDING_BOX_PROMPT.format(
+            labels_str=labels_str,
+            width=img_width,
+            height=img_height,
+        )
 
         # Call Gemini for object detection
         config = types.GenerateContentConfig(
@@ -290,6 +469,104 @@ Be precise with bounding boxes - they should tightly fit the object."""
             logger.error(f"Failed to parse detection response: {e}")
             logger.error(f"Response text: {response_text}")
             return []
+
+    async def add_text_to_image(
+        self,
+        image: ImageInput,
+        panels: List[dict],
+        **kwargs: Any
+    ) -> Image.Image:
+        """
+        Add text elements to a clean comic image using Gemini image-to-image.
+        
+        This method takes a clean image (no text) and adds:
+        - Narration captions (with creative liberty)
+        - Speech bubbles (EXACT dialogue)
+        - Thought bubbles (EXACT text)
+        
+        Args:
+            image: Clean comic image (PIL Image, bytes, or path)
+            panels: List of panel data with dialogue/narration
+        
+        Returns:
+            PIL Image with text added
+        """
+        # Rate limit
+        await self.rate_limiter.acquire("gemini-2.5-flash-image")
+        
+        logger.info(f"📝 Adding text to image with controlled placement")
+        
+        # Convert image to PIL if needed
+        if isinstance(image, Image.Image):
+            pil_image = image
+        elif isinstance(image, (bytes, bytearray)):
+            pil_image = Image.open(BytesIO(image))
+        elif isinstance(image, str):
+            pil_image = Image.open(image)
+        else:
+            raise ValueError(f"Unsupported image type: {type(image)}")
+        
+        # Build text elements list
+        text_elements = []
+        
+        for i, panel in enumerate(panels, 1):
+            dialogue = panel.get("dialogue", [])
+            
+            if not dialogue:
+                continue
+            
+            for line in dialogue:
+                char = line.get("character", "")
+                text = line.get("text", "")
+                
+                if char == "Narrator":
+                    text_elements.append(
+                        f"Panel {i} - NARRATION CAPTION (you may rephrase creatively): \"{text}\""
+                    )
+                else:
+                    # Speech or thought bubble - use exact text
+                    bubble_type = "THOUGHT BUBBLE" if "think" in text.lower() or "thought" in panel.get("emotional_tone", "").lower() else "SPEECH BUBBLE"
+                    text_elements.append(
+                        f"Panel {i} - {bubble_type} for {char} (USE EXACT TEXT): \"{text}\""
+                    )
+        
+        if not text_elements:
+            logger.info("No text elements to add")
+            return pil_image
+        
+        # Build prompt
+        text_elements_str = "\n".join(text_elements)
+        prompt = ADD_TEXT_TO_IMAGE_PROMPT.format(text_elements=text_elements_str)
+        
+        logger.debug(f"Text addition prompt:\n{prompt}")
+        
+        # Call Gemini with image-to-image
+        image_config = types.ImageConfig(aspect_ratio="4:5")
+        config = types.GenerateContentConfig(
+            response_modalities=[types.Modality.IMAGE],
+            image_config=image_config,
+        )
+        
+        response = await asyncio.to_thread(
+            self.client.models.generate_content,
+            model=self.llmstore.get_model(LLMImageGenIntent).name,
+            contents=[prompt, pil_image],
+            config=config,
+        )
+        
+        # Extract image
+        generated_image = None
+        for part in response.candidates[0].content.parts:
+            if part.inline_data is not None:
+                generated_image = Image.open(BytesIO(part.inline_data.data))
+                break
+        
+        if generated_image is None:
+            logger.error("Failed to generate image with text")
+            return pil_image
+        
+        logger.info(f"✅ Text added to image")
+        return generated_image
 
     # helpers
     @staticmethod
@@ -400,7 +677,7 @@ Be precise with bounding boxes - they should tightly fit the object."""
 
         response = await asyncio.to_thread(
             self.client.models.generate_videos,
-            model="veo-3.1-generate-preview",
+            model=self.llmstore.get_model(LLMVideoGenIntent).name,
             prompt=prompt,
             image=image_payload,
             config=config,
