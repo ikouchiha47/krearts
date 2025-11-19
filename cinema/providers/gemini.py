@@ -50,10 +50,18 @@ include his whole figure from hat to feet)."""
 
 ADD_TEXT_TO_IMAGE_PROMPT = """Add text elements to this comic book panel image.
 
-CRITICAL INSTRUCTIONS:
+CRITICAL INSTRUCTIONS - READ CAREFULLY:
+
 1. For NARRATION captions: You may rephrase creatively to fit noir style
-2. For SPEECH bubbles: Use EXACT text provided - DO NOT change wording
-3. For THOUGHT bubbles: Use EXACT text provided - DO NOT change wording
+2. For SPEECH bubbles: You MUST use the EXACT text provided below
+3. For THOUGHT bubbles: You MUST use the EXACT text provided below
+
+RULES FOR SPEECH AND THOUGHT BUBBLES:
+- Copy the text CHARACTER BY CHARACTER - do not change ANY words
+- Do not rephrase, paraphrase, or "improve" the dialogue
+- Do not fix grammar or spelling - use it EXACTLY as written
+- Do not add or remove punctuation
+- The text is already finalized - your job is ONLY to render it visually
 
 TEXT ELEMENTS TO ADD:
 {text_elements}
@@ -65,6 +73,10 @@ STYLE REQUIREMENTS:
 - Thought bubbles: Cloud-like bubbles with scalloped edges
 - Ensure text is readable and properly sized
 - Place text to avoid covering important visual elements
+
+VERIFICATION:
+Before finalizing, verify that every speech/thought bubble contains the EXACT text from above.
+If you changed even one word, you have failed the task.
 
 IMPORTANT: Keep the existing artwork unchanged - only add text elements."""
 
@@ -521,13 +533,13 @@ IMPORTANT:
                 
                 if char == "Narrator":
                     text_elements.append(
-                        f"Panel {i} - NARRATION CAPTION (you may rephrase creatively): \"{text}\""
+                        f"Panel {i} - NARRATION CAPTION (you may rephrase creatively):\n  \"{text}\""
                     )
                 else:
                     # Speech or thought bubble - use exact text
                     bubble_type = "THOUGHT BUBBLE" if "think" in text.lower() or "thought" in panel.get("emotional_tone", "").lower() else "SPEECH BUBBLE"
                     text_elements.append(
-                        f"Panel {i} - {bubble_type} for {char} (USE EXACT TEXT): \"{text}\""
+                        f"Panel {i} - {bubble_type} for {char}:\n  EXACT TEXT (copy character-by-character): \"{text}\"\n  DO NOT CHANGE ANY WORDS"
                     )
         
         if not text_elements:
