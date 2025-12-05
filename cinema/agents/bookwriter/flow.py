@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from cinema.agents.bookwriter.crew import (
     BookWriter,
+    BookWriterSchema,
     ComicStripStoryBoarding,
     CritiqueSchema,
     DetectivePlotBuilder,
@@ -406,7 +407,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         self.update_state("bookerama")
 
         # NOTE: Reusing for Novel Crew
-        screenplay = ScreenplayWriterSchema(
+        screenplay = BookWriterSchema(
             storyline=self.state.output.storyline,
             art_style=self.state.input.stripper.art_style,
             examples="",

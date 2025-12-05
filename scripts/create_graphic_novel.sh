@@ -156,7 +156,7 @@ function get_spread() {
 }
 
 
-PDF_OUTPUT="${OUTPUT_DIR}/graphic_novel_2.pdf"
+PDF_OUTPUT="${OUTPUT_DIR}/book.pdf"
 
 function create_pdf_spread() {
     echo "Using ImageMagick to create PDF..."
@@ -258,14 +258,14 @@ EOF
     echo ""
 }
 
-# compress_images
-# echo -e "${GREEN}✓ All images compressed${NC}"
-# echo ""
-#
-# get_spread
-# echo -e "${GREEN}✓ All spreads for 2/2 pages ${NC}"
-# echo ""
-#
+compress_images
+echo -e "${GREEN}✓ All images compressed${NC}"
+echo ""
+
+get_spread
+echo -e "${GREEN}✓ All spreads for 2/2 pages ${NC}"
+echo ""
+
 
 create_pdf
 echo -e "${BLUE}Step 2: Creating PDF...${NC}"

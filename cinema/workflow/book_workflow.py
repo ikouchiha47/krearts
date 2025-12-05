@@ -366,6 +366,12 @@ class BookWorkflow(WorkflowInterface):
             "cross-over-bleed": "Dominant element bleeds across multiple panels for dramatic impact",
             "shattered-exploded": "Broken, irregular panel borders for psychological distress or action",
             "dynamic-grid": "Irregular grid layout with varying panel sizes for general purpose flexibility",
+            "grid-8-panel": "8 panels in a 2x4 or 4x2 grid - classic comic book style with rhythmic reading flow",
+            "grid-9-panel": "9 panels in a 3x3 grid - perfect symmetry for complex visual storytelling (Watchmen/Akira style)",
+            "classic-grid-8": "8 equal-sized panels in traditional grid - European/American comic style",
+            "classic-grid-9": "9 equal-sized panels in 3x3 grid - dense narrative storytelling (Blueberry style)",
+            "dynamic-8-panel": "8 panels with varied sizes - Akira/Moebius style with visual rhythm",
+            "dynamic-9-panel": "9 panels with subtle size variations - Blueberry style with emphasis on key moments",
         }
         return layout_descriptions.get(panel_arrangement, "Standard comic book panel layout with gutters")
     
@@ -1044,6 +1050,36 @@ class BookWorkflow(WorkflowInterface):
                 x2 = (i + 1) * panel_width if i < num_panels - 1 else width
                 panel = image.crop((x1, 0, x2, height))
                 panels.append(panel)
+        
+        elif 'grid' in panel_arrangement:
+            # Grid layout (8 or 9 panels)
+            if num_panels == 8:
+                # 2x4 or 4x2 grid
+                if width > height:
+                    # 4x2 grid (4 columns, 2 rows)
+                    cols, rows = 4, 2
+                else:
+                    # 2x4 grid (2 columns, 4 rows)
+                    cols, rows = 2, 4
+            elif num_panels == 9:
+                # 3x3 grid
+                cols, rows = 3, 3
+            else:
+                # Fallback to single panel
+                panels.append(image)
+                return panels
+            
+            panel_width = width // cols
+            panel_height = height // rows
+            
+            for row in range(rows):
+                for col in range(cols):
+                    x1 = col * panel_width
+                    y1 = row * panel_height
+                    x2 = (col + 1) * panel_width if col < cols - 1 else width
+                    y2 = (row + 1) * panel_height if row < rows - 1 else height
+                    panel = image.crop((x1, y1, x2, y2))
+                    panels.append(panel)
         
         else:
             # Default: treat as single panel

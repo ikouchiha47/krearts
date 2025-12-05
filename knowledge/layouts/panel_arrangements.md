@@ -34,6 +34,19 @@ Different panel arrangements work best with specific aspect ratios:
 - **Best for**: Dramatic reveals, impact moments
 - **Layouts**: cross-over-bleed, shattered-exploded
 
+### Grid Layouts (8-9 panels - Classic Comic Style)
+- **Recommended Aspect Ratio**: 3:4 or 2:3 (Portrait page)
+- **Orientation**: Portrait
+- **Best for**: Dense storytelling, action sequences, parallel narratives, time progression
+- **Layouts**: grid-8-panel, grid-9-panel, classic-grid-8, classic-grid-9
+- **Inspiration**: Early European comics (Blueberry, Moebius), Japanese manga (Akira), classic American comics
+- **Characteristics**: 
+  - High information density
+  - Rhythmic reading flow
+  - Allows for detailed action breakdowns
+  - Can show simultaneous events or rapid time progression
+  - Traditional comic book pacing
+
 **IMPORTANT**: When generating panels, always specify the aspect ratio and orientation in the visual_description to ensure consistent image generation.
 
 ---
@@ -222,6 +235,200 @@ This layout style is highly effective for building tension towards a reveal, emp
 * **Specific Details:** The glint of light off its precise, cold steel edges, emphasizing its significance.
 
 **Panels can have a maximum of 2-3 sub-panels**
+
+---
+
+### **Prompt for Classic 8-Panel Grid Layout (2x4 or 4x2)**
+
+This layout is inspired by classic European comics like Blueberry and early American comics. Perfect for detailed action sequences or parallel storylines.
+
+**Overall Layout & Arrangement:**
+* **Panel Arrangement:** 8 panels arranged in a 2x4 grid (2 columns, 4 rows) or 4x2 grid (4 columns, 2 rows), creating a rhythmic, traditional comic book reading flow. Panels are equal or near-equal in size with consistent gutters.
+* **Panel Borders:** Clean, sharp borders with consistent gutter spacing (classic comic book style).
+* **Panel Transition Style:** Hard cuts or sequential progression (left-to-right, top-to-bottom reading order).
+
+**Panel 1 Description:**
+* **Focus/Subject:** [Opening establishing shot or first action beat]
+* **Setting/Background:** [Environment, time of day, key details]
+* **Composition/Angle:** [e.g., "Wide shot," "Establishing shot"]
+* **Specific Details:** [Unique elements, emotions, props]
+
+**Panel 2 Description:**
+* **Focus/Subject:** [Second beat - character reaction or next action]
+* **Setting/Background:** [Same or different location]
+* **Composition/Angle:** [e.g., "Medium shot," "Close-up"]
+* **Specific Details:** [Dialogue, expressions, movement]
+
+**Panel 3 Description:**
+* **Focus/Subject:** [Third beat - progression of action]
+* **Setting/Background:** [Location details]
+* **Composition/Angle:** [Varied shot type]
+* **Specific Details:** [Key details]
+
+**Panel 4 Description:**
+* **Focus/Subject:** [Fourth beat]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 5 Description:**
+* **Focus/Subject:** [Fifth beat - midpoint or turning point]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 6 Description:**
+* **Focus/Subject:** [Sixth beat]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 7 Description:**
+* **Focus/Subject:** [Seventh beat - building to climax]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 8 Description:**
+* **Focus/Subject:** [Final beat - resolution or cliffhanger]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [e.g., "Close-up," "Impact shot"]
+* **Specific Details:** [Emotional payoff, sound effects]
+
+---
+
+### **Prompt for Classic 9-Panel Grid Layout (3x3)**
+
+This layout is inspired by Watchmen, Akira, and classic manga. The 3x3 grid provides perfect symmetry and allows for complex visual storytelling.
+
+**Overall Layout & Arrangement:**
+* **Panel Arrangement:** 9 panels arranged in a perfect 3x3 grid (3 columns, 3 rows), creating a balanced, symmetrical composition. This layout allows for intricate timing and can show simultaneous actions or detailed progression.
+* **Panel Borders:** Clean, sharp borders with consistent gutter spacing. The symmetry creates a meditative, controlled reading rhythm.
+* **Panel Transition Style:** Sequential progression (left-to-right, top-to-bottom) or can show simultaneous events across rows/columns.
+
+**Panel 1 Description (Top-Left):**
+* **Focus/Subject:** [Opening beat]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 2 Description (Top-Center):**
+* **Focus/Subject:** [Second beat]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 3 Description (Top-Right):**
+* **Focus/Subject:** [Third beat]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 4 Description (Middle-Left):**
+* **Focus/Subject:** [Fourth beat]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 5 Description (Center - Key Panel):**
+* **Focus/Subject:** [Central moment - often the most important panel]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type - often close-up or significant moment]
+* **Specific Details:** [Critical detail, emotional peak]
+
+**Panel 6 Description (Middle-Right):**
+* **Focus/Subject:** [Sixth beat]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 7 Description (Bottom-Left):**
+* **Focus/Subject:** [Seventh beat]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 8 Description (Bottom-Center):**
+* **Focus/Subject:** [Eighth beat]
+* **Setting/Background:** [Location]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Details]
+
+**Panel 9 Description (Bottom-Right):**
+* **Focus/Subject:** [Final beat - resolution or transition]
+* **Setting/Background:** [Environment]
+* **Composition/Angle:** [Shot type]
+* **Specific Details:** [Payoff, cliffhanger, or transition to next page]
+
+---
+
+### **Prompt for Dynamic 8-Panel Layout (Akira/Moebius Style)**
+
+This layout breaks the rigid grid while maintaining 8 panels, inspired by Katsuhiro Otomo's Akira and Moebius's experimental layouts.
+
+**Overall Layout & Arrangement:**
+* **Panel Arrangement:** 8 panels with varied sizes in a dynamic composition. Some panels are thin horizontal strips (for speed/motion), others are larger squares or rectangles (for impact moments). The layout guides the eye through action with visual rhythm.
+* **Panel Borders:** Mix of clean borders and occasional overlapping/bleeding panels for emphasis.
+* **Panel Transition Style:** Blended transitions for action flow, hard cuts for dramatic shifts.
+
+**Panel 1 Description (Wide horizontal strip - top):**
+* **Focus/Subject:** [Establishing shot or motion sequence]
+* **Setting/Background:** [Wide environment]
+* **Composition/Angle:** [Panoramic or tracking shot]
+* **Specific Details:** [Speed lines, motion blur]
+
+**Panel 2-4 Description (Three small panels in a row):**
+* **Focus/Subject:** [Rapid action beats - punch, dodge, reaction]
+* **Setting/Background:** [Close details]
+* **Composition/Angle:** [Quick cuts, varied angles]
+* **Specific Details:** [Impact effects, expressions]
+
+**Panel 5 Description (Large square - center focus):**
+* **Focus/Subject:** [Key impact moment or revelation]
+* **Setting/Background:** [Dramatic lighting]
+* **Composition/Angle:** [Dynamic angle, forced perspective]
+* **Specific Details:** [Sound effects, visual emphasis]
+
+**Panel 6-7 Description (Two medium panels):**
+* **Focus/Subject:** [Aftermath or reaction shots]
+* **Setting/Background:** [Environment details]
+* **Composition/Angle:** [Character focus]
+* **Specific Details:** [Dialogue, expressions]
+
+**Panel 8 Description (Wide horizontal strip - bottom):**
+* **Focus/Subject:** [Resolution or transition shot]
+* **Setting/Background:** [Wide view]
+* **Composition/Angle:** [Cinematic wide shot]
+* **Specific Details:** [Atmospheric details, scene closure]
+
+---
+
+### **Prompt for Dense 9-Panel Narrative Grid (Blueberry Style)**
+
+This layout uses 9 panels with slight size variations to create visual hierarchy while maintaining dense storytelling, inspired by Jean Giraud's Blueberry series.
+
+**Overall Layout & Arrangement:**
+* **Panel Arrangement:** 9 panels in a modified 3x3 grid where the center panel or bottom panels are slightly larger to emphasize key moments. Maintains classic Western comic pacing with detailed backgrounds.
+* **Panel Borders:** Clean, traditional borders with subtle size variations for emphasis.
+* **Panel Transition Style:** Sequential narrative flow with occasional emphasis on key panels.
+
+**Panel 1-3 Description (Top row - establishing sequence):**
+* **Focus/Subject:** [Scene establishment, character introduction, setting mood]
+* **Setting/Background:** [Detailed environment - desert, town, interior]
+* **Composition/Angle:** [Wide to medium shots]
+* **Specific Details:** [Atmospheric details, period-accurate props]
+
+**Panel 4-6 Description (Middle row - action/dialogue):**
+* **Focus/Subject:** [Character interactions, conflict development]
+* **Setting/Background:** [Continued environment]
+* **Composition/Angle:** [Medium shots, over-shoulder for dialogue]
+* **Specific Details:** [Character expressions, body language]
+
+**Panel 7-9 Description (Bottom row - resolution/transition):**
+* **Focus/Subject:** [Action climax or scene conclusion]
+* **Setting/Background:** [Environment payoff]
+* **Composition/Angle:** [Varied - can include impact shot]
+* **Specific Details:** [Emotional resolution, transition to next scene]
 
 ---
 

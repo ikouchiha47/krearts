@@ -1,0 +1,298 @@
+# Art Style Reference Image Manifest
+#
+# This file defines labeled reference images for each art style.
+# Each reference has a specific purpose and can be selected based on scene requirements.
+#
+# IMPORTANT: Tags describe WHAT THE REFERENCE IMAGE SHOWS, not what you're generating.
+# The system will match references to your output needs based on what they demonstrate.
+#
+# Example:
+#   ✅ GOOD: Tag "motion_lines" means "this reference shows motion line technique"
+#   ❌ BAD: Tag "grid-9-panel" means "use this for 9-panel grids" (too prescriptive)
+#
+# Instead, use use_for_panel_layouts to suggest when a reference is appropriate.
+
+blueberry:
+  description: "European ligne claire style by Jean Giraud (Moebius)"
+  characteristics:
+    - "Detailed realistic anatomy"
+    - "Clean line work with variable weight"
+    - "Detailed backgrounds (Western landscapes)"
+    - "9-panel grid layouts"
+    - "Muted, naturalistic colors"
+  
+  references:
+    character_closeup:
+      file: "character_closeup.jpg"
+      purpose: "Character facial expressions and detailed portraits"
+      use_for: ["close-up", "extreme-close-up", "character focus"]
+      
+    wide_landscape:
+      file: "wide_landscape.jpg"
+      purpose: "Western landscapes and environmental establishing shots"
+      use_for: ["establishing", "wide", "environmental"]
+      
+    action_sequence:
+      file: "action_sequence.jpg"
+      purpose: "Dynamic action with realistic motion"
+      use_for: ["action", "movement", "chase"]
+      
+    grid_layout:
+      file: "grid_layout.jpg"
+      purpose: "Example of dense sequential storytelling with multiple panels"
+      use_for: ["dense", "sequential", "narrative"]
+      # This reference SHOWS a 9-panel grid, so it's good for understanding that layout
+      # But the tag describes WHAT IT SHOWS (dense, sequential), not the output format
+      
+    line_work:
+      file: "line_work.jpg"
+      purpose: "Clean ligne claire line work technique"
+      use_for: ["all"]  # General style reference
+
+akira:
+  description: "Japanese manga style by Katsuhiro Otomo"
+  characteristics:
+    - "Dynamic motion lines and speed effects"
+    - "Detailed mechanical/architectural designs"
+    - "High contrast black and white"
+    - "Explosive impact panels"
+    - "Dense urban environments"
+  
+  references:
+    motion_lines:
+      file: "motion_lines.jpg"
+      purpose: "Speed lines and motion blur effects"
+      use_for: ["action", "movement", "speed", "chase"]
+      
+    mechanical_detail:
+      file: "mechanical_detail.jpg"
+      purpose: "Detailed mechanical and architectural rendering"
+      use_for: ["vehicles", "machinery", "technology", "urban"]
+      
+    impact_panel:
+      file: "impact_panel.jpg"
+      purpose: "Explosive action and impact moments"
+      use_for: ["impact", "explosion", "fight", "dramatic"]
+      
+    urban_environment:
+      file: "urban_environment.jpg"
+      purpose: "Dense cyberpunk urban settings"
+      use_for: ["establishing", "wide", "city", "urban"]
+      
+    grid_8_panel:
+      file: "grid_8_panel.jpg"
+      purpose: "8-panel dynamic grid layouts"
+      use_for: ["grid-8-panel", "dynamic-8-panel", "action sequence"]
+
+spiderverse:
+  description: "Spider-Verse animated style with mixed media"
+  characteristics:
+    - "Halftone dots and Ben-Day patterns"
+    - "Chromatic aberration effects"
+    - "Mixed 2D/3D rendering"
+    - "Pop art bold graphics"
+    - "Dynamic compositions"
+  
+  references:
+    halftone_texture:
+      file: "halftone_texture.jpg"
+      purpose: "Halftone dot patterns and print comic texture"
+      use_for: ["all"]  # General texture reference
+      
+    chromatic_aberration:
+      file: "chromatic_aberration.jpg"
+      purpose: "RGB color separation effects"
+      use_for: ["action", "speed", "disorientation", "dramatic"]
+      
+    dynamic_composition:
+      file: "dynamic_composition.jpg"
+      purpose: "Bold graphic compositions and angles"
+      use_for: ["action", "establishing", "dramatic"]
+      
+    character_design:
+      file: "character_design.jpg"
+      purpose: "Stylized character rendering with outlines"
+      use_for: ["close-up", "medium", "character focus"]
+      
+    mixed_media:
+      file: "mixed_media.jpg"
+      purpose: "2D/3D mixed rendering technique"
+      use_for: ["all"]  # General style reference
+
+arcane:
+  description: "Painterly animated style from Arcane series"
+  characteristics:
+    - "Painterly brushwork and textures"
+    - "Dramatic cinematic lighting"
+    - "Rich saturated colors"
+    - "Detailed character expressions"
+    - "Atmospheric environments"
+  
+  references:
+    painterly_portrait:
+      file: "painterly_portrait.jpg"
+      purpose: "Painterly character portraits with texture"
+      use_for: ["close-up", "extreme-close-up", "character focus"]
+      
+    dramatic_lighting:
+      file: "dramatic_lighting.jpg"
+      purpose: "Cinematic lighting and shadows"
+      use_for: ["dramatic", "moody", "tense", "atmospheric"]
+      
+    color_palette:
+      file: "color_palette.jpg"
+      purpose: "Rich color grading and saturation"
+      use_for: ["all"]  # General color reference
+      
+    environment_mood:
+      file: "environment_mood.jpg"
+      purpose: "Atmospheric environmental shots"
+      use_for: ["establishing", "wide", "environmental"]
+      
+    brushwork_texture:
+      file: "brushwork_texture.jpg"
+      purpose: "Visible brushwork and painting texture"
+      use_for: ["all"]  # General texture reference
+
+arcane:
+  description: "Painterly animated style from Arcane series"
+  characteristics:
+    - "Painterly brushwork and textures"
+    - "Dramatic cinematic lighting"
+    - "Rich saturated colors"
+    - "Detailed character expressions"
+    - "Atmospheric environments"
+  
+  references:
+    painterly_portrait:
+      file: "painterly_portrait.jpg"
+      purpose: "Painterly character portraits with visible brushwork"
+      use_for: ["character", "portrait", "close-up"]
+      
+    dramatic_lighting:
+      file: "dramatic_lighting.jpg"
+      purpose: "Cinematic lighting with strong shadows and highlights"
+      use_for: ["dramatic", "moody", "atmospheric"]
+      
+    color_palette:
+      file: "color_palette.jpg"
+      purpose: "Rich saturated color grading"
+      use_for: ["all"]  # General color reference
+      
+    environment_mood:
+      file: "environment_mood.jpg"
+      purpose: "Atmospheric environmental shots with depth"
+      use_for: ["establishing", "wide", "environmental", "atmospheric"]
+      
+    brushwork_texture:
+      file: "brushwork_texture.jpg"
+      purpose: "Visible painterly brushwork and texture"
+      use_for: ["all"]  # General texture reference
+
+noir:
+  description: "Classic noir comic book style"
+  characteristics:
+    - "High contrast black and white"
+    - "Dramatic shadows and lighting"
+    - "Rain-slicked urban environments"
+    - "Moody atmospheric scenes"
+    - "Strong silhouettes"
+  
+  references:
+    high_contrast:
+      file: "high_contrast.jpg"
+      purpose: "Dramatic black and white contrast"
+      use_for: ["all"]  # General style reference
+      
+    rain_atmosphere:
+      file: "rain_atmosphere.jpg"
+      purpose: "Rain effects and wet surfaces"
+      use_for: ["atmospheric", "moody", "environmental"]
+      
+    shadow_lighting:
+      file: "shadow_lighting.jpg"
+      purpose: "Dramatic shadow casting and lighting"
+      use_for: ["dramatic", "tense", "moody"]
+      
+    urban_night:
+      file: "urban_night.jpg"
+      purpose: "Night-time urban settings"
+      use_for: ["establishing", "wide", "urban", "night"]
+      
+    silhouette:
+      file: "silhouette.jpg"
+      purpose: "Strong character silhouettes"
+      use_for: ["dramatic", "mysterious", "character focus"]
+
+watchmen:
+  description: "Watchmen comic style by Dave Gibbons"
+  characteristics:
+    - "9-panel grid symmetry"
+    - "Precise clean line work"
+    - "Balanced compositions"
+    - "Controlled color palette"
+    - "Symbolic visual motifs"
+  
+  references:
+    nine_panel_grid:
+      file: "nine_panel_grid.jpg"
+      purpose: "Perfect 3x3 grid layout"
+      use_for: ["grid-9-panel", "classic-grid-9"]
+      
+    clean_linework:
+      file: "clean_linework.jpg"
+      purpose: "Precise technical line work"
+      use_for: ["all"]  # General style reference
+      
+    symmetrical_composition:
+      file: "symmetrical_composition.jpg"
+      purpose: "Balanced symmetrical framing"
+      use_for: ["establishing", "dramatic", "symbolic"]
+      
+    color_symbolism:
+      file: "color_symbolism.jpg"
+      purpose: "Controlled color palette with meaning"
+      use_for: ["all"]  # General color reference
+
+print_comic:
+  description: "Classic print comic book style with halftones"
+  characteristics:
+    - "Ben-Day dots and halftone patterns"
+    - "Bold black outlines"
+    - "Flat color fills"
+    - "Print registration effects"
+    - "Classic comic book aesthetic"
+  
+  references:
+    halftone_dots:
+      file: "halftone_dots.jpg"
+      purpose: "Ben-Day dot patterns"
+      use_for: ["all"]  # General texture reference
+      
+    bold_outlines:
+      file: "bold_outlines.jpg"
+      purpose: "Strong black outline technique"
+      use_for: ["all"]  # General style reference
+      
+    flat_colors:
+      file: "flat_colors.jpg"
+      purpose: "Flat color fill technique"
+      use_for: ["all"]  # General color reference
+      
+    print_registration:
+      file: "print_registration.jpg"
+      purpose: "Color misregistration effects"
+      use_for: ["stylized", "retro"]
+
+# Selection Rules
+# ---------------
+# The system can select references based on:
+# 1. Shot type (establishing, wide, medium, close-up, extreme-close-up)
+# 2. Scene type (action, dialogue, atmospheric, dramatic)
+# 3. Panel arrangement (grid-8-panel, grid-9-panel, etc.)
+# 4. Emotional tone (tense, relaxed, thrilling, etc.)
+#
+# Selection priority:
+# 1. Specific match (e.g., "grid-9-panel" -> nine_panel_grid)
+# 2. Category match (e.g., "action" -> motion_lines, impact_panel)
+# 3. General references (use_for: ["all"])

@@ -485,8 +485,10 @@ class ScreenplayWriter:
 
 class BookWriterSchema(BaseModel):
     storyline: str
-    words_per_chapter: Optional[int] = 300
+    words_per_chapter: Optional[int] = 150
+    total_pages: Optional[int] = 50
     art_style: Optional[str] = None
+    examples: str = ""
 
 @CrewBase
 class BookWriter:

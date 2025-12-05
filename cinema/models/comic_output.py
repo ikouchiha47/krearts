@@ -131,7 +131,10 @@ class ComicPanel(BaseModel):
 
 class ComicPage(BaseModel):
     """
-    A physical comic book page containing 2-3 panels with layout specifications.
+    A physical comic book page containing 2-9 panels with layout specifications.
+    
+    Standard layouts: 2-3 panels per page
+    Grid layouts: 8-9 panels per page (classic comic book style)
     
     Follows layout patterns from knowledge/layouts/panel_arrangements.md
     """
@@ -151,7 +154,13 @@ class ComicPage(BaseModel):
         "zoom-progression",
         "cross-over-bleed",
         "shattered-exploded",
-        "dynamic-grid"
+        "dynamic-grid",
+        "grid-8-panel",
+        "grid-9-panel",
+        "classic-grid-8",
+        "classic-grid-9",
+        "dynamic-8-panel",
+        "dynamic-9-panel"
     ] = Field(..., description="How panels are arranged on the page")
     
     page_aspect_ratio: Optional[str] = Field(
@@ -181,12 +190,12 @@ class ComicPage(BaseModel):
         description="How panels interact visually on the page"
     )
     
-    # Panels (2-3 per page)
+    # Panels (2-9 per page, depending on layout)
     panels: List[ComicPanel] = Field(
         ...,
         min_length=2,
-        max_length=3,
-        description="Panels on this page (2-3 panels)"
+        max_length=9,
+        description="Panels on this page (2-3 for standard layouts, 8-9 for grid layouts)"
     )
     
     # Optional metadata
@@ -199,7 +208,7 @@ class ComicPage(BaseModel):
 class ComicScene(BaseModel):
     """
     A scene is a sequence of pages in the same location/time.
-    Typically 2-4 pages per scene (4-12 panels total).
+    Typically 2-4 pages per scene (4-12 panels for standard layouts, 8-36 panels for grid layouts).
     """
     
     scene_number: int = Field(..., description="Scene number within chapter")
@@ -240,7 +249,7 @@ class ComicScene(BaseModel):
     def migrate_panels_to_pages(self) -> 'ComicScene':
         """
         Backward compatibility: Auto-convert panels to pages if panels is populated but pages is empty.
-        Groups panels into pages of 2-3 panels each with default layout.
+        Groups panels into pages of 2-3 panels (standard) or 8-9 panels (grid layouts).
         """
         if self.panels and not self.pages:
             logger.warning(
@@ -251,10 +260,10 @@ class ComicScene(BaseModel):
             pages = []
             page_number = 1
             
-            # Group panels into pages of 2-3
+            # Group panels into pages
             i = 0
             while i < len(self.panels):
-                # Determine how many panels for this page (prefer 3, but use 2 if needed)
+                # Determine how many panels for this page
                 remaining = len(self.panels) - i
                 
                 if remaining == 1:
@@ -265,19 +274,29 @@ class ComicScene(BaseModel):
                     )
                     break
                 elif remaining == 2:
-                    # Exactly 2 panels left
                     panel_count = 2
+                    panel_arrangement = "horizontal-2-panel"
+                elif remaining == 3:
+                    panel_count = 3
+                    panel_arrangement = "horizontal-3-panel"
                 elif remaining == 4:
                     # 4 panels left - split into 2+2
                     panel_count = 2
+                    panel_arrangement = "horizontal-2-panel"
+                elif remaining >= 8 and remaining <= 9:
+                    # Use grid layout for 8-9 panels
+                    panel_count = remaining
+                    panel_arrangement = f"grid-{remaining}-panel"
+                elif remaining > 9:
+                    # More than 9 panels - use 9-panel grid
+                    panel_count = 9
+                    panel_arrangement = "grid-9-panel"
                 else:
-                    # 3 or more panels - use 3
+                    # Default to 3 panels
                     panel_count = 3
+                    panel_arrangement = "horizontal-3-panel"
                 
                 panel_group = self.panels[i:i+panel_count]
-                
-                # Determine layout based on panel count
-                panel_arrangement = "horizontal-3-panel" if panel_count == 3 else "horizontal-2-panel"
                 
                 page = ComicPage(
                     page_number=page_number,
@@ -303,7 +322,7 @@ class ComicScene(BaseModel):
 class ComicChapter(BaseModel):
     """
     A chapter from the novel, converted to comic book scenes.
-    Each chapter should have 4-8 scenes, each scene 3-8 panels.
+    Each chapter should have 4-8 scenes, each scene 3-8 panels (standard) or 8-9 panels (grid layouts).
     """
     
     chapter_number: int = Field(..., description="Chapter number (1-15)")
@@ -385,7 +404,7 @@ class ComicBookOutput(BaseModel):
     - 15 chapters
     - 2-5 scenes per chapter (configurable)
     - 2-4 pages per scene
-    - 2-3 panels per page
+    - 2-9 panels per page (2-3 for standard layouts, 8-9 for grid layouts)
     """
     
     # Metadata

@@ -10,6 +10,8 @@ plotbuilder:
       Your task is to:
       - Generate character personas and backstories, their motivations, and quirks
       - Narrative descriptions for each relationship
+      - Build a solid plotline for a detective story, with the created characters.
+        Making sure the motivations and behaviours serve the storyline.
 
       You MAY add:
       - Vivid descriptions
@@ -238,8 +240,6 @@ plotbuilder:
       - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
         like, **lives of people depend on it**.      
 
-      - Detective Primacy Rule: You MUST designate exactly one Primary Detective by name. Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`. If multiples exist, provide a POV Plan (primary ≥ 60%).
-
       ---
 
       To invoke suspense and anticipation (Zeigarnik effect):
@@ -247,6 +247,21 @@ plotbuilder:
       - Anchor the plot to a tangible central event
       - Underlying current of momentum, leading upto it (central event)
 
+      ---
+
+      ## **CRITICAL COHERENECE VALIDATIONS**:
+  
+      - One primary detective with POV control.
+      - Every alliance needs concrete stakes + mutual risk/benefit.
+      - Use multiple forensic evidence types (2+), each with clear provenance.
+      - Any framing needs mechanism + plausibility + a detectable flaw.
+      - Every deduction must map to explicit clues; no leaps.
+      - Red herrings must be grounded, explainable, and resolved.
+      - Detective Primacy Rule: 
+        You MUST designate exactly one Primary Detective by name.
+        Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`.
+        If multiples exist, provide a POV Plan (primary ≥ 60%).
+    
       ---
 
       ## Examples
@@ -407,9 +422,13 @@ chapterbuilder:
          - narration: "A single thread. Blue-grey. Impossibly fine."
        ```
 
-    4. **Group panels into pages** (2-4 pages per scene, 2-3 panels per page):
+    4. **Group panels into pages**:
+       - **Standard layouts**: 2-3 panels per page (horizontal, vertical, zoom-progression)
+       - **Grid layouts**: 8-9 panels per page (grid-8-panel, grid-9-panel for dense storytelling)
        - Organize panels into ComicPage objects with appropriate layouts
-       - Choose panel_arrangement based on pacing (horizontal, vertical, zoom-progression, etc.)
+       - Choose panel_arrangement based on pacing and storytelling needs:
+         * 2-3 panels: Dialogue, dramatic moments, establishing shots
+         * 8-9 panels: Action sequences, time progression, parallel narratives (Akira/Blueberry style)
 
     5. **Create visual descriptions** (not prose copying):
        - Describe what the CAMERA sees, not what the prose says
@@ -425,9 +444,11 @@ chapterbuilder:
     Expected output scale for ONE chapter:
     - Atleast 3 chapters
     - 4-8 scenes per chapter
-    - 2-4 pages per scene (4-12 panels total per scene)
+    - 2-4 pages per scene (4-12 panels for standard layouts, 8-9 panels for grid layouts)
     - 8-32 pages per chapter (typically ~15-20 pages per chapter)
-    - Each page contains 2-3 panels with layout metadata
+    - Each page contains:
+      * **Standard layouts**: 2-3 panels (horizontal, vertical, zoom-progression)
+      * **Grid layouts**: 8-9 panels (grid-8-panel, grid-9-panel for classic comic book style)
     - **Aspect ratio**: {aspect_ratio} (**MUST BE RESPECTED**)
 
     ---
@@ -492,10 +513,9 @@ chapterbuilder:
        - Clue panels: Highlight evidence discovery (close-up, extreme-close-up)
        - Transition panel: Bridge to next scene (varies)
 
-    3. **Group Panels into Pages** (2-3 panels per page):
+    3. **Group Panels into Pages** (2-3 panels for standard, 8-9 panels for grid layouts):
        - After generating panels for a scene, organize them into ComicPage objects
-       - Each page should contain 2-3 panels that work together visually
-       - Select appropriate panel_arrangement based on narrative flow:
+       - Select appropriate panel_arrangement based on narrative flow and storytelling density:
          * Use **2-panel layouts** for:
            - Dialogue exchanges (back-and-forth conversation)
            - Before/after comparisons
@@ -506,6 +526,16 @@ chapterbuilder:
            - Time passage sequences
            - Complex dialogue with reactions
            - Zoom progressions (wide → medium → close-up)
+         * Use **8-panel grid layouts** (grid-8-panel, classic-grid-8, dynamic-8-panel) for:
+           - Detailed action sequences with multiple beats
+           - Rapid time progression (classic comic book pacing)
+           - Parallel storylines shown simultaneously
+           - European/American comic style (Blueberry, Moebius)
+         * Use **9-panel grid layouts** (grid-9-panel, classic-grid-9, dynamic-9-panel) for:
+           - Complex visual storytelling with perfect symmetry
+           - Dense narrative with intricate timing (Watchmen, Akira style)
+           - Showing simultaneous events across rows/columns
+           - Meditative, controlled reading rhythm
        - Reference `knowledge/layouts/panel_arrangements.md` for layout patterns:
          * horizontal-2-panel / horizontal-3-panel: Side-by-side panels with dynamic widths
          * vertical-2-panel / vertical-3-panel: Stacked panels for descent/ascent
@@ -514,6 +544,9 @@ chapterbuilder:
          * cross-over-bleed: Dominant element bleeds across panels for impact
          * shattered-exploded: Broken borders for psychological distress
          * dynamic-grid: Irregular grid for general purpose flexibility
+         * grid-8-panel / grid-9-panel: Classic comic book grids (8 or 9 equal panels)
+         * classic-grid-8 / classic-grid-9: Traditional grid with equal-sized panels
+         * dynamic-8-panel / dynamic-9-panel: Grid with varied panel sizes for emphasis
        - Choose panel_borders style:
          * clean-sharp: Professional, controlled scenes
          * ragged-dynamic: Action, chaos, energy
@@ -1390,53 +1423,185 @@ critique:
       * Unique physical marks (cleaning patterns, polishing abrasions)
     - FAIL if only circumstantial evidence exists
     
-    ## SPECIFIC CRITIQUE POINTS
+    ---
 
-    ### 0. Detective Primacy & POV (ENFORCED):
-    - Exactly one Primary Detective is declared by name.
-    - The Primary Detective exists in Characters and has role `detective`.
-    - All Secondary Detectives (if any) exist in Characters and have role `detective`.
-    - If multiple detectives exist, a POV Plan is present and the Primary owns ≥ 60% of investigative beats.
-    - FAIL if any primacy or POV rule is violated, otherwise PASS
-    
-    ### A. Accomplice/Witness Motivations
-    - **Dr. Price's motive/complicity**: Is Victor's leverage explicit?
-      * Does the story show proof of illegal pharma ties?
-      * Is there a promised testimony or financial extortion document?
-      * CRITICAL if alliance with Butler is "thin" (no concrete stakes)
-    
-    - **Butler's risk calculus**: Why involve a doctor who could implicate him?
-      * Is there mutual leverage shown? (Butler has dirt on Price, Price has dirt on Butler)
-      * Is the alliance transactional with explicit proof?
-      * CRITICAL if alliance seems illogical
-    
-    ### B. Forensic Evidence Quality
-    - **Stationery match**: Good start, but is it enough?
-      * Add: Fingerprints on planted evidence
-      * Add: Glove fibers at scene
-      * Add: Timestamped phone calls/visits
-      * Add: Unique physical marks (Butler's cleaning patterns, polishing traces)
-      * Add: Ledger entries showing financial motive
-    - MEDIUM severity if only one type of evidence exists
-    
-    ### C. Framing Plausibility
-    - **Margaret's framing**: Does it feel plausible or perfunctory?
-      * How did Butler ensure Margaret's scarf/clothing appeared at the scene?
-      * Is there a small slip (Butler's fingerprint on the scarf) discovered later?
-      * Does the framing have internal logic (Margaret could conceivably have been there)?
-    - HIGH severity if framing feels contrived
-    
-    ### D. Clue Provenance
-    - **Every claim needs a clue**: For each deduction the detective makes:
-      * Is there a referenced clue? (paper, ledger, fiber, timestamp, witness statement)
-      * Can the reveal chain be reconstructed by following clue IDs?
-    - CRITICAL if detective makes leaps without evidence
-    
-    ### E. Red Herring Explainability
-    - **Red herrings must be plausible**: For each red herring:
-      * Is it explainable by routine causes? (cleaning habit, misdelivered letter, coincidence)
-      * Is it never mystical or unexplained?
-    - LOW severity but note if red herrings are weak
+    # **SPECIFIC CRITIQUE POINTS (General-Purpose Version)**
+
+    These checks apply to *all* detective stories, regardless of characters, setting, or plot structure.
+    They evaluate the structural integrity, forensic rigor, and logical plausibility of the narrative.
+
+    ---
+
+    ## **0. Detective Primacy & POV (Universal Rule)**
+
+    * Exactly one **Primary Detective** must exist, explicitly designated.
+    * Every detective listed in the story must appear in the Characters roster with the role `detective`.
+    * If multiple detectives exist, a **POV allocation plan** must be identifiable.
+    * The Primary Detective must own **≥ 60% of meaningful investigative beats** (interviews, deductions, clue interpretation, reveals).
+    * **FAIL** if:
+
+      * No primary detective is declared
+      * Another character performs more critical investigative functions than the primary
+      * POV control becomes fragmented or unclear
+
+    ---
+
+    ## **A. Accomplice / Witness Motivation Integrity**
+
+    Every accomplice, witness, co-conspirator, or betrayer must have **documented, concrete motivation**.
+
+    The critique agent must check:
+
+    1. **Concrete Stakes**
+      Each alliance or betrayal requires *at least one* of the following:
+
+      * Financial incentive (payment, debt, bribe, asset transfer, inheritance dispute)
+      * Reputational leverage (blackmail material, damaging documents, witness statements)
+      * Physical or situational leverage (compromise, coercion, incriminating items)
+
+    2. **Mutual Risk / Mutual Benefit**
+      Alliances must make sense from both sides.
+      Each participant needs:
+
+      * Something to gain
+      * Something to lose
+      * A rational reason not to betray the other prematurely
+
+    3. **Plausible Calculus**
+      Motivation must align with:
+
+      * Personality traits
+      * Prior behavior
+      * Risk exposure
+      * Stakes in the core conflict
+
+    **CRITICAL** if any alliance, betrayal, or assistance occurs without identifiable and concrete stakes.
+
+    ---
+
+    ## **B. Forensic Evidence Quality & Multilayer Corroboration**
+
+    A detective narrative must support deductions with **multiple categories of evidence**, not just circumstantial hints.
+
+    Checks:
+
+    1. **Forensic Variety**
+      Evaluate if the story includes at least two distinct forms of physical evidence, such as:
+
+      * Fingerprints / glove marks
+      * DNA / blood / fluids
+      * Fibers (clothing, carpet, rope)
+      * Tool marks / weapon residue
+      * Chemical traces
+      * Document analysis (paper, ink, stationery)
+      * Digital footprints (timestamps, logs)
+
+    2. **Provenance Traceability**
+      Each physical clue must have a clear chain:
+
+      * Where it was found
+      * Why it matters
+      * What it connects to
+      * Whether it can be falsified or contested
+
+    3. **Corroboration**
+      A key deduction should never rely on a single clue type.
+      Layers must support each other (e.g., fingerprint + ledger + timestamp).
+
+    **MEDIUM severity** if only one type of forensic evidence exists.
+    **FAIL** if the story relies entirely on circumstantial logic.
+
+    ---
+
+    ## **C. Framing / Misdirection Plausibility**
+
+    For any framed suspect:
+
+    1. **Mechanism of Evidence Placement**
+      The story must provide:
+
+      * How the framing evidence was introduced
+      * When it was introduced
+      * Why it wasn’t immediately detected as planted
+
+    2. **Plausible Perception**
+      The framed suspect must:
+
+      * Have a believable reason to fall under suspicion
+      * Fit the apparent surface evidence
+      * Have timing/location plausibility
+
+    3. **Detectable Slip**
+      The eventual unmasking must arise from:
+
+      * A subtle inconsistency
+      * A mismatched detail
+      * A forensic contradiction
+      * A behavioral tell
+      * A timeline breach
+
+    If the framing feels arbitrary or contrived: **HIGH severity**.
+
+    ---
+
+    ## **D. Clue Provenance & Deduction Validity**
+
+    Every major deduction by the detective must map to **explicit clues** reachable by a reader.
+
+    Checklist:
+
+    1. **Traceability**
+      Each deduction should refer to:
+
+      * A clue
+      * A testimony
+      * A document
+      * A timestamp
+      * A behavior
+      * A visual detail
+
+    2. **No Leapfrogging**
+      Deductions cannot skip steps or rely on unstated insider logic.
+
+    3. **Reader-Reconstructability**
+      A hypothetical reader should be able to:
+
+      * List clues
+      * Rebuild the reasoning chain
+      * Reach the same interim conclusions
+
+    **CRITICAL** if any key reveal happens without evidence.
+
+    ---
+
+    ## **E. Red Herring Explainability & Narrative Hygiene**
+
+    Red herrings (false or misleading clues) must follow these rules:
+
+    1. **Mundane Foundations**
+      They must arise from:
+
+      * Routine behavior (cleaning, habits, misunderstandings)
+      * Coincidences that still obey causality
+      * Misinterpreted but real data
+
+    2. **No Supernatural or Arbitrary Artifacts**
+      Red herrings cannot rely on:
+
+      * Mystical misdirections
+      * Unexplained interventions
+      * Deus-ex-machina anomalies
+
+    3. **Resolution Requirement**
+      Every red herring must be explained away during or before the final reveal.
+
+    4. **Impact Boundaries**
+      Red herrings should add tension but must not overshadow the true evidence structure.
+
+    **LOW severity** unless they actively undermine logic.
+
+    ---
+
     
     ## OUTPUT FORMAT
     
@@ -1728,6 +1893,9 @@ novelist:
 
     ## Target words per chapter
     {words_per_chapter}
+
+    ## Total Pages
+    {total_pages}
 
     ---
 
