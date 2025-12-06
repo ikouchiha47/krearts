@@ -1,0 +1,78 @@
+{
+  "_description": "Blueberry-style Western adventure - NOT a detective mystery",
+  "_story_type": "western_adventure",
+  
+  "title": "The Chiricahua Trail",
+  
+  "premise": "A cavalry lieutenant must escort a Apache chief to peace talks while pursued by vengeful soldiers, corrupt politicians, and his own demons from the Civil War.",
+  
+  "characters": "Mike Donovan 'Blueberry' (28, Irish-American, cavalry lieutenant with troubled past), Red Neck (45, Chiricahua Apache chief seeking peace), Jimmy McClure (25, Blueberry's friend and fellow soldier), Colonel Allister (50, corrupt cavalry officer), Maria Consuela (23, Mexican cantina owner and informant), Prosit (40, German immigrant and comic relief)",
+  
+  "relationships": "Blueberry earned Red Neck's respect in previous encounters. Jimmy saved Blueberry's life in the war. Colonel Allister wants the peace talks to fail so he can profit from continued conflict. Maria provides information to both sides. Prosit is Blueberry's unlikely companion. The mission tests everyone's loyalties as political and personal interests collide.",
+  
+  "art_style": "Jean Giraud/Moebius Blueberry style - Highly detailed realistic Western landscapes, expressive character faces with deep shadows and cross-hatching, dynamic action sequences, authentic period details (weapons, clothing, architecture). Dusty earth tones, deep blues, burnt oranges. Cinematic panel compositions with dramatic angles. Detailed backgrounds showing the harsh beauty of the American Southwest.",
+  
+  "aspect_ratio": "4:5",
+  
+  "genre": "Western Adventure Drama",
+  
+  "setting": "Arizona Territory, 1870. The Apache Wars are winding down. Fort Navajo, Chiricahua Apache territory, Mexican border towns, desert landscapes, canyon trails. A land caught between the old ways and encroaching civilization. Tension between military, settlers, and native peoples.",
+  
+  "theme": "Honor in a dishonorable time. The cost of peace. Racism and understanding. Can enemies become allies? The death of the Old West. Personal redemption through duty.",
+  
+  "tone": "Gritty, realistic, morally complex. Not black and white - everyone has reasons for their actions. Violent when necessary but not gratuitous. Moments of humor amid hardship. Respect for Apache culture. Cynical about politics, hopeful about individuals. Elegiac - the sense of a world ending.",
+  
+  "story_structure": {
+    "act_1": "Blueberry is assigned to escort Red Neck to peace talks. Establishes their mutual respect and the political forces working against peace. Journey begins.",
+    "act_2": "Multiple obstacles - ambush by rogue soldiers, desert survival, Mexican bandits, Blueberry's past catches up with him. Red Neck and Blueberry develop deeper understanding. Jimmy's loyalty tested.",
+    "act_3": "Arrival at peace talks reveals conspiracy. Blueberry must choose between orders and what's right. Climactic confrontation with Colonel Allister. Resolution that's bittersweet - peace achieved but at cost.",
+    "key_scenes": [
+      "Opening - Blueberry receives orders, meets Red Neck",
+      "First ambush - rogue soldiers attack, Blueberry and Red Neck fight together",
+      "Desert survival - water runs out, must trust each other",
+      "Flashback to Blueberry's Civil War trauma",
+      "Mexican border town - Maria warns of conspiracy",
+      "Canyon battle - surrounded, desperate fight",
+      "Arrival at fort - conspiracy revealed",
+      "Final confrontation with Allister",
+      "Peace talks - uncertain future"
+    ]
+  },
+  
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "e": false,
+    "w": false,
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
+  },
+  
+  "_visual_style_notes": "Jean Giraud's Blueberry aesthetic - incredibly detailed and realistic. Every rock, cactus, and piece of equipment is meticulously drawn. Characters have lived-in faces with wrinkles, scars, sun damage. Clothing is dusty and worn. Horses are anatomically correct. Landscapes are vast and beautiful but harsh. Use cross-hatching for shadows. Panel compositions are cinematic - wide establishing shots of desert vistas, then tight character moments. Action is clear and brutal. Show the heat, dust, and exhaustion of desert travel.",
+  
+  "_character_details": {
+    "Mike 'Blueberry' Donovan": {
+      "physical": "28, Irish-American, rugged and weathered beyond his years. Blue eyes (hence the nickname), dark hair, stubble, sun-damaged skin. Wears cavalry uniform (often dusty and torn), blue bandana, worn boots. Carries Colt revolver and Winchester rifle. Scars from war and frontier life.",
+      "personality": "Tough but fair. Haunted by Civil War experiences. Respects courage regardless of side. Drinks too much. Loyal to friends. Cynical about authority but believes in personal honor. Can be violent but not cruel.",
+      "arc": "From following orders to following conscience. Confronts his past. Learns that peace requires more courage than war."
+    },
+    "Red Neck": {
+      "physical": "45, Chiricahua Apache, lean and strong. Long black hair with gray streaks, weathered face, intense eyes. Traditional Apache clothing mixed with some traded items. Carries rifle and knife. Moves with quiet confidence.",
+      "personality": "Wise, pragmatic, proud. Knows his people are losing but wants to save what he can. Respects worthy opponents. Tired of war but will fight if necessary. Dry sense of humor.",
+      "arc": "From warrior to peacemaker. Must convince his own people that peace is not surrender."
+    },
+    "Colonel Allister": {
+      "physical": "50, Anglo-American, once-handsome now going to seed. Graying hair, mustache, increasingly red-faced from drink. Immaculate uniform that contrasts with his corrupt soul.",
+      "personality": "Ambitious, greedy, racist. Sees the Apache as obstacles to profit. Charismatic when needed. Coward who sends others to fight. Believes in manifest destiny and his right to wealth.",
+      "arc": "Antagonist whose schemes unravel. Represents the worst of westward expansion."
+    },
+    "Jimmy McClure": {
+      "physical": "25, American, younger and less weathered than Blueberry. Sandy hair, open face, still has some innocence. Cavalry uniform, eager demeanor.",
+      "personality": "Loyal, brave, idealistic. Looks up to Blueberry. Struggles with orders vs morality. Comic relief at times but grows serious when tested.",
+      "arc": "Coming of age - learns that doing right often means disobeying orders."
+    }
+  },
+  
+  "_note": "This is NOT a detective story - no murder mystery, no clues or suspects. This is a Western adventure about a dangerous journey, political intrigue, and moral choices. Focus on character relationships, survival, and the clash of cultures in the dying days of the Old West."
+}

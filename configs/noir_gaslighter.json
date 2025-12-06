@@ -1,0 +1,92 @@
+{
+  "_description": "Noir detective mystery - The Gaslighter. Murders disguised as suicides through psychological manipulation and planted evidence.",
+  
+  "characters": "Detective Sarah Chen (38, Chinese-American, former psychiatrist turned detective), Marcus Webb (45, charismatic therapist, the killer), Elena Vasquez (29, Webb's patient, first victim), David Kline (52, pharmaceutical executive, second victim), Dr. Patricia Moore (61, Sarah's former mentor, witness), James Chen (40, Sarah's ex-husband, accomplice unknowingly)",
+  
+  "relationships": "Sarah left psychiatry after a patient's suicide haunted her. Marcus Webb was her colleague who now runs a private practice. Elena was Webb's patient who 'jumped' from her apartment. David Kline was being treated by Webb for depression and 'overdosed'. Dr. Moore suspects the suicides are connected. James Chen, Sarah's ex, is Webb's lawyer and friend, creating conflict. Webb has been systematically destroying his patients' sense of reality, making them believe suicide is their only option.",
+  
+  "killer": "Marcus Webb",
+  "victim": "Elena Vasquez",
+  "accomplices": "James Chen (unknowingly provides legal cover)",
+  "witnesses": "Dr. Patricia Moore",
+  "betrayals": "Webb betrayed his oath as a therapist, using therapy sessions to gaslight patients into suicide. James unknowingly betrayed Sarah by helping Webb cover tracks legally. Sarah's own past as a psychiatrist makes her doubt her judgment.",
+  
+  "art_style": "Classic Film Noir - Deep shadows with venetian blind patterns, cigarette smoke curling through shafts of light, rain-slicked streets reflecting neon. Psychological horror elements: distorted perspectives, fractured panels showing mental breakdown, mirror reflections that don't match reality. Muted palette: blacks, grays, sickly yellows, occasional blood red. Expressionist angles for therapy scenes.",
+  
+  "aspect_ratio": "4:5",
+  
+  "genre": "Psychological Noir Thriller",
+  
+  "setting": "San Francisco, present day. Fog-shrouded streets, Victorian houses hiding dark secrets, sterile therapy offices with hidden recording equipment, dive bars where cops drink away their demons, the Golden Gate Bridge as a recurring symbol of suicide. The city's beauty masks its darkness.",
+  
+  "theme": "The weaponization of trust. How those meant to heal can destroy. The thin line between helping someone see truth and making them doubt reality. Guilt and redemption. Can you trust your own mind when someone has been inside it?",
+  
+  "tone": "Paranoid and claustrophobic. Every therapy session is a crime scene. Unreliable narration - Sarah questions her own memories and judgment. Slow-burn dread as the pattern emerges. Intimate violence - no guns, just words that kill. The horror of realizing someone you trusted was dismantling your sanity piece by piece.",
+  
+  "modus_operandi": {
+    "method": "Psychological manipulation over months of therapy",
+    "steps": [
+      "1. Target vulnerable patients with depression/anxiety",
+      "2. Gain complete trust through initial genuine help",
+      "3. Gradually introduce false memories and doubts",
+      "4. Isolate patient from support systems",
+      "5. Plant evidence of patient's 'deteriorating mental state'",
+      "6. Suggest suicide as 'relief' while maintaining plausible deniability",
+      "7. Ensure death looks like obvious suicide - no investigation",
+      "8. Collect life insurance as beneficiary (patients changed wills during 'treatment')"
+    ],
+    "why_undetectable": "Perfect paper trail of deteriorating mental health. Therapy notes document 'suicidal ideation'. No physical evidence. Victims literally killed themselves. Webb appears as the caring doctor who tried to help.",
+    "signature": "Each victim left a note in their own handwriting (written during 'therapeutic exercises'). Each note mentions 'finally seeing clearly' - Webb's phrase."
+  },
+  
+  "investigation_hook": "Sarah notices the phrase 'seeing clearly' in three suicide notes over six months. It's a technique she and Webb developed in their psychiatry days. She realizes someone is using their methods to kill.",
+  
+  "personal_stakes": "Sarah's own patient committed suicide years ago using the same phrase. She's been in therapy herself. What if Webb has been gaslighting HER? Can she trust her own investigation? Her ex-husband defending Webb makes her question everything.",
+  
+  "climax": "Webb tries to gaslight Sarah during a 'friendly' conversation, using techniques she taught him. She records it, but realizes the recording could be seen as her own paranoia. The final confrontation happens in Webb's office, surrounded by files of his victims, as he tries to convince her she's having a breakdown.",
+  
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "e": false,
+    "w": false,
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
+  },
+  
+  "_visual_style_notes": "Heavy use of shadows and reflections. Therapy office scenes should feel claustrophobic - tight close-ups, oppressive framing. Use panel layouts to show mental fragmentation. Flashbacks in different tones. Webb should look trustworthy and warm in early scenes, gradually revealing cold calculation. Sarah's face should show increasing doubt and paranoia. Rain and fog are constant. The city is beautiful but threatening.",
+  
+  "_character_details": {
+    "Sarah Chen": {
+      "physical": "Asian-American, late 30s, professional but tired. Dark circles under eyes. Wears practical clothes - blazer, jeans, boots. Hair usually in a ponytail. Carries weight of past failures in her posture. Smokes when stressed (trying to quit).",
+      "personality": "Brilliant but haunted. Left psychiatry because she couldn't save everyone. Now uses that knowledge to solve crimes. Obsessive about details. Trust issues. Sees patterns others miss. Afraid she's becoming what she hunts.",
+      "quirks": ["Quotes psychiatric literature when thinking", "Keeps old therapy notes from her practice", "Avoids mirrors", "Drinks coffee constantly", "Writes everything down - doesn't trust her memory"],
+      "arc": "Must trust her own judgment despite Webb's attempts to make her doubt herself. Confronts her past failure. Learns that not every suicide is her fault, but this murder is her responsibility."
+    },
+    "Marcus Webb": {
+      "physical": "Mid-40s, handsome in a trustworthy way. Warm smile, kind eyes (that go dead when alone). Well-dressed - expensive but not flashy. Looks like everyone's favorite therapist. Slight tells when lying - touches his wedding ring (he's not married).",
+      "personality": "Charismatic sociopath. Genuinely brilliant therapist who discovered he could use his skills to kill. Sees patients as puzzles to solve. Gets off on the control. Believes he's helping them 'escape their pain'. Completely lacks empathy but can fake it perfectly.",
+      "quirks": ["Always has a cup of tea during sessions", "Takes meticulous notes", "Uses patients' own words against them", "Collects first editions of psychology texts", "Never raises his voice - the quieter he gets, the more dangerous"],
+      "motivation": "Started with one patient who was genuinely suicidal. Webb 'helped' them and felt godlike power. Realized he could profit from it. Now addicted to the control and the money. Sees himself as a mercy killer."
+    },
+    "Elena Vasquez": {
+      "physical": "Late 20s, Latina, artist. Vibrant in early flashbacks, increasingly hollow as therapy progresses. Colorful clothes fade to grays. Visible weight loss. Dead eyes in final scenes.",
+      "backstory": "Came to Webb for anxiety after a breakup. He convinced her everyone in her life was toxic. Isolated her completely. Made her believe she was a burden. She jumped from her apartment after a session where Webb said 'sometimes the clearest vision is the hardest to accept'.",
+      "role": "Her case is the key. Sarah finds her art - paintings that show her mental deterioration. Hidden in the paintings are clues Elena left, not quite believing Webb but unable to resist his influence."
+    }
+  },
+  
+  "_key_scenes": [
+    "Opening: Elena's 'suicide' - shown from her POV, hearing Webb's voice in her head",
+    "Sarah at crime scene, notices the phrase in the note, flashback to her own patient",
+    "Sarah's first meeting with Webb - he's warm, concerned, offers to help with the case",
+    "Therapy session flashback showing Webb's technique - subtle, insidious",
+    "Sarah finds the pattern, realizes Webb is the connection",
+    "Confrontation with her ex-husband who defends Webb, makes her doubt herself",
+    "Sarah goes to Webb's office, finds his 'collection' - notes from all his victims",
+    "Final scene: Webb tries to gaslight Sarah, she records it but he makes it sound like she's paranoid",
+    "Climax: Sarah uses Webb's own techniques against him, makes him confess on tape",
+    "Epilogue: Webb in prison, still trying to manipulate his psychiatrist. Sarah returns to therapy herself."
+  ]
+}

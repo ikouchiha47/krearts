@@ -1,0 +1,61 @@
+{
+  "_description": "Cyberpunk detective mystery inspired by Altered Carbon - body-swapping, immortality, and corporate conspiracy",
+  
+  "characters": "Takeshi Kovacs (350+ years old, appears 35, Envoy soldier in new sleeve), Kristin Ortega (32, Latina, Bay City Police Lieutenant), Laurens Bancroft (300+ years old, appears 60, Meth billionaire), Miriam Bancroft (280+ years old, appears 40, Meth wife), Reileen Kawahara (350+ years old, appears 30, Yakuza boss and Kovacs' sister)",
+  
+  "relationships": "Kovacs was hired by Bancroft to solve his own murder (he was re-sleeved from backup). Ortega is investigating the same case and has history with the previous sleeve Kovacs now inhabits. Miriam is having an affair and may be involved. Reileen is Kovacs' sister from 300 years ago, now a powerful crime lord who wants him back. Bancroft's wealth and immortality make him untouchable, but someone found a way to kill him permanently.",
+  
+  "killer": "Reileen Kawahara",
+  "victim": "Laurens Bancroft",
+  "accomplices": "Miriam Bancroft",
+  "witnesses": "Kristin Ortega",
+  "betrayals": "Reileen betrayed Kovacs 300 years ago and has been manipulating events to bring him back. Miriam betrayed Laurens for freedom from his control. Bancroft's backup was corrupted to hide the truth.",
+  
+  "art_style": "Cyberpunk Noir - Blade Runner meets Ghost in the Shell. Neon-soaked streets, holographic advertisements, rain-slicked megacity. High contrast with electric blues, toxic greens, and hot pinks. Gritty realism mixed with futuristic tech. Body modification visible (neural stacks, augmented eyes, synthetic skin). Atmospheric fog and volumetric lighting.",
+  
+  "aspect_ratio": "4:5",
+  
+  "genre": "Cyberpunk Detective Noir",
+  
+  "setting": "Bay City, 2384. A vertical megacity where the ultra-rich Meths live in sky-needles above the clouds, while the poor struggle in the neon-drenched streets below. Death is temporary for those who can afford cortical stacks and new bodies (sleeves). Consciousness can be digitized, transmitted, and backed up. The gap between immortal elite and disposable masses has never been wider.",
+  
+  "theme": "What does it mean to be human when bodies are disposable and death is optional? The corruption of immortality. Class warfare in a world where the rich literally live forever. Identity and memory when you can change bodies like clothes. The cost of resurrection.",
+  
+  "tone": "Dark, violent, philosophical. Noir cynicism meets transhumanist questions. Visceral action with existential dread. Sexy and brutal. The detective is world-weary after 300 years of war and death. Technology has advanced but human nature hasn't.",
+  
+  "world_details": {
+    "technology": "Cortical stacks (consciousness backup at base of skull), DHF (Digital Human Freight - consciousness transmission), Sleeves (bodies - biological or synthetic), AI hotels, holographic interfaces, flying cars, neural weapons, VR torture",
+    "society": "Meths (Methuselahs - immortal rich), Grounders (everyone else), Organic Damage (real death - stack destroyed), Re-sleeving (getting new body), Needlecasting (consciousness transmission across space)",
+    "locations": "The Raven Hotel (AI-run), Bancroft's sky-needle, The Wei Clinic (illegal sleeve trade), Psychasec (backup storage corporation), Fightdrome (underground combat arena)"
+  },
+  
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "e": false,
+    "w": false,
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
+  },
+  
+  "_visual_style_notes": "Think Blade Runner 2049 meets Altered Carbon TV series. Vertical cities with massive scale. Neon everywhere but not cartoonish. Rain and fog for atmosphere. Show the tech - neural stacks glowing at base of skull, holographic displays, synthetic skin with visible seams. Class divide visible in environments - pristine white sky-needles vs grimy neon streets. Body language should reflect that characters have lived multiple lifetimes.",
+  
+  "_character_details": {
+    "Takeshi Kovacs": {
+      "physical": "Currently in Elias Ryker's sleeve - tall, muscular, Caucasian with dark hair. Visible neural stack port at base of skull. Military bearing. Scars from previous lives. Cold, calculating eyes that have seen centuries of war.",
+      "personality": "Envoy-trained (enhanced combat and psychological skills). Cynical after 300 years. Violent when needed. Struggles with identity after so many bodies. Haunted by past lives and loves.",
+      "quirks": ["Muscle memory from previous sleeves causes glitches", "Speaks multiple dead languages", "Instinctively checks for exits", "Doesn't trust anyone who's lived more than one lifetime"]
+    },
+    "Kristin Ortega": {
+      "physical": "Latina, athletic build, short dark hair, augmented eyes (visible tech). Street cop toughness. Wears leather jacket over body armor. Catholic tattoo (believes in one life, one body).",
+      "personality": "Fierce, loyal, conflicted. Hates re-sleeving on religious grounds. Attracted to Kovacs but disturbed he's in her ex-lover's body. Fights for justice in a system designed to protect the rich.",
+      "quirks": ["Crosses herself before violence", "Refuses augmentation beyond basic police gear", "Drives a vintage ground car", "Keeps photo of Ryker (the original owner of Kovacs' sleeve)"]
+    },
+    "Laurens Bancroft": {
+      "physical": "Tall, silver-haired, aristocratic. 300 years old but looks 60 (by choice - age implies wisdom). Expensive sleeve with subtle enhancements. Moves with the confidence of someone who's never truly died.",
+      "personality": "Arrogant, entitled, brilliant. Treats people as disposable because he's seen generations come and go. Genuinely curious about his own murder. Believes he's above consequences.",
+      "quirks": ["Collects art from extinct civilizations", "Speaks in archaic phrases", "Treats death as an inconvenience", "Has backup clones ready"]
+    }
+  }
+}

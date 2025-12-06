@@ -278,7 +278,8 @@ OpenAiHerd = (
         ModelConfig(
             # name="gpt-5-mini-2025-08-07",
             # name="gemini-2.5-flash-image",
-            name="imagen-3.0-generate-002",
+            name="gemini-3-pro-image-preview",
+            # name="imagen-3.0-generate-002",
             loader=LLM,
             is_hosted=False,
             lazy_load=True,

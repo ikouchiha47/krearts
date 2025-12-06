@@ -1,0 +1,72 @@
+{
+  "_description": "Akira-style cyberpunk action story - NOT a detective mystery",
+  "_story_type": "action_adventure",
+  
+  "title": "Neo-Tokyo Uprising",
+  
+  "premise": "In a post-apocalyptic Neo-Tokyo, a biker gang member gains psychic powers after a government experiment, threatening to destroy the city unless his childhood friend can stop him.",
+  
+  "characters": "Shotaro (17, Japanese, biker gang leader with latent psychic powers), Kenji (16, Japanese, Shotaro's best friend and voice of reason), Colonel Yamada (55, Japanese, military officer running secret psychic experiments), Akemi (19, Japanese, resistance fighter and psychic), Dr. Sato (40, Japanese, scientist who created the psychic program)",
+  
+  "relationships": "Shotaro and Kenji grew up together in the slums. Colonel Yamada sees psychics as weapons. Akemi was a previous test subject who escaped. Dr. Sato regrets creating the program but can't stop it. Kenji must choose between loyalty to his friend and saving the city.",
+  
+  "art_style": "Akira-inspired - Highly detailed mechanical designs, dynamic action sequences, psychic energy visualized as flowing red energy. Gritty urban decay mixed with advanced technology. Kinetic motion lines, speed effects. Detailed backgrounds of Neo-Tokyo ruins and neon districts. Explosive action with debris and destruction. Expressive character faces showing intense emotion.",
+  
+  "aspect_ratio": "4:5",
+  
+  "genre": "Cyberpunk Action Thriller",
+  
+  "setting": "Neo-Tokyo, 2045. Built on the ruins of the old city destroyed 30 years ago. Massive construction projects, biker gangs rule the streets, secret government facilities, underground resistance movements. The city is a powder keg of social unrest and psychic experiments.",
+  
+  "theme": "Power corrupts. Friendship vs duty. The cost of progress. Can humanity control the forces it unleashes? The cycle of destruction and rebirth.",
+  
+  "tone": "Epic, kinetic, apocalyptic. High-octane action mixed with philosophical questions. Youth rebellion against corrupt authority. Visceral violence with emotional weight. Building toward catastrophic climax.",
+  
+  "story_structure": {
+    "act_1": "Introduce Shotaro and Kenji's biker gang life. Shotaro is injured in a chase and captured by military. Kenji searches for him.",
+    "act_2": "Shotaro undergoes experiments, gains powers. Escapes but is mentally unstable. Kenji teams with Akemi to find him. Government hunts them both.",
+    "act_3": "Shotaro's powers spiral out of control, threatening to destroy Neo-Tokyo. Kenji must confront his friend. Climactic psychic battle. Sacrifice and rebirth.",
+    "key_scenes": [
+      "Opening bike chase through neon streets",
+      "Shotaro's capture and first awakening of powers",
+      "Kenji meets Akemi, learns about the psychic program",
+      "Shotaro's escape - first display of destructive power",
+      "Government crackdown on the resistance",
+      "Kenji and Shotaro's confrontation",
+      "Final battle - psychic explosion threatens the city",
+      "Resolution - sacrifice and new beginning"
+    ]
+  },
+  
+  "skipper": {
+    "_description": "Control which stages use mock/cached data vs actual generation",
+    "p": false,
+    "c": false,
+    "e": false,
+    "w": false,
+    "s": false,
+    "_note": "p=plotbuilder, c=critique, e=eval, w=writer(screenplay/book), s=storyboard(chapters). true=skip/mock, false=generate"
+  },
+  
+  "_visual_style_notes": "Katsuhiro Otomo's Akira aesthetic - incredibly detailed mechanical designs (bikes, weapons, facilities), dynamic action with motion blur and speed lines, psychic powers shown as flowing red/white energy with particle effects, urban decay with intricate backgrounds, expressive character animation, explosive destruction with detailed debris. Use wide establishing shots of Neo-Tokyo, then tight action sequences. Show scale - tiny humans vs massive destruction.",
+  
+  "_character_details": {
+    "Shotaro": {
+      "physical": "17, Japanese, lean and wiry from street life. Spiky black hair, intense eyes. Wears red leather jacket with gang insignia. After powers manifest: veins glow with energy, eyes become white when using powers, body shows strain.",
+      "personality": "Rebellious, loyal to his gang, chip on shoulder about being poor. Brave but reckless. After powers: increasingly unstable, paranoid, god complex developing.",
+      "arc": "From street punk to living weapon to tragic figure consumed by power"
+    },
+    "Kenji": {
+      "physical": "16, Japanese, shorter than Shotaro, more cautious demeanor. Brown hair, worried eyes. Wears blue jacket. Gets increasingly battered as story progresses.",
+      "personality": "Voice of reason, loyal friend, moral compass. Brave when it matters. Struggles with having to oppose his best friend.",
+      "arc": "From follower to leader, must make impossible choice between friend and city"
+    },
+    "Colonel Yamada": {
+      "physical": "55, Japanese, military bearing, gray hair, cold eyes. Always in uniform. Cybernetic arm (hidden under glove).",
+      "personality": "Ruthless pragmatist. Sees psychics as necessary weapons. Believes ends justify means. Not evil, but dangerously utilitarian.",
+      "arc": "Antagonist who believes he's protecting the nation, faces consequences of playing god"
+    }
+  },
+  
+  "_note": "This is NOT a detective story - no killer, victim, clues, or truth table needed. This is a character-driven action story about power, friendship, and consequences."
+}
