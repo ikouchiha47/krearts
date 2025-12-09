@@ -12,7 +12,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
 from typing import Optional, List, Dict, Any
+import json
+
 from pydantic import BaseModel
+from .storage import WorkflowStateRepository, get_workflow_state_repository
 
 
 class WorkflowStage(str, Enum):
@@ -76,19 +79,37 @@ class WorkflowInterface(ABC):
     - ScreenplayWorkflow: Storyline -> Screenplay -> Scenes
     """
     
-    def __init__(self, workflow_id: str, workflow_type: WorkflowType):
+    def __init__(
+        self,
+        workflow_id: str,
+        workflow_type: WorkflowType,
+        state_repo: Optional[WorkflowStateRepository] = None,
+    ) -> None:
+        """Base initializer for workflow implementations.
+
+        `state_repo` allows dependency-injected persistence for WorkflowState,
+        mirroring the strategy/factory pattern used for StoryBuilder flow
+        storage. When omitted, `get_workflow_state_repository()` selects a
+        backend via environment variables.
+        """
+
         self.workflow_id = workflow_id
         self.workflow_type = workflow_type
         self.output_dir = f"output/{workflow_type.value}_{workflow_id}"
-        
-        # Load or create state
-        self.state = WorkflowState.load(workflow_id, workflow_type)
-        if not self.state:
+
+        # Select repository (strategy) for workflow state persistence.
+        self._state_repo: WorkflowStateRepository = state_repo or get_workflow_state_repository()
+
+        # Load or create state through the repository.
+        loaded = self._state_repo.load(workflow_id, workflow_type)
+        if loaded is not None:
+            self.state = WorkflowState(**loaded)
+        else:
             self.state = WorkflowState(
                 id=workflow_id,
                 type=workflow_type,
                 current_stage=WorkflowStage.INIT,
-                output_dir=self.output_dir
+                output_dir=self.output_dir,
             )
     
     @abstractmethod
@@ -157,5 +178,9 @@ class WorkflowInterface(ABC):
         return self.state
     
     def save_state(self):
-        """Save workflow state"""
-        self.state.save()
+        """Persist workflow state via the configured repository.
+
+        This mirrors the StoryBuilder flow pattern, allowing different
+        backends (file/sqlite/postgres) without changing workflow logic.
+        """
+        self._state_repo.save(self.state)

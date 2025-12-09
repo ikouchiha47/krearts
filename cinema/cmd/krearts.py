@@ -25,13 +25,16 @@ Usage:
 import asyncio
 import logging
 import sys
+import uuid
 from typing import Optional, List
 
 import click
 from dotenv import load_dotenv
 
 from cinema.context import DirectorsContext
+from cinema.jobs.storage import get_job_repository
 from cinema.registry import OpenAiHerd
+from cinema.server.storage.interface import Job
 from cinema.workflow.book_workflow import BookWorkflow
 from cinema.workflow.interface import WorkflowType
 from cinema.logging_config import (
@@ -141,6 +144,50 @@ async def _show_status(workflow_id: str):
     logger.info("=" * 80)
 
 
+@cli.command()
+@click.argument('workflow_id', required=False)
+@click.option('--status', help='Filter by job status (e.g., running, completed, failed)')
+@click.option('--all', 'show_all', is_flag=True, help='List jobs for all workflows')
+def jobs(workflow_id: Optional[str], status: Optional[str], show_all: bool):
+    """List jobs tracked in the jobs database."""
+    repo = get_job_repository()
+
+    if show_all:
+        workflow_filter: Optional[str] = None
+    else:
+        if not workflow_id:
+            user_error("WORKFLOW_ID is required unless --all is specified")
+            return
+        workflow_filter = workflow_id
+
+    user_section("Jobs")
+    if workflow_filter:
+        user_info(f"Workflow: {workflow_filter}")
+    if status:
+        user_info(f"Status filter: {status}")
+    user_info("")
+
+    records = repo.list(workflow_id=workflow_filter, status=status)
+
+    if not records:
+        user_info("No jobs found.")
+        return
+
+    for job in records:
+        user_info(f"Job ID: {job.id}")
+        user_info(f"  Type: {job.type}")
+        user_info(f"  Status: {job.status}")
+        user_info(f"  Workflow: {job.workflow_id}")
+        if job.metadata:
+            keys = ", ".join(sorted(job.metadata.keys()))
+            user_info(f"  Metadata keys: {keys}")
+        if job.error:
+            user_info(f"  Error: {job.error}")
+        user_info(f"  Created: {job.created_at}")
+        user_info(f"  Updated: {job.updated_at}")
+        user_info("")
+
+
 @cli.group()
 def template():
     """Generate config templates"""
@@ -240,7 +287,6 @@ def book(config: Optional[str], characters: Optional[str], killer: Optional[str]
 
 async def _init_book(config: Optional[str], characters: Optional[str], killer: Optional[str], victim: Optional[str]):
     """Initialize book workflow"""
-    import uuid
     import json
     
     # Load config from JSON if provided
@@ -265,6 +311,23 @@ async def _init_book(config: Optional[str], characters: Optional[str], killer: O
     # Setup logging for this workflow
     global logger
     logger, log_file, cleanup = setup_logging(workflow_id)
+
+    # Create a job record for this initialization
+    repo = get_job_repository()
+    job = Job(
+        id=str(uuid.uuid4()),
+        workflow_id=workflow_id,
+        type="book_init",
+        status="running",
+        metadata={
+            "config_path": config,
+            "has_characters": bool(characters),
+            "has_killer": bool(killer),
+            "has_victim": bool(victim),
+        },
+    )
+    repo.save(job)
+    user_info(f"Job ID: {job.id}")
     
     try:
         user_section(f"Initializing Book Workflow")
@@ -276,6 +339,11 @@ async def _init_book(config: Optional[str], characters: Optional[str], killer: O
         
         result = await workflow.init(**config_data)
         
+        # Mark job as completed
+        job.status = "completed"
+        job.metadata["output_dir"] = workflow.output_dir
+        repo.save(job)
+
         user_section("Initialization Complete")
         user_success(f"Workflow ID: {workflow_id}")
         user_info(f"Output: output/book_{workflow_id}")
@@ -289,6 +357,11 @@ async def _init_book(config: Optional[str], characters: Optional[str], killer: O
         user_info("=" * 80)
         
         return workflow_id
+    except Exception as e:
+        job.status = "failed"
+        job.error = str(e)
+        repo.save(job)
+        raise
     finally:
         if cleanup:
             cleanup()
@@ -318,6 +391,20 @@ async def _generate_book(workflow_id: str, continue_from: bool):
     global logger
     logger, log_file, cleanup = setup_logging(workflow_id)
     
+    # Create job record for book content generation
+    repo = get_job_repository()
+    job = Job(
+        id=str(uuid.uuid4()),
+        workflow_id=workflow_id,
+        type="book_content",
+        status="running",
+        metadata={
+            "continue_from": bool(continue_from),
+        },
+    )
+    repo.save(job)
+    user_info(f"Job ID: {job.id}")
+
     try:
         user_section(f"Generating Book: {workflow_id}")
         user_info(f"Log file: {log_file}")
@@ -328,6 +415,11 @@ async def _generate_book(workflow_id: str, continue_from: bool):
         result = await workflow.generate_content(
             continue_from=workflow_id if continue_from else None
         )
+
+        # Mark job as completed
+        job.status = "completed"
+        job.metadata["output_file"] = result.get("output_file")
+        repo.save(job)
         
         user_section("Book Generation Complete")
         user_success(f"Novel saved: {result['output_file']}")
@@ -339,6 +431,11 @@ async def _generate_book(workflow_id: str, continue_from: bool):
         user_info(f"Next: krearts book {workflow_id} --chapters 1")
         user_info(f"  or: krearts book {workflow_id} --chapters all")
         user_info("=" * 80)
+    except Exception as e:
+        job.status = "failed"
+        job.error = str(e)
+        repo.save(job)
+        raise
     finally:
         if cleanup:
             cleanup()
@@ -350,6 +447,21 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
     global logger
     logger, log_file, cleanup = setup_logging(workflow_id)
     
+    # Create job record for chapter generation
+    repo = get_job_repository()
+    job = Job(
+        id=str(uuid.uuid4()),
+        workflow_id=workflow_id,
+        type="book_chapters",
+        status="running",
+        metadata={
+            "chapters": chapters,
+            "continue_from": bool(continue_from),
+        },
+    )
+    repo.save(job)
+    user_info(f"Job ID: {job.id}")
+
     try:
         user_section(f"Generating Chapters: {workflow_id}")
         user_info(f"Log file: {log_file}")
@@ -361,6 +473,13 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
             chapters=chapters,
             continue_from=continue_from
         )
+
+        # Mark job as completed
+        job.status = "completed"
+        job.metadata["chapters_generated"] = result.get("chapters", [])
+        job.metadata["total_generated"] = result.get("total_generated")
+        job.metadata["output_dir"] = result.get("output_dir")
+        repo.save(job)
         
         user_section("Chapter Generation Complete")
         user_success(f"Chapters generated: {result['chapters']}")
@@ -378,6 +497,11 @@ async def _generate_chapters(workflow_id: str, chapters: Optional[List[int]], co
         user_info(f"Next: krearts chapters {workflow_id} --pages 1,20")
         user_info(f"  or: krearts chapters {workflow_id} --continue")
         user_info("=" * 80)
+    except Exception as e:
+        job.status = "failed"
+        job.error = str(e)
+        repo.save(job)
+        raise
     finally:
         # Restore stdout/stderr
         if cleanup:
@@ -568,6 +692,21 @@ async def _generate_pages(workflow_id: str, pages: Optional[List[int]], continue
     global logger
     logger, log_file, cleanup = setup_logging(workflow_id)
     
+    # Create job record for page generation
+    repo = get_job_repository()
+    job = Job(
+        id=str(uuid.uuid4()),
+        workflow_id=workflow_id,
+        type="book_pages",
+        status="running",
+        metadata={
+            "pages": pages,
+            "continue_from": bool(continue_from),
+        },
+    )
+    repo.save(job)
+    user_info(f"Job ID: {job.id}")
+
     try:
         user_section(f"Generating Pages: {workflow_id}")
         user_info(f"Log file: {log_file}")
@@ -579,12 +718,24 @@ async def _generate_pages(workflow_id: str, pages: Optional[List[int]], continue
             pages=pages,
             continue_from=continue_from
         )
+
+        # Mark job as completed
+        job.status = "completed"
+        job.metadata["pages_generated"] = result.get("pages", [])
+        job.metadata["total_generated"] = result.get("total_generated")
+        job.metadata["output_dir"] = result.get("output_dir")
+        repo.save(job)
         
         user_section("Page Generation Complete")
         user_success(f"Pages generated: {result['pages']}")
         user_info(f"Total generated: {result['total_generated']}")
         user_info(f"Output: {result['output_dir']}")
         user_info("=" * 80)
+    except Exception as e:
+        job.status = "failed"
+        job.error = str(e)
+        repo.save(job)
+        raise
     finally:
         if cleanup:
             cleanup()
@@ -734,24 +885,31 @@ async def _read_content(workflow_id: str, chapter: Optional[int], list_chapters:
         if storyline_file.exists():
             with open(storyline_file, 'r') as f:
                 content = f.read()
+            source = str(storyline_file)
         else:
-            # Try flow state
-            flow_state_file = Path(f"output/flow_states/storybuilder_{workflow_id}.json")
-            if not flow_state_file.exists():
+            # Try flow state via StoryBuilder storage backend (file/sqlite/postgres)
+            from cinema.agents.bookwriter.storage import get_storybuilder_storage
+
+            storage = get_storybuilder_storage()
+            try:
+                flow_data = storage.load(workflow_id)
+            except FileNotFoundError:
+                flow_state_file = Path(f"output/flow_states/storybuilder_{workflow_id}.json")
                 user_error("Storyline not found")
                 user_info(f"Expected: {storyline_file} or {flow_state_file}")
                 return
-            
-            with open(flow_state_file, 'r') as f:
-                flow_data = json.load(f)
-                content = flow_data.get('output', {}).get('storyline', '')
-                if not content:
-                    user_error("Storyline not generated yet")
-                    return
+
+            content = flow_data.get('output', {}).get('storyline', '')
+            if not content:
+                user_error("Storyline not generated yet")
+                return
+
+            # For logging, mimic the previous path even though we used the repo
+            source = f"output/flow_states/storybuilder_{workflow_id}.json"
         
         user_output("Storyline", content, preview_length=2000)
         user_info("")
-        user_info(f"Source: {storyline_file if storyline_file.exists() else flow_state_file}")
+        user_info(f"Source: {source}")
         user_info("=" * 80)
         return
     

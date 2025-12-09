@@ -16,6 +16,10 @@ from cinema.agents.bookwriter.crew import (
     ScreenplayWriterSchema,
     StripperInputSchema,
 )
+from cinema.agents.bookwriter.storage import (
+    StoryBuilderStateRepository,
+    get_storybuilder_storage,
+)
 from cinema.context import DirectorsContext
 from cinema.models.comic_output import ComicBookOutput
 from cinema.models.detective_output import DetectiveStoryOutput
@@ -88,45 +92,41 @@ class StoryBuilder(Flow[StoryBuilderState]):
     _screenplay_crew = None
     _booker_crew = None
 
+    _storage: Optional[StoryBuilderStateRepository] = None
+
     generation_target: str = "bookerama"  # or "screenplay"
     output_base_dir: Optional[str] = None  # Optional: output directory from pipeline
-
+    
     def save_state(self):
         """Save flow state to disk for resume capability"""
-        import json
-        from pathlib import Path
-        
-        state_dir = Path("output/flow_states")
-        state_dir.mkdir(parents=True, exist_ok=True)
-        
-        state_file = state_dir / f"storybuilder_{self.state.id}.json"
-        
         # Serialize state
         state_data = self.state.model_dump()
-        
-        with open(state_file, 'w') as f:
-            json.dump(state_data, f, indent=2)
-        
+
+        # Use repository (defaults to local file storage for CLI usage)
+        if self._storage is None:
+            self._storage = get_storybuilder_storage()
+
+        state_file = self._storage.save(self.state.id, state_data)
+
         logger.info(f"💾 Flow state saved to: {state_file}")
         logger.info(f"   Flow ID: {self.state.id}")
         logger.info(f"   Halted at: {self.state.halted_at}")
         logger.info(f"   To resume: --continue {self.state.id}")
     
     @classmethod
-    def load_state(cls, flow_id: str) -> dict:
+    def load_state(
+        cls,
+        flow_id: str,
+        storage: Optional[StoryBuilderStateRepository] = None,
+    ) -> dict:
         """Load flow state from disk"""
-        import json
-        from pathlib import Path
-        
-        state_file = Path(f"output/flow_states/storybuilder_{flow_id}.json")
-        
-        if not state_file.exists():
-            raise FileNotFoundError(f"Flow state not found: {state_file}")
-        
-        with open(state_file, 'r') as f:
-            state_data = json.load(f)
-        
-        logger.info(f"📂 Flow state loaded from: {state_file}")
+    
+        if storage is None:
+            storage = get_storybuilder_storage()
+    
+        state_data = storage.load(flow_id)
+
+        logger.info("📂 Flow state loaded from:")
         logger.info(f"   Flow ID: {flow_id}")
         logger.info(f"   Halted at: {state_data.get('halted_at')}")
         
@@ -180,6 +180,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         o.storyboard = storyboard
         o.screenplay = screenplay
         o.booker = booker
+        o._storage = get_storybuilder_storage()
 
         return o
 

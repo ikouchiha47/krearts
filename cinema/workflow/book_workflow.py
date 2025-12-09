@@ -14,6 +14,9 @@ from typing import Optional, List, Dict, Any
 
 from cinema.workflow.interface import WorkflowInterface, WorkflowType, WorkflowStage, WorkflowState
 from cinema.context import DirectorsContext
+from cinema.agents.bookwriter.storage import get_storybuilder_storage
+from cinema.comics.storage import ComicMetadataRepository, get_comic_metadata_repository
+from cinema.quota import get_max_concurrent_chapters
 
 logger = logging.getLogger(__name__)
 
@@ -24,21 +27,7 @@ class BookWorkflow(WorkflowInterface):
     def __init__(self, workflow_id: str, ctx: DirectorsContext):
         super().__init__(workflow_id, WorkflowType.BOOK)
         self.ctx = ctx
-        
-        # Support both book_{id} and detective_{id} formats
-        from pathlib import Path
-        if not Path(self.output_dir).exists():
-            detective_dir = f"output/detective_{workflow_id}"
-            if Path(detective_dir).exists():
-                self.output_dir = detective_dir
-        
-        # Load existing state if available
-        state_file = Path(self.output_dir) / "workflow_state.json"
-        if state_file.exists():
-            import json
-            with open(state_file, 'r') as f:
-                state_data = json.load(f)
-            self.state = WorkflowState(**state_data)
+        self._comic_repo: ComicMetadataRepository = get_comic_metadata_repository()
     
     async def init(self, **kwargs) -> Dict[str, Any]:
         """
@@ -288,13 +277,14 @@ class BookWorkflow(WorkflowInterface):
         
         logger.info(f"📄 Generating characters: {self.workflow_id}")
         
-        # Load flow state to get character descriptions
-        flow_state_file = Path(f"output/flow_states/storybuilder_{self.workflow_id}.json")
-        if not flow_state_file.exists():
-            raise FileNotFoundError(f"Flow state not found: {flow_state_file}")
-        
-        with open(flow_state_file, 'r') as f:
-            flow_data = json.load(f)
+        # Load flow state to get character descriptions via StoryBuilder storage
+        storage = get_storybuilder_storage()
+        try:
+            flow_data = storage.load(self.workflow_id)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(
+                f"Flow state not found for workflow {self.workflow_id}"
+            ) from e
         
         storyline = flow_data.get('output', {}).get('storyline', '')
         if not storyline:
@@ -393,21 +383,24 @@ class BookWorkflow(WorkflowInterface):
         import re
         
         # Priority 1: Try flow state storyline (most authoritative)
-        flow_state_file = Path(f"output/flow_states/storybuilder_{self.workflow_id}.json")
-        if flow_state_file.exists():
-            try:
-                with open(flow_state_file, 'r') as f:
-                    flow_data = json.load(f)
-                storyline = flow_data.get('output', {}).get('storyline', '')
-                if storyline:
-                    # Look for "- **Art Style:** ..." pattern in storyline
-                    match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', storyline)
-                    if match:
-                        art_style = match.group(1).strip()
-                        logger.info(f"   ✅ Art style from storyline: {art_style}")
-                        return art_style
-            except Exception as e:
-                logger.debug(f"   Could not read flow state: {e}")
+        try:
+            storage = get_storybuilder_storage()
+            flow_data = storage.load(self.workflow_id)
+        except FileNotFoundError:
+            flow_data = None
+        except Exception as e:
+            logger.debug(f"   Could not read flow state: {e}")
+            flow_data = None
+
+        if flow_data:
+            storyline = flow_data.get('output', {}).get('storyline', '')
+            if storyline:
+                # Look for "- **Art Style:** ..." pattern in storyline
+                match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', storyline)
+                if match:
+                    art_style = match.group(1).strip()
+                    logger.info(f"   ✅ Art style from storyline: {art_style}")
+                    return art_style
         
         # Priority 2: Try novel.md (generated content)
         novel_file = Path(self.output_dir) / "novel.md"
@@ -421,17 +414,23 @@ class BookWorkflow(WorkflowInterface):
                 return art_style
         
         # Priority 3: Try chapter JSON (from comic generation)
-        chapter_files = sorted(Path(self.output_dir).glob("chapter_*.json"))
-        if chapter_files:
-            try:
-                with open(chapter_files[0], 'r') as f:
-                    chapter_data = json.load(f)
-                art_style = chapter_data.get('art_style')
-                if art_style:
-                    logger.info(f"   ✅ Art style from chapter JSON: {art_style}")
-                    return art_style
-            except Exception as e:
-                logger.debug(f"   Could not read chapter JSON: {e}")
+        try:
+            chapters = self._comic_repo.list_chapters(self.workflow_id)
+        except Exception as e:  # pragma: no cover - defensive
+            logger.debug(f"   Could not load chapters from repo: {e}")
+            chapters = []
+
+        for doc in chapters:
+            # Prefer top-level art_style from ComicBookOutput
+            art_style = doc.get('art_style')
+            if not art_style:
+                # Fallback: first chapter's art_style if present
+                ch_list = doc.get('chapters') or []
+                if ch_list and isinstance(ch_list, list):
+                    art_style = ch_list[0].get('art_style')
+            if art_style:
+                logger.info(f"   ✅ Art style from chapter metadata repo: {art_style}")
+                return art_style
         
         # Fallback: Use default (DO NOT use user config)
         logger.warning("   ⚠️  No art style found in generated content, using default")
@@ -585,13 +584,19 @@ class BookWorkflow(WorkflowInterface):
         # Get skipper config for chapter generation
         skipper = self.state.config.get('skipper', {})
         use_mock_chapters = skipper.get('s', False)
-        
+
+        # Resolve concurrency from pricing tier configuration
+        max_concurrent = get_max_concurrent_chapters()
+        logger.info(f"   Max concurrent chapter jobs: {max_concurrent}")
+
         generator = ParallelComicGenerator(
             ctx=self.ctx,
             screenplay=novel_text,
-            max_concurrent=3,
+            max_concurrent=max_concurrent,
             output_base_dir=self.output_dir,
-            use_mock=use_mock_chapters  # Pass skipper config
+            use_mock=use_mock_chapters,  # Pass skipper config
+            workflow_id=self.workflow_id,
+            metadata_repo=self._comic_repo,
         )
         
         art_style = kwargs.get('art_style', 'Print Comic Noir Style')
@@ -657,33 +662,10 @@ class BookWorkflow(WorkflowInterface):
         else:
             logger.warning("   No character references found - images may be inconsistent")
         
-        # Load chapter JSONs to get page info
-        chapter_files = sorted(Path(self.output_dir).glob("chapter_*.json"))
-        if not chapter_files:
-            raise FileNotFoundError(f"No chapter JSONs found in {self.output_dir}")
-        
-        logger.info(f"   Found {len(chapter_files)} chapter files")
-        
-        # Build page list from chapters
-        all_pages = []
-        for chapter_file in chapter_files:
-            with open(chapter_file, 'r') as f:
-                chapter_data = json.load(f)
-            
-            for chapter in chapter_data.get('chapters', []):
-                chapter_num = chapter.get('chapter_number')
-                for scene in chapter.get('scenes', []):
-                    scene_num = scene.get('scene_number')
-                    for page in scene.get('pages', []):
-                        page_num = page.get('page_number')
-                        all_pages.append({
-                            'chapter_file': str(chapter_file),
-                            'chapter_number': chapter_num,
-                            'scene_number': scene_num,
-                            'page_number': page_num,
-                            'page_data': page,
-                            'global_index': len(all_pages) + 1
-                        })
+        # Load page metadata from comic repo (file/sqlite backends)
+        all_pages = self._comic_repo.list_pages(self.workflow_id)
+        if not all_pages:
+            raise FileNotFoundError(f"No page metadata found for workflow {self.workflow_id}")
         
         logger.info(f"   Total pages available: {len(all_pages)}")
         
@@ -787,10 +769,9 @@ class BookWorkflow(WorkflowInterface):
                     for cp in p.get("characters_present", []):
                         unique_chars.add(cp)
                 
-                # Load character descriptions from chapter JSON
+                # Load character descriptions from chapter metadata
                 char_descriptions = {}
-                with open(page_info['chapter_file'], 'r') as f:
-                    chapter_data = json.load(f)
+                chapter_data = page_info.get('chapter_data', {})
                 for char in chapter_data.get('characters', []):
                     char_name = char.get('name', '')
                     if char_name in unique_chars:

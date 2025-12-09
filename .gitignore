@@ -8,7 +8,6 @@ docs/tmp
 
 .DS_Store
 .env
-.env.example
 
 gemini_screenplay.md
 screenplay-prompt-analysis.md

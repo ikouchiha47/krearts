@@ -7,7 +7,8 @@ ComicStripStoryBoarding crew, then merges the results in memory.
 
 import asyncio
 import logging
-from typing import List, Optional, cast
+import uuid
+from typing import List, Optional, TYPE_CHECKING, cast
 
 from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
 
@@ -15,6 +16,12 @@ from cinema.agents.bookwriter.crew import ChapterBuilder, ChapterBuilderSchema, 
 from cinema.context import DirectorsContext
 from cinema.models.comic_output import ComicBookOutput, ComicChapter
 from cinema.models.novel import Novel, NovelChapter
+from cinema.comics.storage import ComicMetadataRepository, get_comic_metadata_repository
+
+from cinema.server.storage.interface import Job
+
+if TYPE_CHECKING:
+    from cinema.jobs.storage import JobRepository
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +40,10 @@ class ParallelComicGenerator:
         screenplay: str,
         max_concurrent: int = 3,
         output_base_dir: Optional[str] = None,  # Optional: if provided, saves chapter JSONs here
-        use_mock: bool = False  # If True, use existing chapter JSONs instead of generating
+        use_mock: bool = False,  # If True, use existing chapter JSONs instead of generating
+        workflow_id: Optional[str] = None,
+        metadata_repo: Optional[ComicMetadataRepository] = None,
+        job_repo: Optional["JobRepository"] = None,
     ):
         self.ctx = ctx
         self.screenplay = screenplay
@@ -41,6 +51,16 @@ class ParallelComicGenerator:
         self.output_base_dir = output_base_dir
         self.use_mock = use_mock
         self._screenplay_kb = StringKnowledgeSource(content=self.screenplay)
+        self.workflow_id = workflow_id or ""
+        self._metadata_repo: ComicMetadataRepository = (
+            metadata_repo or get_comic_metadata_repository()
+        )
+        if job_repo is None:
+            # Import lazily to avoid circular imports at module import time
+            from cinema.jobs.storage import get_job_repository
+
+            job_repo = get_job_repository()
+        self._job_repo: Optional["JobRepository"] = job_repo
     
     async def generate(self, novel: Novel, art_style: str, aspect_ratio: str = "4:5") -> ComicBookOutput:
         """
@@ -101,20 +121,27 @@ class ParallelComicGenerator:
         """Process a single chapter using ComicStripStoryBoarding"""
         async with self.semaphore:
             logger.info(f"Processing Chapter {chapter.number}: {chapter.title}")
-            
+
+            job: Optional[Job] = None
+            if self.workflow_id and self._job_repo is not None:
+                job = Job(
+                    id=str(uuid.uuid4()),
+                    workflow_id=self.workflow_id,
+                    type="book_chapter",
+                    status="running",
+                    metadata={
+                        "chapter_number": chapter.number,
+                        "chapter_title": chapter.title,
+                        "art_style": art_style,
+                    },
+                )
+                await asyncio.to_thread(self._job_repo.save, job)
+
             try:
-                # Optionally save chapter JSON to output directory
-                outfile = None
-                if self.output_base_dir:
-                    from pathlib import Path
-                    output_dir = Path(self.output_base_dir)
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    outfile = str(output_dir / f"chapter_{chapter.number:02d}.json")
-                
                 # Create ComicStripStoryBoarding crew for this chapter
                 crew = ChapterBuilder(
                     ctx=self.ctx,
-                    outfile=outfile,
+                    outfile=None,
                     use_mock=self.use_mock,  # Use skipper config
                     knowledge_sources=[self._screenplay_kb],  # NOTE: can be singleton
                 )
@@ -137,45 +164,72 @@ class ParallelComicGenerator:
                 # Collect result
                 chapter_output = ComicStripStoryBoarding.collect(
                     result,
-                    output_model=ComicBookOutput
+                    output_model=ComicBookOutput,
                 )
                 
                 # Extract the first (and should be only) chapter from the result
                 if chapter_output and chapter_output.chapters:
                     comic_chapter = chapter_output.chapters[0]
-                    
+
+                    # Persist chapter metadata via repository (file/sqlite backend)
+                    if self.workflow_id:
+                        self._metadata_repo.save_chapter(
+                            self.workflow_id,
+                            chapter_output.model_dump(),
+                        )
+
                     # Calculate chapter statistics
                     num_scenes = len(comic_chapter.scenes)
                     num_pages = 0
                     num_panels = 0
-                    
+
                     for scene in comic_chapter.scenes:
                         num_pages += len(scene.pages)
                         for page in scene.pages:
                             num_panels += len(page.panels)
-                        
+
                         # Fallback to legacy panels count if no pages
                         if not scene.pages and scene.panels:
                             num_panels += len(scene.panels)
-                    
+
                     logger.info(
                         f"✓ Chapter {chapter.number} complete: "
                         f"{num_scenes} scenes, {num_pages} pages, {num_panels} panels"
                     )
+
+                    if job is not None:
+                        job.status = "completed"
+                        job.metadata.update(
+                            {
+                                "scenes": num_scenes,
+                                "pages": num_pages,
+                                "panels": num_panels,
+                            }
+                        )
+                        await asyncio.to_thread(self._job_repo.save, job)
+
                     return comic_chapter
                 else:
                     logger.warning(f"Chapter {chapter.number} returned empty chapters")
                     # Return empty chapter structure
+                    if job is not None:
+                        job.status = "failed"
+                        job.error = "empty_chapter_output"
+                        await asyncio.to_thread(self._job_repo.save, job)
                     return ComicChapter(
                         chapter_number=chapter.number,
                         chapter_title=chapter.title,
                         chapter_summary="",
                         scenes=[],
-                        estimated_pages=0
+                        estimated_pages=0,
                     )
-                    
+
             except Exception as e:
                 logger.error(f"Error processing Chapter {chapter.number}: {e}")
+                if job is not None:
+                    job.status = "failed"
+                    job.error = str(e)
+                    await asyncio.to_thread(self._job_repo.save, job)
                 raise
     
     def _merge_results(

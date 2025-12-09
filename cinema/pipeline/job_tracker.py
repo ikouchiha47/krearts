@@ -4,6 +4,7 @@ SQLite-backed job tracking for resumable pipeline execution.
 
 import hashlib
 import json
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -18,8 +19,16 @@ class JobTracker:
     Allows resuming pipeline execution from any point.
     """
 
-    def __init__(self, db_path: str = "./cinema_jobs.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: Optional[str] = None):
+        """Initialize a JobTracker.
+
+        The SQLite path can be provided explicitly or configured via the
+        JOBS_SQLITE_PATH environment variable. If neither is set, it
+        falls back to "./cinema_jobs.db" for backward compatibility.
+        """
+
+        default_path = os.getenv("JOBS_SQLITE_PATH", "./cinema_jobs.db")
+        self.db_path = db_path or default_path
         self._init_db()
     
     def _get_connection(self):
