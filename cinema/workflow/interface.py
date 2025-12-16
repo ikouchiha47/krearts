@@ -22,6 +22,7 @@ class WorkflowStage(str, Enum):
     """Workflow stages"""
     INIT = "init"  # Generate storyline (up to critique)
     CONTENT = "content"  # Generate book/screenplay
+    COVER = "cover"  # Generate book cover image
     CHAPTERS = "chapters"  # Generate comic chapters
     PAGES = "pages"  # Generate page images
 
@@ -39,6 +40,7 @@ class WorkflowState(BaseModel):
     current_stage: WorkflowStage
     storyline_done: bool = False
     content_done: bool = False
+    cover_generated: bool = False
     chapters_generated: List[int] = []
     pages_generated: List[int] = []
     output_dir: str
@@ -136,6 +138,16 @@ class WorkflowInterface(ABC):
         pass
     
     @abstractmethod
+    async def generate_cover(self, **kwargs) -> Dict[str, Any]:
+        """
+        Stage 3: Generate book cover image.
+        
+        Returns:
+            {"cover_path": str, "prompt": str}
+        """
+        pass
+    
+    @abstractmethod
     async def generate_chapters(
         self, 
         chapters: Optional[List[int]] = None,
@@ -143,7 +155,7 @@ class WorkflowInterface(ABC):
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Stage 3: Generate comic chapters.
+        Stage 4: Generate comic chapters.
         
         Args:
             chapters: Specific chapters to generate (e.g., [1, 5])

@@ -10,6 +10,7 @@ Stages:
 
 import asyncio
 import logging
+from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from cinema.workflow.interface import WorkflowInterface, WorkflowType, WorkflowStage, WorkflowState
@@ -195,36 +196,26 @@ class BookWorkflow(WorkflowInterface):
         booker = BookWriter(ctx=self.ctx, use_mock=use_mock_screenplay)
         storyboard = ComicStripStoryBoarding(ctx=self.ctx, use_mock=use_mock_storyboard)
         
-        if continue_from:
-            logger.info(f"   Resuming from flow state: {continue_from}")
-            # Resume from saved flow state
-            flow = StoryBuilder.resume_from_halt(
-                flow_id=continue_from,
-                ctx=self.ctx,
-                plotbuilder=plotbuilder,
-                critique=critique,
-                storyboard=storyboard,
-                screenplay=screenplay,
-                booker=booker,
-                output_base_dir=self.output_dir,
-            )
-        else:
-            # Build new flow with halt at storyboard
-            flow = StoryBuilder.build(
-                ctx=self.ctx,
-                plotbuilder=plotbuilder,
-                critique=critique,
-                storyboard=storyboard,
-                screenplay=screenplay,
-                booker=booker,
-                flow_id=self.workflow_id,
-                output_base_dir=self.output_dir,
-            )
-            
-            # Set generation target and halt point
-            flow.generation_target = "bookerama"
-            # ALWAYS halt at storyboard - chapter generation is handled separately
-            flow.state.waits_at = {"storyboard": True}
+        # Always resume from the workflow's flow state (created during init)
+        # The flow_id is the same as workflow_id
+        resume_id = continue_from or self.workflow_id
+        logger.info(f"   Resuming from flow state: {resume_id}")
+        
+        flow = StoryBuilder.resume_from_halt(
+            flow_id=resume_id,
+            ctx=self.ctx,
+            plotbuilder=plotbuilder,
+            critique=critique,
+            storyboard=storyboard,
+            screenplay=screenplay,
+            booker=booker,
+            output_base_dir=self.output_dir,
+        )
+        
+        # Set generation target and halt point
+        flow.generation_target = "bookerama"
+        # ALWAYS halt at storyboard - chapter generation is handled separately
+        flow.state.waits_at = {"storyboard": True}
         
         # Ensure storyboard halt is set even when resuming
         flow.state.waits_at["storyboard"] = True
@@ -320,7 +311,8 @@ class BookWorkflow(WorkflowInterface):
                     character_description=char_desc,
                     output_dir=output_dir,
                     include_back_view=True,
-                    art_style=art_style
+                    art_style=art_style,
+                    generate_collage=True  # Generate collage for page generation
                 )
                 all_characters[char_id] = refs
                 logger.info(f"   ✅ Generated {len(refs)} views for {char_id}")
@@ -435,6 +427,117 @@ class BookWorkflow(WorkflowInterface):
         # Fallback: Use default (DO NOT use user config)
         logger.warning("   ⚠️  No art style found in generated content, using default")
         return 'Print Comic Noir Style'
+    
+    async def generate_cover(self, **kwargs) -> Dict[str, Any]:
+        """
+        Generate book cover image using Gemini Imagen.
+        
+        Extracts title, genre, art style from storyline and generates
+        a professional book cover with title text visible.
+        
+        Returns:
+            {"cover_path": str, "prompt": str}
+        """
+        logger.info(f"📚 Generating cover for workflow: {self.workflow_id}")
+        
+        # Load storyline to extract metadata
+        storyline_file = Path(self.output_dir) / "storyline.md"
+        if not storyline_file.exists():
+            raise FileNotFoundError(f"Storyline not found: {storyline_file}")
+        
+        storyline_text = storyline_file.read_text()
+        
+        # Extract metadata
+        title = self._extract_title(storyline_text)
+        genre = self._extract_genre(storyline_text)
+        art_style = self._get_art_style()
+        theme = self._extract_theme(storyline_text)
+        
+        logger.info(f"   Title: {title}")
+        logger.info(f"   Genre: {genre}")
+        logger.info(f"   Art Style: {art_style}")
+        logger.info(f"   Theme: {theme}")
+        
+        # Build cover prompt
+        prompt = self._build_cover_prompt(title, genre, art_style, theme)
+        logger.info(f"   Prompt: {prompt[:150]}...")
+        
+        # Generate cover image
+        from cinema.providers.gemini import GeminiMediaGen
+        from cinema.utils.rate_limiter import RateLimiterManager
+        
+        rate_limiter = RateLimiterManager()
+        gemini = GeminiMediaGen(rate_limiter=rate_limiter)
+        
+        cover_path = Path(self.output_dir) / "cover.png"
+        cover_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Check if cover already exists
+        if cover_path.exists() and cover_path.stat().st_size > 0:
+            logger.info(f"   ⊙ Cover already exists: {cover_path}")
+        else:
+            logger.info(f"   📸 Generating cover image...")
+            response = await gemini.generate_content(prompt=prompt)
+            gemini.render_image(str(cover_path), response)
+            logger.info(f"   ✓ Cover saved to: {cover_path}")
+        
+        # Update state
+        self.state.cover_generated = True
+        self.state.current_stage = WorkflowStage.COVER
+        self.state.save()
+        
+        return {"cover_path": str(cover_path), "prompt": prompt}
+    
+    def _extract_title(self, storyline: str) -> str:
+        """Extract title from storyline markdown."""
+        import re
+        # Look for "# Title" or "**Title:**" pattern
+        match = re.search(r'^#\s+(.+?)$', storyline, re.MULTILINE)
+        if match:
+            return match.group(1).strip()
+        
+        match = re.search(r'\*\*Title:\*\*\s*(.+?)(?:\n|$)', storyline)
+        if match:
+            return match.group(1).strip()
+        
+        # Fallback: use workflow ID
+        return f"Story {self.workflow_id[:8]}"
+    
+    def _extract_genre(self, storyline: str) -> str:
+        """Extract genre from storyline markdown."""
+        import re
+        match = re.search(r'\*\*Genre:\*\*\s*(.+?)(?:\n|$)', storyline)
+        if match:
+            return match.group(1).strip()
+        return "Mystery"
+    
+    def _extract_theme(self, storyline: str) -> str:
+        """Extract theme from storyline markdown."""
+        import re
+        match = re.search(r'\*\*Theme:\*\*\s*(.+?)(?:\n|$)', storyline)
+        if match:
+            return match.group(1).strip()
+        return "Justice and redemption"
+    
+    def _build_cover_prompt(self, title: str, genre: str, art_style: str, theme: str) -> str:
+        """Build cover generation prompt."""
+        return f"""Create a professional book cover for a {genre} graphic novel.
+
+Title: "{title}"
+Art Style: {art_style}
+Theme: {theme}
+
+Requirements:
+- Dramatic, eye-catching composition suitable for a book cover
+- The title "{title}" should be prominently displayed in bold, stylized typography
+- Incorporate visual elements that reflect the {genre} genre and {theme} theme
+- Use the {art_style} aesthetic
+- Professional book cover layout with space for title and author name
+- High contrast, visually striking design
+- Vertical orientation (portrait format, suitable for book cover)
+- Moody, atmospheric lighting that matches the genre
+
+The cover should immediately convey the genre and tone of the story while being visually compelling enough to attract readers."""
     
     def _extract_characters_from_storyline(self, storyline: str) -> Dict[str, Dict[str, Any]]:
         """
@@ -612,12 +715,16 @@ class BookWorkflow(WorkflowInterface):
             aspect_ratio=aspect_ratio
         )
         
-        # Update state
-        for chapter in new_chapters:
+        # Update state ONLY if chapters were actually generated
+        successfully_generated = [ch.chapter_number for ch in comic_output.chapters]
+        for chapter in successfully_generated:
             if chapter not in self.state.chapters_generated:
                 self.state.chapters_generated.append(chapter)
         
-        self.state.current_stage = WorkflowStage.PAGES
+        # Only advance stage if we generated something
+        if successfully_generated:
+            self.state.current_stage = WorkflowStage.PAGES
+        
         self.save_state()
         
         result = {
@@ -652,12 +759,13 @@ class BookWorkflow(WorkflowInterface):
         from PIL import Image
         from io import BytesIO
         
-        # Load character references if available
-        char_manifest_file = Path(self.output_dir) / "characters" / "character_manifest.json"
-        character_references = {}
-        if char_manifest_file.exists():
-            with open(char_manifest_file, 'r') as f:
-                character_references = json.load(f)
+        # Load character references using repository
+        from cinema.comics.character_storage import get_character_image_repository
+        
+        char_repo = get_character_image_repository()
+        character_references = char_repo.list_character_images(self.workflow_id)
+        
+        if character_references:
             logger.info(f"   Loaded {len(character_references)} character reference sets")
         else:
             logger.warning("   No character references found - images may be inconsistent")
@@ -741,10 +849,14 @@ class BookWorkflow(WorkflowInterface):
                                 unique_chars.append(cp)
                     added_refs = 0
                     for cp in unique_chars:
-                        for char_id, char_refs in character_references.items():
-                            name_match = char_id.lower() in cp.lower() or cp.lower() in char_id.lower()
+                        for char_id, char_data in character_references.items():
+                            char_name = char_data.get('name', '')
+                            name_match = char_name.lower().replace('_', ' ') in cp.lower() or cp.lower() in char_name.lower()
                             if name_match:
-                                ref_path = char_refs.get('front')
+                                # Get images dict from character data
+                                images = char_data.get('images', {})
+                                # Prefer collage if available, fallback to full_body
+                                ref_path = images.get('collage') or images.get('full_body')
                                 if ref_path and Path(ref_path).exists():
                                     with open(ref_path, 'rb') as f:
                                         ref_image_data = f.read()
@@ -754,7 +866,8 @@ class BookWorkflow(WorkflowInterface):
                                             "data": ref_image_data
                                         }
                                     })
-                                    contents.append(f"Use as character reference: {char_id}")
+                                    ref_type = "collage" if images.get('collage') else "full_body"
+                                    contents.append(f"Use as character reference ({ref_type}): {char_name}")
                                     added_refs += 1
                                 break
                         if added_refs >= 3:

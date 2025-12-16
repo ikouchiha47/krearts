@@ -95,7 +95,7 @@ class ComicPanel(BaseModel):
     # Visual techniques (from knowledge/art-styles/styles.md)
     motion_type: Optional[Literal[
         "none", "speed-lines", "motion-blur", "impact-lines", "ghosting"
-    ]] = Field(None, description="Type of motion representation")
+    ]] = Field(None, description="Type of motion representation. MUST be one of: none, speed-lines, motion-blur, impact-lines, ghosting")
     
     rendering_style: Optional[Literal[
         "photorealistic-with-overlays", "stylized-volumetric", "flat-graphic"
@@ -187,7 +187,7 @@ class ComicPage(BaseModel):
         "frame-within-frame"
     ]] = Field(
         None,
-        description="How panels interact visually on the page"
+        description="How panels interact visually on the page. MUST be one of: hard-cuts, overlapping-scenes, blended-transitions, diagonal-cuts, frame-within-frame"
     )
     
     # Panels (2-9 per page, depending on layout)

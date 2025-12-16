@@ -25,6 +25,8 @@ from cinema.models.comic_output import ComicBookOutput
 from cinema.models.detective_output import DetectiveStoryOutput
 from cinema.models.novel import Novel
 from cinema.pipeline.parallel_comic_generator import ParallelComicGenerator
+from cinema.transformers.storyline_parser import StorylineParser
+from cinema.db.characters import CharacterStore
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,8 @@ class StoryBuilderOutput(BaseModel):
     critique: Optional[str] = None
     screenplay: Optional[str] = None
     storystructure: Optional[DetectiveStoryOutput | ComicBookOutput] = None
+    world_era: Optional[str] = None  # World context from parsed storyline
+    character_details: Optional[List[str]] = None  # Character full text blocks
     retry_count: int = 0
     errors: list[str] = []  # Store error messages as strings
 
@@ -100,12 +104,13 @@ class StoryBuilder(Flow[StoryBuilderState]):
     def save_state(self):
         """Save flow state to disk for resume capability"""
         # Serialize state
-        state_data = self.state.model_dump()
+        # state_data = self.state.model_dump()
 
         # Use repository (defaults to local file storage for CLI usage)
         if self._storage is None:
             self._storage = get_storybuilder_storage()
 
+        state_data = self.state.model_dump()
         state_file = self._storage.save(self.state.id, state_data)
 
         logger.info(f"💾 Flow state saved to: {state_file}")
@@ -407,9 +412,29 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
         self.update_state("bookerama")
 
+        # Parse storyline to get world context and character details
+        
+        parsed = StorylineParser.parse_full_storyline(self.state.output.storyline)
+        world_era = parsed.world_context.full_text
+        character_details = [char.full_text for char in parsed.characters]
+        
+        logger.info(f"📚 Parsed {len(parsed.characters)} characters for BookWriter")
+        logger.info(f"🌍 World context: {len(world_era)} chars")
+        
+        # Save characters to database for later use (character generation, etc.)
+        store = CharacterStore()
+        store.save_characters(self.state.id, parsed.characters)
+        logger.info(f"✅ Saved {len(parsed.characters)} characters to database")
+        
+        # Store in output state
+        self.state.output.world_era = world_era
+        self.state.output.character_details = character_details
+
         # NOTE: Reusing for Novel Crew
         screenplay = BookWriterSchema(
             storyline=self.state.output.storyline,
+            world_era=world_era,
+            character_details=character_details,
             art_style=self.state.input.stripper.art_style,
             examples="",
         )

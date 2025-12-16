@@ -16,7 +16,7 @@ from pydantic import BaseModel
 class CharacterReference(BaseModel):
     """Character reference for generation"""
 
-    id: int
+    id: str  # Changed to str to support workflow_id_number format
     name: str
     description: str
     style_variations: Dict[str, str]
@@ -27,7 +27,7 @@ class CharacterGenerationStage(BaseModel):
 
     characters: List[CharacterReference]
 
-    def get_character(self, char_id: int) -> Optional[CharacterReference]:
+    def get_character(self, char_id: str) -> Optional[CharacterReference]:
         """Get character by ID"""
         for char in self.characters:
             if char.id == char_id:
@@ -35,7 +35,7 @@ class CharacterGenerationStage(BaseModel):
 
         return None
 
-    def get_reference_prompts(self, char_id: int) -> Dict[str, str]:
+    def get_reference_prompts(self, char_id: str) -> Dict[str, str]:
         """
         Get reference image prompts for a character.
 
@@ -403,7 +403,7 @@ class ImageGenerationExtractor:
         return ImageGenerationStage(scenes=scene_images, aspect_ratio=aspect_ratio)
 
     @staticmethod
-    def _extract_character_ids(scene: Dict[str, Any]) -> List[int]:
+    def _extract_character_ids(scene: Dict[str, Any]) -> List[str]:
         """Extract character IDs from scene"""
         chars = scene.get("characters", {})
 
@@ -487,7 +487,7 @@ class VideoGenerationExtractor:
         )
 
     @staticmethod
-    def _extract_character_ids(scene: Dict[str, Any]) -> List[int]:
+    def _extract_character_ids(scene: Dict[str, Any]) -> List[str]:
         """Extract character IDs from scene"""
         chars = scene.get("characters", {})
 

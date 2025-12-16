@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --cream: #F5EFE0;
+    --cream-dark: #E8DCC8;
+    --paper: #FFF8E7;
+    --ink: #1a1a1a;
+    --muted: #6b5d4f;
+    --orange: #FF6B35;
+    --red: #E63946;
+    --yellow: #F7931E;
+  }
+  
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  }
+}
+
+/* Marvel Comics aesthetic */
+.comic-header {
+  background: var(--ink);
+  color: var(--cream);
+  border-bottom: 4px solid var(--orange);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.comic-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.comic-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.comic-button {
+  background: var(--orange);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.comic-button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.comic-badge {
+  background: var(--yellow);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  border-radius: 4px;
+}

@@ -33,12 +33,29 @@ plotbuilder:
       - Available Narrative Structures:
         - Intent: HOW to organize the story timeline
         - File: knowledge/narrative-structures/index.md
+      - Art Styles:
+        - Intent: Visual art styles for comic book generation
+        - File: knowledge/art-styles/index.md
+        - Character Guidelines: knowledge/art-styles/character-guidelines.md
+        - Style Combinations: knowledge/art-styles/combinations.md
 
       ## Tool USAGE
       - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
-      - Use the DirectoryReadTool to understand the file structure in narrative-structures
-      - And the FileReadTool to read the detailed narrative structures, understand which best to apply.
+      - Using the knowledge/art-styles/index.md find appropriate art style(s) for the story
+      - Use the DirectoryReadTool to understand the file structure in narrative-structures and art-styles
+      - And the FileReadTool to read the detailed narrative structures and art style references
       - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+      ## Art Style Selection
+      - Available art styles: {allowed_art_styles}
+      - If user requests a style not in the list, select the NEAREST MATCH from available styles
+      - Art styles can be COMBINED (e.g., "noir + cyberpunk", "anime + pop-art")
+      - See art-styles/combinations.md for proven combinations
+      - For sci-fi stories:
+        - Use "sci-fi" for clean, optimistic future aesthetics
+        - Use "cyberpunk" for dystopian, gritty, neon-drenched aesthetics
+      - Include selected art style in storyline metadata
+      - From directories, files and knowledgebase, choose the best possible styles matching intent.
 
       IMPORTANT:
       - Text inside (), [] and <> are instructions or intent
@@ -97,6 +114,7 @@ plotbuilder:
       **Ethnicity:** <ethnicity>
       **Age:** <age>
       **Quirks:** <list of quirks>
+      **Clothing:** <type of clothings prefered>
 
       #### Backstory
       (in details)
@@ -184,6 +202,7 @@ plotbuilder:
       ## Storyline
 
       ### Metadata
+      - Title: <title of the book (max. 1-3 words)>
       - Theme: <description>
       - Genre: <description>
       - Adults Only: <boolean>
@@ -552,12 +571,8 @@ chapterbuilder:
          * ragged-dynamic: Action, chaos, energy
          * overlapping: Simultaneous events
          * no-borders: Dreamlike, seamless flow
-       - Choose panel_transition_style when appropriate:
-         * hard-cuts: Abrupt scene changes
-         * overlapping-scenes: Continuity between panels
-         * blended-transitions: Smooth, dreamlike flow
-         * diagonal-cuts: Dynamic, energetic transitions
-         * frame-within-frame: Flashbacks, memories
+       - Choose panel_transition_style when appropriate (MUST be one of):
+        {panel_transitions_list}
 
     4. **Panel Pacing Guidelines**:
        - Slow, atmospheric moments: 1-2 panels (wide establishing shots)
@@ -570,6 +585,8 @@ chapterbuilder:
     - Each panel must have: panel_number, chapter, scene_number, shot_type, location, visual_description, primary_action, emotional_tone
     - Use varied shot types: establishing, wide, medium, close-up, extreme-close-up, over-the-shoulder, two-shot
     - First panel of each scene should establish location/context
+    - **CRITICAL**: motion_type (if applicable) MUST be one of:
+      {motion_types_list}
 
     ### Art Style Application
     - Art Style is only present in knowledgebase
@@ -2135,7 +2152,7 @@ novelist:
     ## Example Output Format
 
 
-    # [TITLE](ex:  BLACKWOOD'S SILENCE)
+    # Title: [TITLE](ex:  BLACKWOOD'S SILENCE)
     ## Subtitle: [catch 2-3 word title]
 
     ## Metadata
@@ -2146,7 +2163,8 @@ novelist:
 
     ## Context
 
-    - Summary of the  World & Era Context
+    ### World Era and Context
+    {world_era}
     
     ## Setup
 
@@ -2162,6 +2180,7 @@ novelist:
 
     ## Characters
     [Transparently pass the characters from the Stroyline]
+    {character_details}
 
     ## Chapters
 

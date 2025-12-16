@@ -18,6 +18,7 @@ from cinema.agents.bookwriter.models import (
     PlotConstraints,
     RelationshipGraph,
 )
+from cinema.agents.bookwriter.utils import get_allowed_art_styles
 
 # Import crews only for type hints - avoid circular import at module level
 from typing import TYPE_CHECKING
@@ -358,6 +359,9 @@ class NarrativeGenerator:
         # Export graph to dict format
         graph_dict = graph.export_to_dict()
         
+        # Get allowed art styles from manifest
+        allowed_art_styles = get_allowed_art_styles()
+        
         # Build inputs for plotbuilder crew
         plotbuilder_inputs = {
             "characters": json.dumps(graph_dict["characters"], indent=2),
@@ -367,6 +371,7 @@ class NarrativeGenerator:
             "accomplices": constraints.accomplices,
             "witnesses": [w[0] for w in constraints.witnesses],
             "betrayals": [b[0] for b in constraints.betrayals],
+            "allowed_art_styles": ", ".join(allowed_art_styles),
         }
         
         logger.info("Running DetectivePlotBuilder crew...")

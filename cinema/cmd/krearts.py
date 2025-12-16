@@ -672,6 +672,37 @@ async def _generate_characters(workflow_id: str):
 
 @cli.command()
 @click.argument('workflow_id')
+def cover(workflow_id: str):
+    """Generate book cover image"""
+    asyncio.run(_generate_cover(workflow_id))
+
+
+async def _generate_cover(workflow_id: str):
+    """Generate book cover"""
+    # Setup logging
+    global logger
+    logger, log_file, cleanup = setup_logging(workflow_id)
+    
+    try:
+        user_section(f"Generating Cover: {workflow_id}")
+        user_info(f"Log file: {log_file}")
+        
+        ctx = DirectorsContext(llmstore=OpenAiHerd, debug=True)
+        workflow = BookWorkflow(workflow_id, ctx)
+        
+        result = await workflow.generate_cover()
+        
+        user_section("Cover Generation Complete")
+        user_success(f"Cover saved: {result['cover_path']}")
+        user_info(f"Prompt: {result['prompt'][:100]}...")
+        user_info("=" * 80)
+    finally:
+        if cleanup:
+            cleanup()
+
+
+@cli.command()
+@click.argument('workflow_id')
 @click.option('--pages', help='Generate specific pages (e.g., 1,20 or "all")')
 @click.option('--continue', 'continue_from', is_flag=True, help='Continue from last page')
 def chapters(workflow_id: str, pages: Optional[str], continue_from: bool):

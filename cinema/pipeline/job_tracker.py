@@ -4,6 +4,7 @@ SQLite-backed job tracking for resumable pipeline execution.
 
 import hashlib
 import json
+import logging
 import os
 import sqlite3
 from datetime import datetime
@@ -12,6 +13,8 @@ from typing import List, Optional
 
 from cinema.pipeline.state import Job, JobStatus, JobType, PipelineState
 
+# Set up logging
+logger = logging.getLogger(__name__)
 
 class JobTracker:
     """
@@ -158,16 +161,46 @@ class JobTracker:
         self, job_id: str, status: JobStatus, error: Optional[str] = None,
         output_path: Optional[str] = None
     ) -> None:
-        """Update job status"""
-        with sqlite3.connect(self.db_path, timeout=10.0) as conn:
-            conn.execute(
-                """
-                UPDATE jobs 
-                SET status = ?, error = ?, output_path = ?, updated_at = ?
-                WHERE id = ?
-            """,
-                (status.value, error, output_path, datetime.now().isoformat(), job_id),
-            )
+        """Update job status with proper timestamp and logging"""
+        updated_at = datetime.now().isoformat()
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"📝 Updating job {job_id} to status {status.value}")
+        logger.debug(f"  - error: {error}")
+        logger.debug(f"  - output_path: {output_path}")
+        logger.debug(f"  - updated_at: {updated_at}")
+        
+        try:
+            with sqlite3.connect(self.db_path, timeout=10.0) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    UPDATE jobs 
+                    SET status = ?, error = ?, output_path = ?, updated_at = ?
+                    WHERE id = ?
+                    """,
+                    (status.value, error, output_path, updated_at, job_id),
+                )
+                if cursor.rowcount == 0:
+                    logger.error(f"❌ Failed to update job {job_id} - no rows affected")
+                else:
+                    logger.info(f"✅ Successfully updated job {job_id}")
+                    
+                # Verify the update
+                cursor.execute(
+                    "SELECT status, updated_at FROM jobs WHERE id = ?",
+                    (job_id,)
+                )
+                row = cursor.fetchone()
+                if row:
+                    logger.debug(f"  - Current status: {row[0]}")
+                    logger.debug(f"  - Current updated_at: {row[1]}")
+                
+                conn.commit()  # Ensure changes are committed
+                
+        except Exception as e:
+            logger.error(f"❌ Error updating job {job_id}: {str(e)}")
+            raise
 
     def save_state(self, state: PipelineState) -> None:
         """Save pipeline state"""

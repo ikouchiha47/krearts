@@ -14,6 +14,32 @@ from cinema.providers.gemini import GeminiMediaGen
 
 logger = logging.getLogger(__name__)
 
+# Character reference prompt templates
+CHARACTER_PROMPT_TEMPLATES = {
+    "front": """Character reference sheet. {base}. 
+Front view, centered, neutral expression, plain white background. 
+Professional character design, high quality, 4K.{style_suffix}
+IMPORTANT: Generate image only, no text or labels.""",
+    
+    "side": """Character reference sheet. {base}. 
+90-degree side view, neutral expression, plain white background. 
+Professional character design, high quality, 4K.{style_suffix}
+IMPORTANT: Maintain exact same appearance as front view.
+IMPORTANT: Generate image only, no text or labels.""",
+    
+    "full_body": """Character reference sheet. {base}. 
+Standing pose, front view, neutral expression, plain white background. 
+Professional character design, high quality, 4K.{style_suffix}
+IMPORTANT: Maintain exact same appearance as front view.
+IMPORTANT: Generate image only, no text or labels.""",
+    
+    "back": """Character reference sheet. {base}. 
+Rear view showing back of head and shoulders, neutral pose, plain white background.{style_suffix} 
+Professional reference photo, studio lighting, high quality, 4K.
+IMPORTANT: Maintain exact same appearance as front view (hair, clothing, build).
+IMPORTANT: Generate image only, no text or labels."""
+}
+
 
 class CharacterReferenceManager:
     """
@@ -46,6 +72,7 @@ class CharacterReferenceManager:
         output_dir: str,
         include_back_view: bool = True,
         art_style: Optional[str] = None,
+        generate_collage: bool = False,
     ) -> Dict[str, str]:
         """
         Generate all character reference views using seeding chain.
@@ -173,7 +200,103 @@ class CharacterReferenceManager:
         self.character_cache[character_id] = results
         logger.info(f"💾 Cached references for {character_id}")
 
+        # Generate collage if requested
+        if generate_collage:
+            collage_path = await self.generate_character_collage(
+                character_id=character_id,
+                character_description=character_description,
+                output_dir=output_dir,
+                art_style=art_style,
+                reference_image=results.get("front"),  # Use front view as reference
+            )
+            results["collage"] = collage_path
+
         return results
+
+    async def generate_character_collage(
+        self,
+        character_id: str,
+        character_description: Dict[str, Any],
+        output_dir: str,
+        art_style: Optional[str] = None,
+        reference_image: Optional[str] = None,
+    ) -> str:
+        """
+        Generate a single collage image showing all character views in one grid.
+        
+        This creates a character turnaround sheet with front, side, full body, and back views
+        arranged in a grid layout. Can optionally use a reference image (typically the front view)
+        to maintain consistency.
+        
+        Args:
+            character_id: Unique character identifier
+            character_description: Character metadata with physical_appearance and style
+            output_dir: Directory to save collage image
+            art_style: Optional art style to apply
+            reference_image: Optional reference image path (typically front view) for consistency
+            
+        Returns:
+            Path to generated collage image
+        """
+        logger.info(f"🎨 Generating character collage for {character_id}")
+        
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Build combined prompt with all 4 views
+        appearance = character_description.get("physical_appearance", "")
+        style = character_description.get("style", "")
+        world_context = character_description.get("world_context", "")
+        
+        # Detect non-humanoid characters
+        non_humanoid_keywords = ["disembodied", "interface", "hologram", "ai", "virtual", "abstract", "energy", "spirit"]
+        is_non_humanoid = any(keyword in appearance.lower() for keyword in non_humanoid_keywords)
+        
+        # Build description with clothing for humanoids
+        if style and not is_non_humanoid:
+            full_description = f"{appearance}, wearing {style}"
+        else:
+            full_description = f"{appearance}, {style}" if style else appearance
+        
+        # Add world context
+        context_parts = []
+        if world_context:
+            context_summary = world_context.split('.')[0] if '.' in world_context else world_context
+            context_parts.append(f"Setting: {context_summary}")
+        if art_style:
+            context_parts.append(f"Art style: {art_style}")
+        
+        art_style_suffix = f" {'. '.join(context_parts)}." if context_parts else ""
+        
+        collage_prompt = f"""Character reference sheet turnaround. {full_description}.
+
+Professional character design sheet showing 4 views in a grid layout:
+- Front view (centered, neutral expression)
+- Side view (90-degree profile)
+- Full body view (standing pose, front angle)
+- Back view (rear view showing back of head and shoulders)
+
+All views on plain white background, arranged in a clean 2x2 grid.
+Professional character design, high quality, 4K.{art_style_suffix}
+IMPORTANT: Show the SAME character from all angles in one image.
+IMPORTANT: Generate image only, no text or labels."""
+        
+        logger.debug(f"Collage prompt: {collage_prompt[:150]}...")
+        if reference_image:
+            logger.debug(f"Using reference image: {reference_image}")
+        
+        # Generate collage using optional reference image
+        collage_response = await self.gemini.generate_content(
+            prompt=collage_prompt,
+            reference_image=reference_image,  # Optional - can be None
+            aspect_ratio="4:5",
+        )
+        
+        collage_path = str(output_path / f"{character_id}_collage.png")
+        self.gemini.render_image(collage_path, collage_response)
+        
+        logger.info(f"✅ Collage saved: {collage_path}")
+        return collage_path
 
     def _build_character_prompt(
         self, character_description: Dict[str, Any], view: str
@@ -182,44 +305,58 @@ class CharacterReferenceManager:
         Build character reference prompt for specific view.
 
         Args:
-            character_description: Character metadata
-            view: One of "front", "side", "full_body"
+            character_description: Dict with:
+                - character_full_text: Full formatted character details from database
+                - world_context: Full world era context
+                - art_style: Art style string
+            view: One of "front", "side", "full_body", "back"
 
         Returns:
             Formatted prompt string
         """
-        appearance = character_description.get("physical_appearance", "")
-        style = character_description.get("style", "")
+        character_full_text = character_description.get("character_full_text", "")
+        world_context = character_description.get("world_context", "")
         art_style = character_description.get("art_style", "")
-
-        base = f"{appearance}, {style}"
-        style_suffix = f" Art style: {art_style}." if art_style else ""
-
-        if view == "front":
-            return f"""Character reference sheet. {base}. 
-Front view, centered, neutral expression, plain white background. 
-Professional character design, high quality, 4K.{style_suffix}"""
-
-        elif view == "side":
-            return f"""Character reference sheet. {base}. 
-90-degree side view, neutral expression, plain white background. 
-Professional character design, high quality, 4K.{style_suffix}
-IMPORTANT: Maintain exact same appearance as front view."""
-
-        elif view == "full_body":
-            return f"""Character reference sheet. {base}. 
-Standing pose, front view, neutral expression, plain white background. 
-Professional character design, high quality, 4K.{style_suffix}
-IMPORTANT: Maintain exact same appearance as front view."""
-
-        elif view == "back":
-            return f"""Character reference sheet. {base}. 
-Rear view showing back of head and shoulders, neutral pose, plain white background.{style_suffix} 
-Professional reference photo, studio lighting, high quality, 4K.
-IMPORTANT: Maintain exact same appearance as front view (hair, clothing, build)."""
-
-        else:
+        
+        # Build view-specific instruction
+        view_instructions = {
+            "front": "Front view, centered, neutral expression, plain white background",
+            "side": "90-degree side view, neutral expression, plain white background",
+            "full_body": "Full body standing pose, front view, neutral expression, plain white background",
+            "back": "Rear view showing back of head and shoulders, neutral pose, plain white background"
+        }
+        
+        if view not in view_instructions:
             raise ValueError(f"Unknown view type: {view}")
+        
+        # Build structured prompt
+        prompt_parts = []
+        
+        # 1. Art style (if available)
+        if art_style:
+            prompt_parts.append(f"Art Style: {art_style}\n")
+        
+        # 2. World/Era context
+        if world_context:
+            prompt_parts.append(f"World Context:\n{world_context}\n")
+        
+        # 3. Character details
+        if character_full_text:
+            prompt_parts.append(f"Character:\n{character_full_text}\n")
+        
+        # 4. View instruction
+        prompt_parts.append(f"View: {view_instructions[view]}")
+        
+        # 5. Technical requirements
+        prompt_parts.append("\nProfessional character design, high quality, 4K.")
+        
+        # 6. Consistency note for non-front views
+        if view != "front":
+            prompt_parts.append("IMPORTANT: Maintain exact same appearance as front view.")
+        
+        prompt_parts.append("IMPORTANT: Generate image only, no text or labels.")
+        
+        return "\n".join(prompt_parts)
 
     async def generate_keyframe_with_character(
         self, scene_prompt: str, character_id: str, output_path: str

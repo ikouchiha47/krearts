@@ -42,7 +42,7 @@ class Job(BaseModel):
     type: JobType
     status: JobStatus = JobStatus.PENDING
     scene_id: Optional[str] = None
-    character_id: Optional[int] = None
+    character_id: Optional[str] = None  # Changed to str to support workflow_id_number format
     metadata: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
     retry_count: int = 0
@@ -177,9 +177,9 @@ class PipelineState(BaseModel):
             return self.post_production_complete
         return False
 
-    def get_character_image_path(self, character_id: int, view: str = "front") -> Path:
+    def get_character_image_path(self, character_id: str, view: str = "front") -> Path:
         """Get path for character reference image"""
-        return self.characters_dir / f"char_{character_id}_{view}.png"
+        return self.characters_dir / f"{character_id}_{view}.png"
 
     def get_scene_image_path(self, scene_id: str, frame_type: str) -> Path:
         """Get path for scene keyframe image"""

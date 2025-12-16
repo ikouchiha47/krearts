@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, List, NewType, Optional, Type, TypeAlias, Union
+from typing import Any, List, NewType, Optional, Type, TypeAlias, TypeVar, Union
 
 from crewai.knowledge.source.base_file_knowledge_source import BaseFileKnowledgeSource
 from crewai.knowledge.source.base_knowledge_source import BaseKnowledgeSource
@@ -12,9 +12,10 @@ from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSourc
 from crewai.memory.external.external_memory import ExternalMemory
 from crewai.project import CrewBase
 from crewai_tools import DirectoryReadTool, FileReadTool
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from cinema.agents.bookwriter.tools.multi_directory_read_tool import MultiDirectoryReadTool
+from cinema.agents.bookwriter.utils import clean_agent_thinking_from_output
 from cinema.context import DirectorsContext
 from cinema.models.detective_output import DetectiveStoryOutput
 from cinema.models.comic_output import ComicBookOutput
@@ -34,6 +35,8 @@ logger = logging.getLogger(__name__)
 
 # Constants
 KNOWLEDGE_DIR = Path(__file__).parent.parent.parent.parent / "knowledge"
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class KnowledgeSourceRegistry:
@@ -120,16 +123,16 @@ class DetectivePlotBuilder:
     agents_config = "plotbuilder/agents.yaml"
     tasks_config = "plotbuilder/tasks.yaml"
 
-    config: CrewConfig
-    narrative_index_docs: TextFileKnowledgeSource
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
 
     namespace: str = "plotbuilder"
     role_name: str = "detective"
-    outfile: str = "detective_storyline.md"
+    default_outfile: str = "detective_storyline.md"
 
-    ctx: Optional[DirectorsContext] = None
-    external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = False
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
 
     def __init__(
         self,
@@ -138,15 +141,12 @@ class DetectivePlotBuilder:
         external_memory: Optional[ExternalMemory] = None,
         use_mock: Optional[bool] = False,
     ):
-        self.ctx = ctx
-        self.config = CrewConfig()
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
 
-        if outfile:
-            self.outfile = outfile
-
-        self.use_mock = True if use_mock else False
-
-        self.external_memory = external_memory
+        self.outfile: Optional[str] = outfile 
+        self.use_mock: bool = bool(use_mock)
 
         self.narrative_index_docs = knowledge_registry.get(
             "detective_plot",
@@ -155,11 +155,15 @@ class DetectivePlotBuilder:
                 "storywriting/detective/principles.md",
                 "storywriting/detective/storytelling-techniques.md",
                 "narrative-structures/index.md",
+                "art-styles/index.md",
+                "art-styles/combinations.md",
+                "art-styles/character-guidelines.md"
             ],
         )
 
         self.config.tools = [
             DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "narrative-structures")),
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "art-styles" / "references")),
             FileReadTool(),
         ]
 
@@ -167,13 +171,28 @@ class DetectivePlotBuilder:
     def collect(
         cls,
         result: CrewOutput,
-        output_model: Optional[Type[BaseModel]] = None,
-    ) -> BaseModel | str | None:
+        output_model: Optional[Type[T]] = None,
+        use_crew_result: bool = True,  # Use clean crew output by default
+    ) -> T | str | None:
+
+        if use_crew_result:
+            logger.info(f"[DetectivePlotBuilder] Using crew result directly")
+            
+            if not output_model:
+                raw_output = result.raw or ""
+                logger.info(f"[DetectivePlotBuilder] Using result.raw (length: {len(raw_output)})")
+                return clean_agent_thinking_from_output(raw_output)
+            elif output_model and isinstance(result.pydantic, output_model):
+                return output_model.model_validate(result.pydantic)
+
+        logger.info(f"[DetectivePlotBuilder] Using task results directly") 
+        logger.info(f"[DetectivePlotBuilder] Number of task outputs: {len(result.tasks_output)}")
 
         for task_output in result.tasks_output:
-            if not output_model:
-                return task_output.raw
-            
+            if output_model is None:
+                logger.info(f"[DetectivePlotBuilder] Returning task raw output (length: {len(task_output.raw)})")
+                return clean_agent_thinking_from_output(task_output.raw)
+
             if isinstance(task_output.pydantic, output_model):
                 return output_model.model_validate(task_output.pydantic)
 
@@ -207,14 +226,14 @@ class DetectivePlotBuilder:
         assert self.ctx is not None
 
         agent = Agent(
-            config=self.agents_config[self.namespace][self.role_name],  # type: ignore[index]
+            config=self.agents_config[self.namespace][self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMPlannerIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )
 
-        task = Task(
-            config=self.tasks_config[self.namespace][self.role_name],  # type: ignore[index]
+        task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.namespace][self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             agent=agent,
             output_file=self.outfile,
             markdown=True,
@@ -235,10 +254,10 @@ class DetectivePlotBuilder:
     def crew(self):
         assert self.ctx is not None
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
-        self.bootstrap()
+        _ = self.bootstrap()
 
         return Crew(
             agents=self.config.agents,
@@ -255,31 +274,29 @@ class PlotCritique:
     agents_config = "plotbuilder/agents.yaml"
     tasks_config = "plotbuilder/tasks.yaml"
 
-    config: CrewConfig
-    narrative_index_docs: TextFileKnowledgeSource
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
 
     role_name: str = "critique"
-    outfile: str = "critique_storyline.md"
+    default_outfile: str = "critique_storyline.md"
 
-    ctx: Optional[DirectorsContext] = None
-    external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = False
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
 
     def __init__(
         self,
         ctx: DirectorsContext,
-        outfile: Optional[str] = None,
-        external_memory: Optional[ExternalMemory] = None,
-        use_mock: Optional[bool] = False,
+        outfile: str | None = None,
+        external_memory: ExternalMemory | None = None,
+        use_mock: bool | None = False,
     ):
-        self.ctx = ctx
-        self.config = CrewConfig()
-        self.external_memory = external_memory
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+        self.outfile: Optional[str] = outfile
 
-        if outfile:
-            self.outfile = outfile
-
-        self.use_mock = True if use_mock else False
+        self.use_mock: bool = True if use_mock else False
 
         self.narrative_index_docs = knowledge_registry.get(
             "plot_critique",
@@ -300,8 +317,8 @@ class PlotCritique:
     def collect(
         cls,
         result: CrewOutput,
-        output_model: Optional[Type[BaseModel]] = None,
-    ) -> BaseModel | str | None:
+        output_model: Optional[Type[T]] = None,
+    ) -> T | str | None:
 
         for task_output in result.tasks_output:
             if not output_model:
@@ -322,14 +339,14 @@ class PlotCritique:
         assert self.ctx is not None
 
         agent = Agent(
-            config=self.agents_config[self.role_name],  # type:ignore[index]
+            config=self.agents_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMCritiqueIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )
 
-        task = Task(
-            config=self.tasks_config[self.role_name],  # type:ignore[index]
+        task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             agent=agent,
             output_file=self.outfile,
             markdown=True,
@@ -341,7 +358,7 @@ class PlotCritique:
     def crew(self):
         assert self.ctx is not None
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
         self.bootstrap()
@@ -387,12 +404,10 @@ class ScreenplayWriter:
         external_memory: Optional[ExternalMemory] = None,
         use_mock: Optional[bool] = False,
     ):
-        self.ctx = ctx
+        self.ctx: DirectorsContext = ctx
         self.config = CrewConfig()
-        self.external_memory = external_memory
-
-        if outfile:
-            self.outfile = outfile
+        self.external_memory: Optional[ExternalMemory] = external_memory
+        self.outfile: Optional[str] = outfile
 
         self.use_mock = True if use_mock else False
 
@@ -414,12 +429,26 @@ class ScreenplayWriter:
         cls,
         result: CrewOutput,
         output_model: Optional[Type[BaseModel]] = None,
+        use_crew_result: bool = True,  # Use clean crew output by default
     ) -> BaseModel | str | None:
 
-        for task_output in result.tasks_output:
-            if not output_model:
-                return task_output.raw
+        if use_crew_result:
+            logger.info(f"[ScreenplayWriter] Using crew result directly")
             
+            if not output_model:
+                raw_output = result.raw or ""
+                logger.info(f"[ScreenplayWriter] Using result.raw (length: {len(raw_output)})")
+                return clean_agent_thinking_from_output(raw_output)
+            elif output_model and isinstance(result.pydantic, output_model):
+                return output_model.model_validate(result.pydantic)
+
+        logger.info(f"[ScreenplayWriter] Using task outputs directly")
+        logger.info(f"[ScreenplayWriter] Number of task outputs: {len(result.tasks_output)}")
+
+        for task_output in result.tasks_output:
+            if output_model is None:
+                return clean_agent_thinking_from_output(task_output.raw)
+
             if isinstance(task_output.pydantic, output_model):
                 return output_model.model_validate(task_output.pydantic)
 
@@ -489,6 +518,8 @@ class BookWriterSchema(BaseModel):
     total_pages: Optional[int] = 50
     art_style: Optional[str] = None
     examples: str = ""
+    character_details: list[str] = []
+    world_era: str = ""
 
 @CrewBase
 class BookWriter:
@@ -496,11 +527,11 @@ class BookWriter:
     tasks_config = "plotbuilder/tasks.yaml"
 
     role_name: str = "novelist"
-    outfile: str = "novel.md"
+    default_outfile: str = "novel.md"
 
-    ctx: Optional[DirectorsContext] = None
-    external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = False
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
 
     def __init__(
         self,
@@ -509,14 +540,12 @@ class BookWriter:
         external_memory: Optional[ExternalMemory] = None,
         use_mock: Optional[bool] = False,
     ):
-        self.ctx = ctx
-        self.config = CrewConfig()
-        self.external_memory = external_memory
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+        self.outfile: Optional[str] = outfile
 
-        if outfile:
-            self.outfile = outfile
-
-        self.use_mock = True if use_mock else False
+        self.use_mock: bool = True if use_mock else False
 
         # Reuse existing knowledge sources
         # "storywriting/detective/principles.md",
@@ -553,12 +582,27 @@ class BookWriter:
         cls,
         result: CrewOutput,
         output_model: Optional[Type[BaseModel]] = None,
+        use_crew_result: bool = True,  # Use clean crew output by default
     ) -> BaseModel | str | None:
 
-        for task_output in result.tasks_output:
-            if not output_model:
-                return task_output.raw
+        if use_crew_result:
+            logger.info(f"[BookWriter] Using crew result directly")
             
+            if not output_model:
+                raw_output = result.raw or ""
+                logger.info(f"[BookWriter] Using result.raw (length: {len(raw_output)})")
+                return clean_agent_thinking_from_output(raw_output)
+            elif output_model and isinstance(result.pydantic, output_model):
+                return output_model.model_validate(result.pydantic)
+        
+        logger.info(f"[BookWriter] Using task results directly")
+        logger.info(f"[BookWriter] Number of task outputs: {len(result.tasks_output)}")
+
+        for task_output in result.tasks_output:
+            if output_model is None:
+                logger.info(f"[BookWriter] Returning task raw output (length: {len(task_output.raw)})")
+                return clean_agent_thinking_from_output(task_output.raw)
+
             if isinstance(task_output.pydantic, output_model):
                 return output_model.model_validate(task_output.pydantic)
 
@@ -568,15 +612,15 @@ class BookWriter:
         assert self.ctx is not None
 
         agent = Agent(
-            config=self.agents_config[self.role_name],  # type: ignore[index]
+            config=self.agents_config[self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMThinkerIntent),
             tools=self.config.tools,
             max_iter=10,
             verbose=self.ctx.debug,
         )
 
-        task = Task(
-            config=self.tasks_config[self.role_name],  # type: ignore[index]
+        task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             agent=agent,
             output_file=self.outfile,
             markdown=True,
@@ -588,7 +632,7 @@ class BookWriter:
     def crew(self):
         assert self.ctx is not None
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
         self.bootstrap()
@@ -603,45 +647,47 @@ class BookWriter:
 
 
 class ChapterBuilderSchema(BaseModel):
+    title: str = Field(..., description="title of the chapter, max 1-2 words")
     screenplay: str
     examples: str
     chapter_id: int
     chapter_content: str
     art_style: str
     aspect_ratio: Optional[str] = "4:5"  # or 5:4
+    motion_types_list: Optional[str] = None  # Comma-separated list of valid motion_type values
+    panel_transitions_list: Optional[str] = None  # Comma-separated list of valid panel_transition_style values
 
 KnowledgeSources: TypeAlias = Union[BaseKnowledgeSource, BaseFileKnowledgeSource]
+
 @CrewBase
 class ChapterBuilder:
     agents_config = "plotbuilder/agents.yaml"
     tasks_config = "plotbuilder/tasks.yaml"
 
-    config: CrewConfig
+    # config: CrewConfig
 
     role_name: str = "chapterbuilder"
-    outfile: str = "comic_generator.json"
+    default_outfile: str = "comic_generator.json"
 
-    ctx: Optional[DirectorsContext] = None
-    knowledge_sources: List[KnowledgeSources]
-    external_memory: Optional[ExternalMemory] = None
+    # ctx: Optional[DirectorsContext] = None
+    # knowledge_sources: List[KnowledgeSources]
+    # external_memory: Optional[ExternalMemory] = None
     use_mock: Optional[bool] = False
 
     def __init__(
         self,
         ctx: DirectorsContext,
-        outfile: Optional[str] = None,
-        external_memory: Optional[ExternalMemory] = None,
-        knowledge_sources: Optional[List[KnowledgeSources]] = None,
-        use_mock: Optional[bool] = False,
+        outfile: str | None = None,
+        external_memory: ExternalMemory | None = None,
+        knowledge_sources: List[KnowledgeSources] | None = None,
+        use_mock: bool | None = False,
     ):
-        self.ctx = ctx
-        self.config = CrewConfig()
-        self.external_memory = external_memory
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: ExternalMemory | None = external_memory
+        self.outfile: str | None = outfile
 
-        if outfile:
-            self.outfile = outfile
-
-        self.use_mock = True if use_mock else False
+        self.use_mock: bool = bool(use_mock)
         
         # Use provided knowledge sources or default to GLOSSARY
         _combined_knowledge_sources: List[KnowledgeSources] = [
@@ -666,12 +712,11 @@ class ChapterBuilder:
     def collect(
         cls,
         result: CrewOutput,
-        output_model: Optional[Type[BaseModel]] = None,
-    ) -> BaseModel | str | None:
-
+        output_model: Optional[Type[T]] = None,
+    ) -> T | str | None:
         for task_output in result.tasks_output:
             if not output_model:
-                return task_output.raw
+                return clean_agent_thinking_from_output(task_output.raw)
             
             if isinstance(task_output.pydantic, output_model):
                 return output_model.model_validate(task_output.pydantic)
@@ -699,14 +744,14 @@ class ChapterBuilder:
         assert self.ctx is not None
 
         plotbuilder_agent = Agent(
-            config=self.agents_config[self.role_name],  # type:ignore[index]
+            config=self.agents_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMExecutorIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )
 
-        plotbuilder_task = Task(
-            config=self.tasks_config[self.role_name],  # type:ignore[index],
+        plotbuilder_task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.role_name],  # type:ignore[index],  # pyright: ignore[reportArgumentType]
             agent=plotbuilder_agent,
             output_file=self.outfile,
             output_pydantic=ComicBookOutput,  # NEW: Richer model that captures full novel
@@ -718,7 +763,7 @@ class ChapterBuilder:
     def crew(self):
         assert self.ctx is not None, "EmptyCtx"
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
         self.bootstrap()
@@ -737,15 +782,15 @@ class ComicStripStoryBoarding:
     agents_config = "plotbuilder/agents.yaml"
     tasks_config = "plotbuilder/tasks.yaml"
 
-    config: CrewConfig
-    narrative_index_docs: TextFileKnowledgeSource
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
 
     role_name: str = "stripper"
-    outfile: str = "comic_generator.json"
+    default_outfile: str = "comic_generator.json"
 
-    ctx: Optional[DirectorsContext] = None
-    external_memory: Optional[ExternalMemory] = None
-    use_mock: Optional[bool] = False
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
 
     def __init__(
         self,
@@ -754,14 +799,12 @@ class ComicStripStoryBoarding:
         external_memory: Optional[ExternalMemory] = None,
         use_mock: Optional[bool] = False,
     ):
-        self.ctx = ctx
-        self.config = CrewConfig()
-        self.external_memory = external_memory
-
-        if outfile:
-            self.outfile = outfile
-
-        self.use_mock = True if use_mock else False
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+        self.outfile: Optional[str] = outfile
+        
+        self.use_mock: bool = True if use_mock else False
 
         self.narrative_index_docs = knowledge_registry.get(
             "comic_strip",
@@ -785,8 +828,8 @@ class ComicStripStoryBoarding:
     def collect(
         cls,
         result: CrewOutput,
-        output_model: Optional[Type[BaseModel]] = None,
-    ) -> BaseModel | str | None:
+        output_model: Optional[Type[T]] = None,
+    ) -> T | str | None:
 
         for task_output in result.tasks_output:
             if not output_model:
@@ -818,14 +861,14 @@ class ComicStripStoryBoarding:
         assert self.ctx is not None
 
         plotbuilder_agent = Agent(
-            config=self.agents_config[self.role_name],  # type:ignore[index]
+            config=self.agents_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMExecutorIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )
 
-        plotbuilder_task = Task(
-            config=self.tasks_config[self.role_name],  # type:ignore[index],
+        plotbuilder_task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.role_name],  # type:ignore[index],  # pyright: ignore[reportArgumentType]
             agent=plotbuilder_agent,
             output_file=self.outfile,
             output_pydantic=ComicBookOutput,  # NEW: Richer model that captures full novel
@@ -837,7 +880,7 @@ class ComicStripStoryBoarding:
     def crew(self):
         assert self.ctx is not None, "EmptyCtx"
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
         self.bootstrap()

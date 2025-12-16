@@ -154,41 +154,6 @@ arcane:
       purpose: "Visible brushwork and painting texture"
       use_for: ["all"]  # General texture reference
 
-arcane:
-  description: "Painterly animated style from Arcane series"
-  characteristics:
-    - "Painterly brushwork and textures"
-    - "Dramatic cinematic lighting"
-    - "Rich saturated colors"
-    - "Detailed character expressions"
-    - "Atmospheric environments"
-  
-  references:
-    painterly_portrait:
-      file: "painterly_portrait.jpg"
-      purpose: "Painterly character portraits with visible brushwork"
-      use_for: ["character", "portrait", "close-up"]
-      
-    dramatic_lighting:
-      file: "dramatic_lighting.jpg"
-      purpose: "Cinematic lighting with strong shadows and highlights"
-      use_for: ["dramatic", "moody", "atmospheric"]
-      
-    color_palette:
-      file: "color_palette.jpg"
-      purpose: "Rich saturated color grading"
-      use_for: ["all"]  # General color reference
-      
-    environment_mood:
-      file: "environment_mood.jpg"
-      purpose: "Atmospheric environmental shots with depth"
-      use_for: ["establishing", "wide", "environmental", "atmospheric"]
-      
-    brushwork_texture:
-      file: "brushwork_texture.jpg"
-      purpose: "Visible painterly brushwork and texture"
-      use_for: ["all"]  # General texture reference
-
 noir:
   description: "Classic noir comic book style"
   characteristics:
@@ -283,6 +248,182 @@ print_comic:
       file: "print_registration.jpg"
       purpose: "Color misregistration effects"
       use_for: ["stylized", "retro"]
+
+sci-fi:
+  description: "Clean futuristic sci-fi with advanced technology"
+  characteristics:
+    - "Sleek, optimistic future aesthetics"
+    - "Advanced technology and spacecraft"
+    - "Clean, bright environments"
+    - "Scientific equipment and labs"
+    - "Space stations and orbital structures"
+  
+  references:
+    futuristic_tech:
+      file: "futuristic_tech.jpg"
+      purpose: "Advanced technology and interfaces"
+      use_for: ["technology", "close-up", "detail"]
+    
+    space_environment:
+      file: "space_environment.jpg"
+      purpose: "Space stations, spacecraft, orbital structures"
+      use_for: ["establishing", "wide", "space", "environmental"]
+    
+    clean_future:
+      file: "clean_future.jpg"
+      purpose: "Optimistic future settings and labs"
+      use_for: ["establishing", "wide", "interior"]
+
+cyberpunk:
+  description: "Dystopian sci-fi with neon-drenched urban settings"
+  characteristics:
+    - "Neon lighting and holographic displays"
+    - "AI characters as holographic humanoid avatars"
+    - "Dense urban environments with rain effects"
+    - "Cybernetic enhancements on characters"
+    - "High-tech interfaces and machinery"
+    - "Gritty, high-tech/low-life aesthetic"
+  
+  references:
+    holographic_character:
+      file: "holographic_character.jpg"
+      purpose: "AI/hologram character design with humanoid form"
+      use_for: ["AI characters", "holograms", "digital entities", "close-up"]
+    
+    neon_environment:
+      file: "neon_environment.jpg"
+      purpose: "Cyberpunk urban setting with neon lighting"
+      use_for: ["establishing", "wide", "city", "urban"]
+    
+    tech_details:
+      file: "tech_details.jpg"
+      purpose: "Cybernetic enhancements and tech interfaces"
+      use_for: ["close-up", "detail", "technology"]
+
+fantasy-rpg:
+  description: "Epic fantasy with magical realms and creature designs"
+  characteristics:
+    - "Medieval fantasy settings"
+    - "Magical effects and spells"
+    - "Diverse creature designs"
+    - "Heroic and villainous archetypes"
+    - "Detailed armor and weapons"
+  
+  references:
+    character_design:
+      file: "character_design.jpg"
+      purpose: "Fantasy character designs (knights, wizards, rogues)"
+      use_for: ["character focus", "close-up", "medium"]
+    
+    creature_design:
+      file: "creature_design.jpg"
+      purpose: "Magical creatures and beasts"
+      use_for: ["creature", "monster", "dragon"]
+    
+    magical_environment:
+      file: "magical_environment.jpg"
+      purpose: "Fantasy landscapes and magical realms"
+      use_for: ["establishing", "wide", "environmental"]
+
+pixel-art:
+  description: "16-bit retro pixel art style"
+  characteristics:
+    - "Blocky pixel aesthetic"
+    - "Limited color palettes"
+    - "Retro game UI elements"
+    - "Dithering effects"
+    - "Classic sprite-based characters"
+  
+  references:
+    character_sprite:
+      file: "character_sprite.jpg"
+      purpose: "16-bit character sprite designs"
+      use_for: ["character focus", "close-up"]
+    
+    retro_environment:
+      file: "retro_environment.jpg"
+      purpose: "Pixel art environments and backgrounds"
+      use_for: ["establishing", "wide", "environmental"]
+    
+    action_sequence:
+      file: "action_sequence.jpg"
+      purpose: "Pixel art action and combat"
+      use_for: ["action", "fight", "movement"]
+
+american-comic:
+  description: "Classic American superhero comic book style"
+  characteristics:
+    - "Bold line work and strong outlines"
+    - "Dynamic action poses"
+    - "Vibrant primary colors"
+    - "Muscular character builds"
+    - "Dramatic compositions"
+  
+  references:
+    hero_pose:
+      file: "hero_pose.jpg"
+      purpose: "Dynamic superhero poses and action"
+      use_for: ["action", "character focus", "dramatic"]
+    
+    bold_lines:
+      file: "bold_lines.jpg"
+      purpose: "Classic comic book line work"
+      use_for: ["all"]
+    
+    vibrant_colors:
+      file: "vibrant_colors.jpg"
+      purpose: "Bold primary color palettes"
+      use_for: ["all"]
+
+pop-art:
+  description: "Bold graphic pop art comic style"
+  characteristics:
+    - "Ben-Day dot patterns"
+    - "Flat primary colors"
+    - "Thick black outlines"
+    - "Exaggerated expressions"
+    - "Thought bubbles and onomatopoeia"
+  
+  references:
+    halftone_dots:
+      file: "halftone_dots.jpg"
+      purpose: "Ben-Day dot patterns and textures"
+      use_for: ["all"]
+    
+    bold_graphics:
+      file: "bold_graphics.jpg"
+      purpose: "Flat colors and graphic compositions"
+      use_for: ["all"]
+    
+    exaggerated_expression:
+      file: "exaggerated_expression.jpg"
+      purpose: "Pop art character expressions"
+      use_for: ["close-up", "extreme-close-up", "character focus"]
+
+anime-manga:
+  description: "Japanese anime and manga style"
+  characteristics:
+    - "Expressive character designs"
+    - "Dynamic motion lines and speed effects"
+    - "Emotional visual effects"
+    - "Stylized proportions"
+    - "Dramatic action sequences"
+  
+  references:
+    expressive_character:
+      file: "expressive_character.jpg"
+      purpose: "Anime character expressions and emotions"
+      use_for: ["close-up", "extreme-close-up", "character focus"]
+    
+    motion_effects:
+      file: "motion_effects.jpg"
+      purpose: "Speed lines and motion blur"
+      use_for: ["action", "movement", "chase"]
+    
+    dynamic_composition:
+      file: "dynamic_composition.jpg"
+      purpose: "Dramatic anime compositions"
+      use_for: ["action", "dramatic", "impact"]
 
 # Selection Rules
 # ---------------

@@ -109,6 +109,15 @@ class SQLiteStorage(StorageBackend):
     async def load_job(self, job_id: str) -> Optional[Job]:  # type: ignore[override]
         return await asyncio.to_thread(self._job_repo.get, job_id)
 
+    async def get_pending_jobs(self, limit: int = 10) -> List[Job]:  # type: ignore[override]
+        """Get pending jobs to process, ordered by creation time."""
+        return await asyncio.to_thread(self._get_pending_jobs_sync, limit)
+    
+    def _get_pending_jobs_sync(self, limit: int) -> List[Job]:
+        """Synchronous implementation of get_pending_jobs."""
+        # Query jobs with status="pending" directly
+        return self._job_repo.list(status="pending")[:limit]
+
     async def save_state(self, state: WorkflowState) -> None:  # type: ignore[override]
         await asyncio.to_thread(self._save_state_sync, state)
 
@@ -172,10 +181,16 @@ class SQLiteStorage(StorageBackend):
     def _list_workflows_sync(self, user_id: str) -> List[WorkflowState]:
         with self._get_connection() as conn:
             conn.row_factory = sqlite3.Row
-            cur = conn.execute(
-                f"SELECT state_json FROM {WORKFLOW_TABLE} WHERE user_id = ? ORDER BY updated_at DESC",
-                (user_id,),
-            )
+            # If user_id is empty, list all workflows (for development/admin)
+            if user_id:
+                cur = conn.execute(
+                    f"SELECT state_json FROM {WORKFLOW_TABLE} WHERE user_id = ? ORDER BY updated_at DESC",
+                    (user_id,),
+                )
+            else:
+                cur = conn.execute(
+                    f"SELECT state_json FROM {WORKFLOW_TABLE} ORDER BY updated_at DESC"
+                )
             rows = cur.fetchall()
 
         states: List[WorkflowState] = []

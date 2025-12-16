@@ -50,7 +50,6 @@ class ParallelComicGenerator:
         self.semaphore = asyncio.Semaphore(max_concurrent)
         self.output_base_dir = output_base_dir
         self.use_mock = use_mock
-        self._screenplay_kb = StringKnowledgeSource(content=self.screenplay)
         self.workflow_id = workflow_id or ""
         self._metadata_repo: ComicMetadataRepository = (
             metadata_repo or get_comic_metadata_repository()
@@ -77,14 +76,74 @@ class ParallelComicGenerator:
         logger.info(f"Starting parallel comic generation for {len(novel.chapters)} chapters")
         logger.info(f"Max concurrent: {self.semaphore._value}")
         
-        # Process chapters in parallel - pass chapter content directly
-        tasks = [
-            self._process_chapter(chapter, art_style, aspect_ratio)
-            for chapter in novel.chapters
-        ]
+        # Create base crew instance
+        base_crew = ChapterBuilder(
+            ctx=self.ctx,
+            outfile=None,
+            use_mock=self.use_mock,
+        )
         
-        logger.info(f"Processing {len(tasks)} chapters in parallel...")
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        # Process each chapter with individual error handling
+        # This allows saving successful chapters even if others fail
+        logger.info(f"Processing {len(novel.chapters)} chapters in parallel with individual error handling...")
+        
+        async def process_single_chapter(chapter: NovelChapter) -> ComicChapter | Exception:
+            try:
+                # Prepare inputs for this chapter
+                chapter_content = f"# Chapter {chapter.number}: {chapter.title}\n\n{chapter.content}"
+                
+                # Extract enum values from Pydantic models to inject into prompts
+                motion_types = """* none: No motion effects
+        * speed-lines: Fast movement, action
+        * motion-blur: Rapid motion, dynamic action
+        * impact-lines: Collision, impact moments
+        * ghosting: Trailing effect, supernatural"""
+                
+                panel_transitions = """* hard-cuts: Abrupt scene changes
+        * overlapping-scenes: Continuity between panels
+        * blended-transitions: Smooth, dreamlike flow
+        * diagonal-cuts: Dynamic, energetic transitions
+        * frame-within-frame: Flashbacks, memories"""
+                
+                inputs = ChapterBuilderSchema(
+                    title=chapter.title,
+                    screenplay=self.screenplay,
+                    examples=ComicStripStoryBoarding.load_examples(),
+                    chapter_id=chapter.number,
+                    chapter_content=chapter_content,
+                    art_style=art_style,
+                    aspect_ratio=aspect_ratio,
+                    motion_types_list=motion_types,  # For task YAML injection
+                    panel_transitions_list=panel_transitions,  # For task YAML injection
+                )
+                
+                # Create isolated crew copy for this chapter
+                crew_copy = base_crew.crew().copy()
+                raw_result = await crew_copy.kickoff_async(inputs=inputs.model_dump())
+                
+                # Collect and parse the result
+                from cinema.models.comic_output import ComicBookOutput
+                chapter_output = ChapterBuilder.collect(raw_result, output_model=ComicBookOutput)
+                
+                # Save immediately after successful generation
+                await self._save_chapter_output(chapter_output, chapter)
+                
+                # Calculate stats from the first chapter in the output
+                comic_chapter = chapter_output.chapters[0] if chapter_output.chapters else None
+                if comic_chapter:
+                    num_scenes = len(comic_chapter.scenes)
+                    num_pages = sum(len(s.pages) for s in comic_chapter.scenes)
+                    num_panels = sum(len(p.panels) for s in comic_chapter.scenes for p in s.pages)
+                    
+                    logger.info(f"✓ Chapter {chapter.number} complete: {num_scenes} scenes, {num_pages} pages, {num_panels} panels")
+                
+                return comic_chapter
+            except Exception as e:
+                logger.error(f"✗ Chapter {chapter.number} failed: {e}")
+                return e
+        
+        # Run all chapters in parallel with asyncio.gather
+        results = await asyncio.gather(*[process_single_chapter(ch) for ch in novel.chapters])
         
         # Check for errors
         errors = [r for r in results if isinstance(r, Exception)]
@@ -111,6 +170,15 @@ class ParallelComicGenerator:
         logger.info(f"  Total panels: {comic_output.total_panels}")
         
         return comic_output
+    
+    async def _save_chapter_output(self, chapter_output: ComicBookOutput, chapter: NovelChapter) -> None:
+        """Save chapter output to database immediately after generation"""
+        if self.workflow_id:
+            self._metadata_repo.save_chapter(
+                self.workflow_id,
+                chapter_output.model_dump(),
+            )
+            logger.info(f"💾 Saved Chapter {chapter.number} to database")
     
     async def _process_chapter(
         self,
@@ -139,17 +207,18 @@ class ParallelComicGenerator:
 
             try:
                 # Create ComicStripStoryBoarding crew for this chapter
+                # Let each crew load its own knowledge to avoid duplicate ID errors
                 crew = ChapterBuilder(
                     ctx=self.ctx,
                     outfile=None,
                     use_mock=self.use_mock,  # Use skipper config
-                    knowledge_sources=[self._screenplay_kb],  # NOTE: can be singleton
                 )
                 
                 # Prepare inputs - pass chapter content directly from memory
                 chapter_content = f"# Chapter {chapter.number}: {chapter.title}\n\n{chapter.content}"
                 
                 inputs = ChapterBuilderSchema(
+                    title=chapter.title,
                     screenplay=self.screenplay,
                     examples=ComicStripStoryBoarding.load_examples(),
                     chapter_id=chapter.number,

@@ -166,6 +166,11 @@ class VisualCharacterBuilder(Runner[PipelineState, PipelineState]):
     1. Front view generated first (canonical, no reference)
     2. Side and full_body views seeded from front view
     3. All views maintain consistent character appearance
+    
+    Data Flow:
+    - state.screenplay_dict["character_description"] contains enhanced character data from DB
+    - Each character dict has: physical_appearance, style, world_context, backstory, art_style
+    - This data is passed to CharacterReferenceManager for prompt building
     """
 
     async def run(self, inputs: PipelineState) -> PipelineState:
@@ -226,38 +231,56 @@ class VisualCharacterBuilder(Runner[PipelineState, PipelineState]):
 
                 logger.info(f"🎭 Character: {char.name} (ID: {char_id})")
 
-                # Check if all views already exist (caching)
-                all_cached = True
-                for job in jobs:
-                    view = job.metadata["view"]
-                    output_path = state.get_character_image_path(char_id, view)
-                    if not (output_path.exists() and output_path.stat().st_size > 0):
-                        all_cached = False
-                        break
+                # Check if force regeneration is requested
+                force_regenerate = jobs[0].metadata.get("force_regenerate", False) if jobs else False
 
-                if all_cached:
-                    logger.info(f"  ⊙ All views cached for {char.name}")
+                # Check if all views already exist (caching) - skip if force_regenerate
+                if not force_regenerate:
+                    all_cached = True
                     for job in jobs:
                         view = job.metadata["view"]
                         output_path = state.get_character_image_path(char_id, view)
-                        job.output_path = str(output_path)
-                        job.status = JobStatus.COMPLETED
-                    continue
+                        if not (output_path.exists() and output_path.stat().st_size > 0):
+                            all_cached = False
+                            break
 
-                # Build character description for CharacterReferenceManager
-                character_description = {
-                    "physical_appearance": char.description,
-                    "style": "",  # Style is embedded in description
-                }
+                    if all_cached:
+                        logger.info(f"  ⊙ All views cached for {char.name}")
+                        for job in jobs:
+                            view = job.metadata["view"]
+                            output_path = state.get_character_image_path(char_id, view)
+                            job.output_path = str(output_path)
+                            job.status = JobStatus.COMPLETED
+                        continue
+
+                # Get the full character data directly from screenplay_dict
+                # This dict was built in generators.py with character_full_text, world_context, art_style
+                char_data = next(
+                    (c for c in state.screenplay_dict.get("character_description", []) 
+                     if c["id"] == char_id), 
+                    None
+                )
+                
+                if char_data:
+                    # Pass the full data as-is (character_full_text, world_context, art_style)
+                    character_description = char_data
+                else:
+                    # Fallback: use extracted data (minimal)
+                    character_description = {
+                        "character_full_text": char.description,
+                        "world_context": "",
+                        "art_style": "",
+                    }
 
                 # Generate all views using seeding chain
                 # Front → Side → Full Body (all seeded from front)
                 logger.info(f"  📸 Generating views with seeding chain...")
                 results = await char_manager.generate_character_references(
-                    character_id=f"CHAR_{char_id}",
+                    character_id=char_id,  # Use char_id directly (e.g., c778f39d_1)
                     character_description=character_description,
                     output_dir=str(state.characters_dir),
                     include_back_view=False,  # Only generate front, side, full_body
+                    generate_collage=True,  # Generate collage for future reference
                 )
 
                 # Update job statuses
