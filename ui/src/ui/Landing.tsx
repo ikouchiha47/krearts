@@ -11,7 +11,7 @@ export const Landing: React.FC = () => {
         <h1 className="text-4xl font-black uppercase tracking-wider text-[var(--cream)]">COMICS BOOK</h1>
         <div className="flex gap-4">
           <button
-            onClick={() => navigate('/app')}
+            onClick={() => navigate('/dashboard')}
             className="bg-transparent text-[var(--cream)] px-6 py-2 rounded-lg font-bold uppercase text-sm hover:text-[var(--orange)] transition-colors"
           >
             Dashboard
@@ -32,7 +32,7 @@ export const Landing: React.FC = () => {
                   From story outline to final panels—all powered by AI workflows.
                 </p>
                 <button
-                  onClick={() => navigate('/app')}
+                  onClick={() => navigate('/dashboard')}
                   className="bg-[var(--orange)] text-[var(--ink)] px-10 py-5 rounded-lg font-black uppercase text-lg border-2 border-[var(--ink)] hover:bg-[var(--yellow)] transition-colors shadow-md"
                 >
                   Start Creating →

@@ -41,8 +41,10 @@ class WorkflowState(BaseModel):
     storyline_done: bool = False
     content_done: bool = False
     cover_generated: bool = False
+    characters_generated: bool = False  # NEW: Track character image generation
     chapters_generated: List[int] = []
     pages_generated: List[int] = []
+    chapter_covers_generated: List[int] = []  # NEW: Track chapter cover generation (future)
     output_dir: str
     
     # Configuration (includes skipper settings)

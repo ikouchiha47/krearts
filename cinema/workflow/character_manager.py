@@ -43,13 +43,14 @@ IMPORTANT: Generate image only, no text or labels."""
 
 class CharacterReferenceManager:
     """
-    Manages character reference generation with seeding chain.
+    Manages character reference generation (SIMPLIFIED).
 
-    The seeding chain ensures consistent character appearance:
-    1. Generate front view (canonical, no reference)
-    2. Generate side view (seeded from front)
-    3. Generate full_body (seeded from front)
-    4. All future generations use front as reference
+    Generates minimal reference set:
+    1. Generate full_body view (canonical, standing pose)
+    2. Optionally generate collage (turnaround sheet with multiple views)
+    
+    This simplified approach reduces API calls and generation time while
+    providing sufficient reference for page generation.
     """
 
     def __init__(self, gemini_client: GeminiMediaGen):
@@ -75,13 +76,11 @@ class CharacterReferenceManager:
         generate_collage: bool = False,
     ) -> Dict[str, str]:
         """
-        Generate all character reference views using seeding chain.
+        Generate character reference views (SIMPLIFIED: full_body + optional collage).
 
-        Seeding chain:
-        1. Front view - (canonical) - no reference
-        2. Full view - seeded from front
-        3. Side view - seeded from front
-        4. Back view - seeded from front (optional)
+        Generates:
+        1. Full body view - (canonical) - standing pose, front view
+        2. Collage - (optional) - turnaround sheet with multiple views
 
         Args:
             character_id: Unique character identifier
@@ -89,14 +88,16 @@ class CharacterReferenceManager:
                 - physical_appearance: str
                 - style: str
             output_dir: Directory to save reference images
-            include_back_view: Whether to generate back view (default: True)
+            include_back_view: Deprecated (kept for compatibility)
+            art_style: Optional art style to apply
+            generate_collage: Whether to generate collage turnaround sheet
 
         Returns:
             Dict mapping view -> image_path
-            Example: {"front": "...", "side": "...", "full_body": "...", "back": "..."}
+            Example: {"full_body": "...", "collage": "..."}
         """
         logger.info(f"🎭 Generating character references for {character_id}")
-        logger.info("   Using seeding chain pattern")
+        logger.info("   Simplified mode: full_body + collage only")
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -107,63 +108,21 @@ class CharacterReferenceManager:
         if art_style:
             character_description = {**character_description, "art_style": art_style}
         
-        # Step 1: Generate front view (canonical, with aspect ratio template)
-        logger.info("📸 Step 1/3: Generating canonical front view")
-        front_prompt = self._build_character_prompt(
-            character_description,
-            view="front",
-        )
-        logger.debug(f"Front view prompt: {front_prompt[:100]}...")
-
-        # Use transparent 4:5 template to set aspect ratio
-        template_path = Path(__file__).parent.parent / "templates" / "transparent_4_5.png"
-        logger.debug(f"Using aspect ratio template: {template_path}")
-
-        front_response = await self.gemini.generate_content(
-            prompt=front_prompt,
-            reference_image=str(template_path) if template_path.exists() else None,
-            aspect_ratio="4:5",
-        )
-
-        front_path = str(output_path / f"{character_id}_front.png")
-        self.gemini.render_image(front_path, front_response)
-        results["front"] = front_path
-
-        logger.info(f"✅ Front view saved: {front_path}")
-
-        # Step 2: Generate side view (seeded from front)
-        logger.info("📸 Step 2/3: Generating side view (seeded from front)")
-        side_prompt = self._build_character_prompt(
-            character_description,
-            view="side",
-        )
-        logger.debug(f"Side view prompt: {side_prompt[:100]}...")
-        logger.debug(f"Using reference: {front_path}")
-
-        side_response = await self.gemini.generate_content(
-            prompt=side_prompt,
-            reference_image=front_path,  # ← Seeded from front
-            aspect_ratio="4:5",
-        )
-
-        side_path = str(output_path / f"{character_id}_side.png")
-        self.gemini.render_image(side_path, side_response)
-        results["side"] = side_path
-
-        logger.info(f"✅ Side view saved: {side_path}")
-
-        # Step 3: Generate full body (seeded from front)
-        logger.info("📸 Step 3/3: Generating full body (seeded from front)")
+        # SIMPLIFIED: Only generate full_body view (canonical)
+        logger.info("📸 Step 1/1: Generating full body view (canonical)")
         full_body_prompt = self._build_character_prompt(
             character_description,
             view="full_body",
         )
         logger.debug(f"Full body prompt: {full_body_prompt[:100]}...")
-        logger.debug(f"Using reference: {front_path}")
+
+        # Use transparent 4:5 template to set aspect ratio
+        template_path = Path(__file__).parent.parent / "templates" / "transparent_4_5.png"
+        logger.debug(f"Using aspect ratio template: {template_path}")
 
         full_body_response = await self.gemini.generate_content(
             prompt=full_body_prompt,
-            reference_image=front_path,
+            reference_image=str(template_path) if template_path.exists() else None,
             aspect_ratio="4:5",
         )
 
@@ -172,29 +131,6 @@ class CharacterReferenceManager:
         results["full_body"] = full_body_path
 
         logger.info(f"✅ Full body saved: {full_body_path}")
-
-        include_back_view = True
-
-        # Step 4: Generate back view (seeded from front) - OPTIONAL
-        if include_back_view:
-            logger.info("📸 Step 4/4: Generating back view (seeded from front)")
-            back_prompt = self._build_character_prompt(
-                character_description, view="back"
-            )
-            logger.debug(f"Back view prompt: {back_prompt[:100]}...")
-            logger.debug(f"Using reference: {front_path}")
-
-            back_response = await self.gemini.generate_content(
-                prompt=back_prompt,
-                reference_image=front_path,
-                aspect_ratio="4:5",
-            )
-
-            back_path = str(output_path / f"{character_id}_back.png")
-            self.gemini.render_image(back_path, back_response)
-            results["back"] = back_path
-
-            logger.info(f"✅ Back view saved: {back_path}")
 
         # Cache for future use
         self.character_cache[character_id] = results
@@ -207,7 +143,7 @@ class CharacterReferenceManager:
                 character_description=character_description,
                 output_dir=output_dir,
                 art_style=art_style,
-                reference_image=results.get("front"),  # Use front view as reference
+                reference_image=results.get("full_body"),  # Use full_body as reference
             )
             results["collage"] = collage_path
 

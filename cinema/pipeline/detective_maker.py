@@ -20,6 +20,7 @@ from cinema.agents.bookwriter.crew import (
     PlotCritique,
     ScreenplayWriter,
 )
+from cinema.agents.bookwriter.utils import get_allowed_art_styles
 from cinema.agents.bookwriter.detective import (
     ConsistencyValidator,
     ConstraintTableBuilder,
@@ -169,6 +170,9 @@ class NarrativeBuilderWithStoryBuilder(Runner[Dict[str, Any], DetectiveStoryOutp
             StripperInputSchema,
         )
 
+        # Get allowed art styles from manifest
+        allowed_art_styles = get_allowed_art_styles()
+        
         # Build plot schema
         plot_builder_schema = DetectivePlotBuilderSchema(
             characters=plot_structure["graph"]["characters"],
@@ -178,6 +182,9 @@ class NarrativeBuilderWithStoryBuilder(Runner[Dict[str, Any], DetectiveStoryOutp
             accomplices=plot_structure["constraints"]["accomplices"],
             witnesses=plot_structure["constraints"]["witnesses"],
             betrayals=plot_structure["constraints"]["betrayals"],
+            allowed_art_styles=", ".join(allowed_art_styles),
+            selected_art_styles=self.art_style,  # Use the art style from DetectiveMaker
+            user_requirements="",  # No user requirements in CLI mode
             examples="",
         )
 

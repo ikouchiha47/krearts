@@ -27,7 +27,8 @@ def get_directors_context() -> DirectorsContext:
 
 def get_book_service(
     ctx: DirectorsContext = Depends(get_directors_context),
+    storage = Depends(get_storage),
 ) -> BookWorkflowService:
     """Dependency that provides a BookWorkflowService instance."""
 
-    return BookWorkflowService(ctx=ctx, job_repo=get_job_repository())
+    return BookWorkflowService(ctx=ctx, job_repo=get_job_repository(), storage=storage)

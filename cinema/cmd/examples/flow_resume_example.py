@@ -29,6 +29,7 @@ from cinema.agents.bookwriter.crew import (
     ScreenplayWriter,
     StripperInputSchema,
 )
+from cinema.agents.bookwriter.utils import get_allowed_art_styles
 from cinema.agents.bookwriter.flow import StoryBuilder, StoryBuilderInput
 from cinema.context import DirectorsContext
 from cinema.registry import OpenAiHerd
@@ -90,14 +91,21 @@ async def start_flow_with_pause(pause_at: str = "storyboard"):
     # Prepare inputs (copied from detective_maker.py)
     from cinema.agents.bookwriter.flow import ScreenplayWriterSchema
     
+    # Get allowed art styles
+    allowed_art_styles = get_allowed_art_styles()
+    
+    # Use generic character identifiers (LLM will assign names/roles)
     plot_builder_schema = DetectivePlotBuilderSchema(
-        characters="Detective Morgan, James Butler (killer), Victor Ashford (victim)",
-        relationships="Butler served Ashford for 30 years",
-        killer="James Butler",
-        victim="Victor Ashford",
-        accomplices="Dr. Helen Price",
-        witnesses="Margaret Ashford",
+        characters="Character A (killer), Character B (victim), Character C, Character D",
+        relationships="Character A served Character B for 30 years",
+        killer="Character A",
+        victim="Character B",
+        accomplices="Character C",
+        witnesses="Character D",
         betrayals="",
+        allowed_art_styles=", ".join(allowed_art_styles),
+        selected_art_style="Print Comic Noir Style",
+        user_requirements="A classic murder mystery set in a Victorian mansion",
         examples="",
     )
     

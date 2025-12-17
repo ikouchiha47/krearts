@@ -25,6 +25,7 @@ from cinema.registry import (
     LLMExecutorIntent,
     LLMPlannerIntent,
     LLMThinkerIntent,
+    ModelConfig,
     OpenAiHerd,
 )
 
@@ -77,6 +78,9 @@ class DetectivePlotBuilderSchema(BaseModel):
     accomplices: Any
     witnesses: Any
     betrayals: Any
+    allowed_art_styles: str  # Comma-separated list of available art styles
+    selected_art_styles: Optional[str] = ""  # User's selected art styles (comma-separated, can be multiple)
+    user_requirements: Optional[str] = ""  # Optional seed/requirements from user
     examples: str
     feedback: Optional[str] = ""
     storyline: Optional[str] = ""
@@ -380,6 +384,7 @@ class ScreenplayWriterSchema(BaseModel):
     pages: Optional[int] = 50
     summary: Optional[str] = ""
     words_per_chapter: Optional[int] = 100
+    previous_iter_data: str = Field(default="")
 
 
 @CrewBase
@@ -520,6 +525,7 @@ class BookWriterSchema(BaseModel):
     examples: str = ""
     character_details: list[str] = []
     world_era: str = ""
+    previous_iter_data: str = Field(default="")
 
 @CrewBase
 class BookWriter:
@@ -528,6 +534,7 @@ class BookWriter:
 
     role_name: str = "novelist"
     default_outfile: str = "novel.md"
+    max_retries: int = 100
 
     # ctx: Optional[DirectorsContext] = None
     # external_memory: Optional[ExternalMemory] = None
@@ -611,11 +618,16 @@ class BookWriter:
     def bootstrap(self):
         assert self.ctx is not None
 
+        model_config = self.ctx.llmstore.get_model(LLMThinkerIntent)
+        logger.info(f"[BookWriter] Using model config: {model_config}")
+        assert model_config is not None
+
         agent = Agent(
             config=self.agents_config[self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMThinkerIntent),
             tools=self.config.tools,
-            max_iter=10,
+            max_iter=self.max_retries,
+            max_tokens=model_config.max_tokens or 32000,
             verbose=self.ctx.debug,
         )
 

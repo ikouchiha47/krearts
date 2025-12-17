@@ -27,10 +27,11 @@ from cinema.models.novel import Novel
 from cinema.pipeline.parallel_comic_generator import ParallelComicGenerator
 from cinema.transformers.storyline_parser import StorylineParser
 from cinema.db.characters import CharacterStore
+from cinema.workflow.domain_events import DomainEvent, DomainEventRegistry
 
 logger = logging.getLogger(__name__)
 
-MAX_RETRIES = 3
+MAX_BOOKWRITER_RETRIES = 3 # BookWriter.max_retries
 
 
 class StoryBuilderOutput(BaseModel):
@@ -97,6 +98,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
     _booker_crew = None
 
     _storage: Optional[StoryBuilderStateRepository] = None
+    _event_registry: Optional[DomainEventRegistry] = None
 
     generation_target: str = "bookerama"  # or "screenplay"
     output_base_dir: Optional[str] = None  # Optional: output directory from pipeline
@@ -166,6 +168,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         initial_state: dict | None = None,
         output_base_dir: Optional[str]= None,
         flow_id: Optional[str] = None,
+        event_registry: Optional[DomainEventRegistry] = None,
     ):
 
         if not initial_state:
@@ -186,6 +189,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         o.screenplay = screenplay
         o.booker = booker
         o._storage = get_storybuilder_storage()
+        o._event_registry = event_registry
 
         return o
 
@@ -222,7 +226,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
         assert self.state.input.plotbuilder is not None, "PlotSchemaNotFound"
 
         logger.info(
-            f"[Iteration {self.state.output.retry_count + 1}/{MAX_RETRIES}] Running DetectivePlotBuilder..."
+            f"[Iteration {self.state.output.retry_count + 1}/{MAX_BOOKWRITER_RETRIES}] Running DetectivePlotBuilder..."
         )
 
         plot_inputs: dict[str, Any] = self.state.input.plotbuilder.model_dump()
@@ -278,6 +282,19 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
         return
 
+    def _emit_event(self, event_name: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Emit a domain event for this workflow state."""
+        if not self._event_registry:
+            return
+        
+        event = DomainEvent(
+            name=event_name,
+            workflow_id=self.state.id,
+            state=self.state.model_dump(),
+            metadata=metadata or {}
+        )
+        self._event_registry.enqueue(event)
+
     @router(handle_critique)
     def eval_plotline(self):
         assert self.state.input is not None, "InputNotFound"
@@ -314,6 +331,9 @@ class StoryBuilder(Flow[StoryBuilderState]):
         if verdict == "PASS":
             logger.info("✓ Critique PASSED")
             self.state.output.critique = None
+            
+            # Emit domain event: storyline completed and approved
+            self._emit_event("storyline_approved")
 
             # Check if we should halt at the generation target (bookerama/screenplay)
             if self.state.waits_at.get(self.generation_target, False):
@@ -332,8 +352,11 @@ class StoryBuilder(Flow[StoryBuilderState]):
             else:
                 self.update_state(self.generation_target)  # "screenplay")
 
-        elif self.state.output.retry_count >= MAX_RETRIES:  # because 0 indexed
-            logger.warning(f"⚠ Max retries ({MAX_RETRIES}) reached")
+        elif self.state.output.retry_count >= MAX_BOOKWRITER_RETRIES:  # because 0 indexed
+            logger.warning(f"⚠ Max retries ({MAX_BOOKWRITER_RETRIES}) reached")
+            
+            # Emit domain event even on max retries (storyline exists, just not perfect)
+            self._emit_event("storyline_approved", {"max_retries_reached": True})
             
             # Check if we should halt at the generation target even after max retries
             if self.state.waits_at.get(self.generation_target, False):
@@ -355,7 +378,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
         else:
             logger.info(
-                f"✗ Critique FAILED - retrying with feedback (attempt {self.state.output.retry_count + 1}/{MAX_RETRIES})"
+                f"✗ Critique FAILED - retrying with feedback (attempt {self.state.output.retry_count + 1}/{MAX_BOOKWRITER_RETRIES})"
             )
             self.state.output.retry_count += 1
             # Feedback will be picked up in handle_storybuilding via output.critique
@@ -402,7 +425,9 @@ class StoryBuilder(Flow[StoryBuilderState]):
 
     @listen("bookerama")
     async def handle_book_writing(self):
-        logger.info("Running Book writing crew...")
+        logger.info("=" * 80)
+        logger.info(f"HANDLE_BOOK_WRITING: Starting (retry_count={self.state.output.retry_count if self.state.output else 0})")
+        logger.info("=" * 80)
 
         assert self.state.input is not None
         assert self.state.input.stripper is not None
@@ -413,7 +438,6 @@ class StoryBuilder(Flow[StoryBuilderState]):
         self.update_state("bookerama")
 
         # Parse storyline to get world context and character details
-        
         parsed = StorylineParser.parse_full_storyline(self.state.output.storyline)
         world_era = parsed.world_context.full_text
         character_details = [char.full_text for char in parsed.characters]
@@ -421,14 +445,15 @@ class StoryBuilder(Flow[StoryBuilderState]):
         logger.info(f"📚 Parsed {len(parsed.characters)} characters for BookWriter")
         logger.info(f"🌍 World context: {len(world_era)} chars")
         
-        # Save characters to database for later use (character generation, etc.)
-        store = CharacterStore()
-        store.save_characters(self.state.id, parsed.characters)
-        logger.info(f"✅ Saved {len(parsed.characters)} characters to database")
-        
-        # Store in output state
+        # Store in output state for novel generation
         self.state.output.world_era = world_era
         self.state.output.character_details = character_details
+
+        # Check if we have previous iteration data (for retry)
+        previous_iter_data = ""
+        if self.state.output.screenplay:
+            previous_iter_data = f"Previous attempt (FAILED validation):\n{self.state.output.screenplay}\n\nPlease continue to generate a complete novel starting with '# Title:' format."
+            logger.info(f"🔄 Retrying with previous iteration data ({len(previous_iter_data)} chars)")
 
         # NOTE: Reusing for Novel Crew
         screenplay = BookWriterSchema(
@@ -437,6 +462,7 @@ class StoryBuilder(Flow[StoryBuilderState]):
             character_details=character_details,
             art_style=self.state.input.stripper.art_style,
             examples="",
+            previous_iter_data=previous_iter_data,
         )
 
         if self._booker_crew is None:
@@ -452,13 +478,60 @@ class StoryBuilder(Flow[StoryBuilderState]):
         )
         self.state.output.screenplay = output
 
-        logger.info("✓ Screenplay Generated generated")
-
-        self.update_state("storyboard")
+        logger.info("✓ Novel generation completed")
 
         return self.state.current_state
+    
+    @router(handle_book_writing)
+    def eval_novel(self):
+        """Validate novel output and retry if needed (like critique loop)"""
+        logger.info("=" * 80)
+        logger.info("EVAL_NOVEL: Starting validation")
+        logger.info("=" * 80)
+        
+        assert self.state.output is not None, "OutputNotFound"
+        assert self.state.output.screenplay is not None, "NovelNotFound"
 
-    @listen(or_("storyboard", handle_screenplay, handle_book_writing))
+        screenplay = self.state.output.screenplay.strip()
+        
+        # Validation 1: Check if starts with proper format
+        has_title = screenplay.startswith('# Title:') or screenplay.startswith('#')
+        
+        # Validation 2: Check minimum length
+        min_length = 5000
+        is_long_enough = len(screenplay) >= min_length
+        
+        # Validation 3: Check not contaminated with agent thinking
+        is_clean = not screenplay.startswith(('Thought', 'Action:', 'Observation:'))
+        
+        logger.info(f"📋 Novel validation (retry_count={self.state.output.retry_count}):")
+        logger.info(f"   - has_title: {has_title}")
+        logger.info(f"   - is_long_enough: {is_long_enough} ({len(screenplay)} chars, min={min_length})")
+        logger.info(f"   - is_clean: {is_clean}")
+        logger.info(f"   - Preview: {screenplay[:200]}")
+        
+        if has_title and is_long_enough and is_clean:
+            logger.info("✅ Novel PASSED validation - proceeding to storyboard")
+            self.update_state("storyboard")
+        
+        elif self.state.output.retry_count >= MAX_BOOKWRITER_RETRIES:
+            logger.warning(f"⚠️ Max retries ({MAX_BOOKWRITER_RETRIES}) reached for novel generation")
+            logger.warning(f"   Proceeding anyway with current output")
+            # Still proceed but log the issue
+            self.update_state("storyboard")
+        
+        else:
+            logger.warning(f"❌ Novel FAILED validation - retrying (attempt {self.state.output.retry_count + 1}/{MAX_BOOKWRITER_RETRIES})")
+            self.state.output.retry_count += 1
+            # Retry bookerama - previous screenplay will be passed as previous_iter_data
+            logger.info(f"🔄 Routing back to bookerama for retry #{self.state.output.retry_count}")
+            self.update_state("bookerama")
+        
+        logger.info(f"EVAL_NOVEL: Routing to state '{self.state.current_state}'")
+        logger.info("=" * 80)
+        return self.state.current_state
+
+    @listen(or_("storyboard", handle_screenplay))
     async def handle_storyboarding(self):
         logger.info("Running Parallel Comic Generation...")
 

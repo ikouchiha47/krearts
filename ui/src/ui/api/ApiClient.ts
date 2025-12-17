@@ -51,6 +51,8 @@ export interface StoryTemplateSummary {
 export interface InitBookPayload {
   templateId?: string;
   title?: string;
+  art_styles?: string[];  // Multiple art styles selected by user
+  user_requirements?: string;  // Optional seed/requirements text
 }
 
 export type ChapterSelection =

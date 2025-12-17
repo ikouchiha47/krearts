@@ -16,8 +16,10 @@ from typing import Optional, List, Dict, Any
 from cinema.workflow.interface import WorkflowInterface, WorkflowType, WorkflowStage, WorkflowState
 from cinema.context import DirectorsContext
 from cinema.agents.bookwriter.storage import get_storybuilder_storage
+from cinema.agents.bookwriter.utils import get_allowed_art_styles
 from cinema.comics.storage import ComicMetadataRepository, get_comic_metadata_repository
 from cinema.quota import get_max_concurrent_chapters
+from cinema.agents.bookwriter.flow import MAX_BOOKWRITER_RETRIES
 
 logger = logging.getLogger(__name__)
 
@@ -38,14 +40,21 @@ class BookWorkflow(WorkflowInterface):
         """
         logger.info(f"📖 Initializing book workflow: {self.workflow_id}")
         
-        # Use defaults if not provided
-        characters = kwargs.get('characters') or "Detective Morgan, James Butler (killer), Victor Ashford (victim), Dr. Helen Price, Margaret Ashford"
-        killer = kwargs.get('killer') or "James Butler"
-        victim = kwargs.get('victim') or "Victor Ashford"
+        # Use defaults if not provided (generic character identifiers, LLM will assign names/roles)
+        characters = kwargs.get('characters') or "Character A (killer), Character B (victim), Character C, Character D"
+        killer = kwargs.get('killer') or "Character A"
+        victim = kwargs.get('victim') or "Character B"
         relationships = kwargs.get('relationships') or ""
         accomplices = kwargs.get('accomplices') or ""
         witnesses = kwargs.get('witnesses') or ""
         betrayals = kwargs.get('betrayals') or ""
+        
+        # Get user inputs from UI
+        art_styles_input = kwargs.get('art_styles') or kwargs.get('art_style') or []
+        if isinstance(art_styles_input, str):
+            art_styles_input = [art_styles_input] if art_styles_input else []
+        selected_art_styles = ", ".join(art_styles_input) if art_styles_input else ""
+        user_requirements = kwargs.get('user_requirements') or kwargs.get('requirements') or ""
         
         logger.info(f"   Characters: {characters[:50]}...")
         logger.info(f"   Killer: {killer}")
@@ -106,6 +115,12 @@ class BookWorkflow(WorkflowInterface):
         flow.generation_target = "bookerama"
         flow.state.waits_at = {"bookerama": True}
         
+        # Get allowed art styles from manifest
+        allowed_art_styles = get_allowed_art_styles()
+        
+        logger.info(f"   Selected art styles: {selected_art_styles or 'None (LLM will choose)'}")
+        logger.info(f"   User requirements: {user_requirements[:100] if user_requirements else 'None'}...")
+        
         # Prepare input
         plot_schema = DetectivePlotBuilderSchema(
             characters=characters,
@@ -115,6 +130,9 @@ class BookWorkflow(WorkflowInterface):
             accomplices=accomplices,
             witnesses=witnesses,
             betrayals=betrayals,
+            allowed_art_styles=", ".join(allowed_art_styles),
+            selected_art_styles=selected_art_styles,
+            user_requirements=user_requirements,
             examples="",
         )
         
@@ -136,9 +154,26 @@ class BookWorkflow(WorkflowInterface):
         # Pass config to flow state for eval skipper
         flow.state.config = kwargs
         
+        # Set up domain event registry and handlers
+        from cinema.workflow.domain_events import get_event_registry
+        from cinema.workflow.handlers.character_extraction import CharacterExtractionHandler
+        
+        event_registry = get_event_registry()
+        
+        # Register character extraction handler for storyline_approved event
+        character_handler = CharacterExtractionHandler()
+        event_registry.register("storyline_approved", character_handler.handle)
+        
+        # Inject registry into flow
+        flow._event_registry = event_registry
+        
         # Run flow until halt
         logger.info("Running StoryBuilder flow (plan + critique)...")
         await flow.kickoff_async()
+        
+        # Dispatch all queued domain events
+        logger.info("Dispatching domain events...")
+        event_registry.dispatch_queued()
         
         # Check if flow halted as expected
         if flow.state.halted_at:
@@ -148,6 +183,12 @@ class BookWorkflow(WorkflowInterface):
         output = flow.state.output
         if not output or not output.storyline:
             raise ValueError("Flow did not generate storyline")
+        
+        # GUARDRAIL: Validate storyline is not contaminated
+        if output.storyline.strip().startswith(('Thought', 'Action:', 'Observation:')):
+            logger.error("❌ GUARDRAIL: Storyline is contaminated with agent thinking!")
+            logger.error(f"   First 200 chars: {output.storyline[:200]}")
+            raise ValueError("Storyline generation failed - output contaminated with agent thinking. Please retry.")
         
         result = {
             "storyline": output.storyline,
@@ -220,14 +261,34 @@ class BookWorkflow(WorkflowInterface):
         # Ensure storyboard halt is set even when resuming
         flow.state.waits_at["storyboard"] = True
         
+        # Set up domain event registry (in case events are emitted during content gen)
+        from cinema.workflow.domain_events import get_event_registry
+        event_registry = get_event_registry()
+        flow._event_registry = event_registry
+        
         # Run flow until halt at storyboard
         logger.info("Running StoryBuilder flow (bookerama generation)...")
         await flow.kickoff_async()
+        
+        # Dispatch any queued domain events
+        logger.info("Dispatching domain events...")
+        event_registry.dispatch_queued()
         
         # Extract results
         output = flow.state.output
         if not output or not output.screenplay:
             raise ValueError("Flow did not generate screenplay/novel")
+        
+        # GUARDRAIL: Final safety check (flow should have already validated and retried)
+        screenplay_stripped = output.screenplay.strip()
+        min_length = 5000
+        
+        if len(output.screenplay) < min_length:
+            logger.error(f"❌ GUARDRAIL: Novel too short after {MAX_BOOKWRITER_RETRIES} retries ({len(output.screenplay)} chars)")
+            logger.error(f"   Preview: {screenplay_stripped[:500]}")
+            raise ValueError(f"Novel generation failed after {MAX_BOOKWRITER_RETRIES} attempts - output too short. Check logs for details.")
+        
+        logger.info(f"✅ Novel passed final guardrail ({len(output.screenplay)} chars)")
         
         # Save novel to file
         from pathlib import Path
@@ -245,7 +306,7 @@ class BookWorkflow(WorkflowInterface):
         self.state.current_stage = WorkflowStage.CHAPTERS
         self.save_state()
         
-        logger.info(f"✅ Book generated: {result['output_file']}")
+        logger.info(f"✅ Book generated: {result['output_file']} ({len(output.screenplay)} chars)")
         return result
     
     async def generate_characters(self) -> Dict[str, Any]:
@@ -379,6 +440,7 @@ class BookWorkflow(WorkflowInterface):
             storage = get_storybuilder_storage()
             flow_data = storage.load(self.workflow_id)
         except FileNotFoundError:
+            logger.debug(f"   Flow state not found for {self.workflow_id}")
             flow_data = None
         except Exception as e:
             logger.debug(f"   Could not read flow state: {e}")
@@ -387,12 +449,14 @@ class BookWorkflow(WorkflowInterface):
         if flow_data:
             storyline = flow_data.get('output', {}).get('storyline', '')
             if storyline:
-                # Look for "- **Art Style:** ..." pattern in storyline
-                match = re.search(r'-\s*\*\*Art Style:\*\*\s*(.+?)(?:\n|$)', storyline)
+                # Look for "- **Art Style:** ..." or "Art Style:" pattern in storyline
+                match = re.search(r'(?:-\s*)?\*\*Art Style[:\*]+\s*(.+?)(?:\n|$)', storyline, re.IGNORECASE)
                 if match:
                     art_style = match.group(1).strip()
                     logger.info(f"   ✅ Art style from storyline: {art_style}")
                     return art_style
+                else:
+                    logger.debug(f"   No art style pattern found in storyline (length: {len(storyline)})")
         
         # Priority 2: Try novel.md (generated content)
         novel_file = Path(self.output_dir) / "novel.md"
@@ -702,8 +766,13 @@ The cover should immediately convey the genre and tone of the story while being 
             metadata_repo=self._comic_repo,
         )
         
-        art_style = kwargs.get('art_style', 'Print Comic Noir Style')
-        aspect_ratio = kwargs.get('aspect_ratio', '4:5')
+        art_style = kwargs.get('art_style')
+        aspect_ratio = kwargs.get('aspect_ratio')
+        
+        if not art_style:
+            raise ValueError("art_style is required but was not provided in kwargs")
+        if not aspect_ratio:
+            raise ValueError("aspect_ratio is required but was not provided in kwargs")
         
         logger.info(f"   Running ParallelComicGenerator for {len(new_chapters)} chapters...")
         logger.info(f"   Art style: {art_style}")

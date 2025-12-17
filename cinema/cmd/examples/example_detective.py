@@ -119,25 +119,25 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Define characters
+    # Define characters with generic identifiers (LLM will assign names, roles, personalities)
     characters = [
-        Character("Detective Morgan", "detective"),
-        Character("Victor Ashford", "victim"),
-        Character("James Butler", "butler", faction="servants"),
-        Character("Margaret Ashford", "wife", faction="family"),
-        Character("Dr. Helen Price", "doctor"),
+        Character("Character A", "killer"),
+        Character("Character B", "victim"),
+        Character("Character C", "accomplice", faction="conspirators"),
+        Character("Character D", "witness", faction="family"),
+        Character("Character E", "detective"),
     ]
 
-    # Define plot constraints
+    # Define plot constraints using generic identifiers
     constraints = PlotConstraints(
-        killer="James Butler",
-        victim="Victor Ashford",
+        killer="Character A",
+        victim="Character B",
         accomplices=[],
-        framed_suspect="Margaret Ashford",
-        witnesses=[("Dr. Helen Price", "suspicious activity")],
-        alliances=[("James Butler", "Dr. Helen Price")],
-        winners=["James Butler"],
-        losers=["Margaret Ashford"],
+        framed_suspect="Character D",
+        witnesses=[("Character C", "suspicious activity")],
+        alliances=[("Character A", "Character C")],
+        winners=["Character A"],
+        losers=["Character D"],
         betrayals=[],
     )
 

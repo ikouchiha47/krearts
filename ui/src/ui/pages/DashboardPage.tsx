@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useApi } from '../api/ApiProvider';
 import { WorkflowSummary } from '../api/ApiClient';
+import { CreateWorkflowForm } from '../components/CreateWorkflowForm';
+import { WorkflowCard } from '../components/WorkflowCard';
 
 export const DashboardPage: React.FC = () => {
   const api = useApi();
@@ -54,49 +55,37 @@ export const DashboardPage: React.FC = () => {
 
       <main className="p-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-5xl font-black uppercase mb-8 tracking-tight">Your Stories</h2>
-          
-          {workflows.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-2xl font-bold uppercase tracking-wide" style={{ color: 'var(--muted)' }}>
-                No workflows yet. Create your first comic!
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {workflows.map((workflow) => (
-                <Link
-                  key={workflow.id}
-                  to={`/workflow/${workflow.id}`}
-                  className="comic-card p-6 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-black text-2xl uppercase tracking-tight leading-tight">{workflow.title}</h3>
-                    <span className="comic-badge px-2 py-1 rounded text-[10px]">
-                      {workflow.currentStage.toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  <div className="flex gap-6 text-base font-bold mb-4">
-                    <div>
-                      <span className="text-3xl font-black">{workflow.chaptersGenerated}</span>
-                      <div className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted)' }}>Chapters</div>
-                    </div>
-                    <div>
-                      <span className="text-3xl font-black">{workflow.pagesGenerated}</span>
-                      <div className="text-xs uppercase tracking-wide" style={{ color: 'var(--muted)' }}>Pages</div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-xs font-mono" style={{ color: 'var(--muted)' }}>
-                    #{workflow.id.slice(0, 8)}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-[1fr_400px] gap-8">
+            {/* Left: Workflows List */}
+            <div>
+              <h2 className="text-5xl font-black uppercase mb-8 tracking-tight">Your Stories</h2>
+              
+              {workflows.length === 0 ? (
+                <div className="text-center py-20">
+                  <div className="text-6xl mb-4">📚</div>
+                  <p className="text-2xl font-bold uppercase tracking-wide" style={{ color: 'var(--muted)' }}>
+                    No workflows yet
+                  </p>
+                  <p className="text-sm mt-2" style={{ color: 'var(--muted)' }}>
+                    Create your first comic using the panel on the right →
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {workflows.map((workflow, idx) => (
+                    <WorkflowCard key={workflow.id} workflow={workflow} index={idx} />
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right: Create Workflow Form */}
+          <div>
+            <CreateWorkflowForm />
+          </div>
         </div>
-      </main>
+      </div>
+    </main>
     </div>
   );
 };

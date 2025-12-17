@@ -48,18 +48,36 @@ plotbuilder:
 
       ## Art Style Selection
       - Available art styles: {allowed_art_styles}
-      - If user requests a style not in the list, select the NEAREST MATCH from available styles
+      - User selected art styles: {selected_art_styles}
+      - If user selected styles, USE THEM (they can be combined)
+      - If no styles selected, choose from available styles based on story tone
       - Art styles can be COMBINED (e.g., "noir + cyberpunk", "anime + pop-art")
       - See art-styles/combinations.md for proven combinations
       - For sci-fi stories:
         - Use "sci-fi" for clean, optimistic future aesthetics
         - Use "cyberpunk" for dystopian, gritty, neon-drenched aesthetics
-      - Include selected art style in storyline metadata
+      - Include selected art styles in storyline metadata
       - From directories, files and knowledgebase, choose the best possible styles matching intent.
 
       IMPORTANT:
       - Text inside (), [] and <> are instructions or intent
       - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+      ---
+
+      ## User Requirements (Optional Seed)
+      
+      {user_requirements}
+
+      <logic>
+      if user_requirements is provided:
+        - Use these as creative constraints and inspiration
+        - Incorporate themes, settings, character types mentioned
+        - Respect any specific requests (era, location, tone, etc.)
+        - Build the story around these requirements
+      else:
+        - Create story freely based on plot structure
+      </logic>
 
       ---
 
@@ -1913,6 +1931,9 @@ novelist:
 
     ## Total Pages
     {total_pages}
+
+    ## Previous Iteration Result
+    {previous_iter_data}
 
     ---
 

@@ -213,11 +213,17 @@ export const App: React.FC = () => {
                   onClick={() => window.location.href = `/workflow/${featuredWorkflow.id}`}
                 >
                   <div className="flex items-start gap-6">
-                    <div className="flex-shrink-0 w-48 h-64 border-4 border-[var(--ink)] rounded bg-gradient-to-br from-[var(--yellow)] to-[var(--orange)] flex items-center justify-center">
+                    <div className="flex-shrink-0 w-48 h-64 border-4 border-[var(--ink)] rounded bg-gradient-to-br from-[var(--yellow)] to-[var(--orange)] flex items-center justify-center relative">
                       <div className="text-center">
                         <div className="text-6xl font-black">📖</div>
                         <div className="text-xs font-bold mt-2 tracking-wider uppercase">COVER</div>
                       </div>
+                      {/* Show spinner for in-progress workflows */}
+                      {(!featuredWorkflow.contentDone || !featuredWorkflow.storylineDone) && (
+                        <div className="absolute top-3 right-3 w-8 h-8 bg-[var(--orange)] border-2 border-[var(--ink)] rounded-full flex items-center justify-center">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--muted)' }}>Featured Workflow</div>
@@ -234,13 +240,16 @@ export const App: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-base font-bold mb-6" style={{ color: 'var(--muted)' }}>
-                        Continue working on this storyline. Generate more chapters, refine pages, or export your comic book.
+                        {(!featuredWorkflow.storylineDone || !featuredWorkflow.contentDone) 
+                          ? 'Workflow is generating... Check back soon to continue working on your story.'
+                          : 'Continue working on this storyline. Generate more chapters, refine pages, or export your comic book.'
+                        }
                       </p>
                       <button
                         className="comic-button px-6 py-3 rounded text-sm"
                         onClick={() => window.location.href = `/workflow/${featuredWorkflow.id}`}
                       >
-                        OPEN WORKFLOW →
+                        {(!featuredWorkflow.storylineDone || !featuredWorkflow.contentDone) ? 'VIEW PROGRESS →' : 'OPEN WORKFLOW →'}
                       </button>
                     </div>
                   </div>
@@ -277,14 +286,20 @@ export const App: React.FC = () => {
                           key={wf.id}
                           type="button"
                           onClick={() => window.location.href = `/workflow/${wf.id}`}
-                          className="text-left transition-all hover:scale-105"
+                          className="text-left transition-all hover:scale-105 relative"
                         >
-                          <div className="aspect-[2/3] mb-3">
+                          <div className="aspect-[2/3] mb-3 relative">
                             <div className={`w-full h-full bg-gradient-to-br ${gradients[idx % gradients.length]} rounded-lg border-2 border-[var(--ink)] flex items-center justify-center shadow-md`}>
                               <div className="text-white text-4xl font-black">📖</div>
                             </div>
+                            {/* Show spinner badge for in-progress workflows */}
+                            {(!wf.contentDone || !wf.storylineDone) && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--orange)] border-2 border-[var(--ink)] rounded-full flex items-center justify-center">
+                                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              </div>
+                            )}
                           </div>
-                          <div className="text-sm font-black uppercase leading-tight mb-1">{wf.title}</div>
+                          <div className="text-sm font-black uppercase leading-tight mb-1 line-clamp-2 min-h-[2.5rem]">{wf.title}</div>
                           <div className="flex gap-2 text-[10px] font-bold" style={{ color: 'var(--muted)' }}>
                             <span>{getCount(wf.chaptersGenerated)} CH</span>
                             <span>·</span>
@@ -318,14 +333,14 @@ export const App: React.FC = () => {
 
             {/* Right Sidebar: Create New */}
             <aside className="flex flex-col gap-4">
-              <div className="comic-card p-6 sticky top-6">
+              <div className="comic-card p-6 sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto">
                 <h2 className="text-lg font-black uppercase tracking-wide mb-4">Create New Workflow</h2>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wide mb-1 block">Title</label>
+                    <label className="text-xs font-bold uppercase tracking-wide mb-1 block">Title (Optional)</label>
                     <input
                       className="w-full px-3 py-2 border-2 border-[var(--ink)] rounded text-sm bg-white focus:outline-none focus:border-[var(--orange)]"
-                      placeholder="Enter story title..."
+                      placeholder="Leave blank for auto-title..."
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
                     />
@@ -348,8 +363,7 @@ export const App: React.FC = () => {
                   <button
                     type="button"
                     onClick={onCreateWorkflow}
-                    disabled={!newTitle.trim()}
-                    className="comic-button w-full py-3 rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="comic-button w-full py-3 rounded text-xs"
                   >
                     INIT WORKFLOW
                   </button>
@@ -358,7 +372,7 @@ export const App: React.FC = () => {
                 <div className="mt-6 pt-4 border-t-2 border-[var(--ink)]">
                   <div className="font-bold mb-2 uppercase tracking-wide text-xs">Quick Start</div>
                   <ul className="space-y-1 text-[11px] font-bold" style={{ color: 'var(--muted)' }}>
-                    <li>• Enter a title for your story</li>
+                    <li>• Title is optional (auto-generated from story)</li>
                     <li>• Pick a template or start fresh</li>
                     <li>• Click to initialize workflow</li>
                     <li>• Begin generating content</li>

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../api/ApiProvider';
 import ReactMarkdown from 'react-markdown';
 import { useJobPoller } from '../hooks/useJobPoller';
+import { WorkflowProgressBar } from '../components/WorkflowProgressBar';
+import { RunningJobProgress } from '../components/RunningJobProgress';
 
-type ViewTab = 'story' | 'pages' | 'timeline' | 'graph';
+type ViewTab = 'story' | 'plot' | 'pages' | 'timeline' | 'graph';
 
 export const WorkflowPage: React.FC = () => {
   const { workflowId } = useParams<{ workflowId: string }>();
@@ -17,6 +19,8 @@ export const WorkflowPage: React.FC = () => {
   const [characters, setCharacters] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [charJobId, setCharJobId] = useState<string | null>(null);
+  const [lastSeenChapters, setLastSeenChapters] = useState<number[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Poll for character generation job status
   const charJobStatus = useJobPoller({
@@ -43,9 +47,38 @@ export const WorkflowPage: React.FC = () => {
     }
   }, [workflowId]);
 
+  const handleJobProgress = useCallback((job: any) => {
+    const currentChapters = job.metadata?.chapters_generated || [];
+    
+    // Detect new chapters by comparing arrays
+    const newChapters = currentChapters.filter(
+      (ch: number) => !lastSeenChapters.includes(ch)
+    );
+    
+    if (newChapters.length > 0) {
+      console.log(`[Polling] New chapters detected: ${newChapters.join(', ')}`);
+      console.log(`[Polling] Previous chapters: ${lastSeenChapters.join(', ')}`);
+      console.log(`[Polling] Current chapters: ${currentChapters.join(', ')}`);
+      
+      // Update last seen state
+      setLastSeenChapters(currentChapters);
+      
+      // Trigger data refresh to get new chapters/pages
+      console.log('[Polling] Triggering data refresh');
+      loadWorkflowData();
+    }
+  }, [lastSeenChapters]);
+
   const loadWorkflowData = async () => {
     if (!workflowId) return;
     
+    // Prevent overlapping refreshes
+    if (isRefreshing) {
+      console.log('[Polling] Refresh already in progress, skipping');
+      return;
+    }
+    
+    setIsRefreshing(true);
     try {
       setLoading(true);
       const [wf, chs, pgs, chars] = await Promise.all([
@@ -79,6 +112,7 @@ export const WorkflowPage: React.FC = () => {
       console.error('Failed to load workflow:', err);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -109,58 +143,216 @@ export const WorkflowPage: React.FC = () => {
             {workflow.currentStage.toUpperCase()}
           </span>
         </div>
-        <div className="text-sm font-bold uppercase tracking-wide">
-          {chapters.length} CH · {pages.length} PG
+        <div className="flex items-center gap-3">
+          {/* Continue button - only show if workflow can continue */}
+          {workflow.currentStage !== 'pages' && (
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch(`http://localhost:8000/workflows/${workflowId}/continue`, {
+                    method: 'POST',
+                  });
+                  const data = await response.json();
+                  if (response.ok) {
+                    alert(`✓ ${data.message}\nJob ID: ${data.id}`);
+                    loadWorkflowData();
+                  } else {
+                    alert(`✗ ${data.detail || 'Failed to continue workflow'}`);
+                  }
+                } catch (error) {
+                  alert('Failed to continue workflow');
+                }
+              }}
+              disabled={!workflow.storylineDone && workflow.currentStage === 'init'}
+              className="px-4 py-2 text-xs font-bold uppercase border-2 border-[var(--ink)] rounded hover:bg-[var(--orange)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <span className="text-lg">▶</span> Continue
+            </button>
+          )}
+          
+          {/* Retry Stage Dropdown */}
+          <div className="relative">
+            <select
+              onChange={async (e) => {
+                const stage = e.target.value;
+                if (!stage) return;
+                
+                const stageLabels: Record<string, string> = {
+                  'init': 'Plot generation',
+                  'content': 'Novel generation',
+                  'chapters': 'Chapters',
+                  'pages': 'Pages'
+                };
+                
+                const stageName = stage === 'current' ? workflow.currentStage : stage;
+                const label = stageLabels[stageName] || stageName;
+                
+                if (!confirm(`Reset workflow to ${label}? This will abort current jobs and restart from this stage.`)) {
+                  e.target.value = '';
+                  return;
+                }
+                
+                try {
+                  const body = stage === 'current' ? {} : { stage };
+                  const response = await fetch(`http://localhost:8000/workflows/${workflowId}/retry-stage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                  });
+                  const data = await response.json();
+                  if (response.ok) {
+                    alert(`✓ ${data.message}\nJob ID: ${data.new_job_id}`);
+                    loadWorkflowData();
+                  } else {
+                    alert(`✗ ${data.detail || 'Failed to retry stage'}`);
+                  }
+                } catch (error) {
+                  alert('Failed to retry stage');
+                }
+                e.target.value = '';
+              }}
+              className="px-4 py-2 text-xs font-bold uppercase text-[var(--ink)] bg-[var(--paper)] border-2 border-[var(--ink)] rounded hover:bg-[var(--red)] hover:text-[var(--paper)] transition-colors cursor-pointer"
+              defaultValue=""
+            >
+              <option value="" disabled>🔄 Retry Stage...</option>
+              <option value="current">
+                🔄 {workflow.currentStage === 'init' ? 'Plot' : 
+                     workflow.currentStage === 'content' ? 'Novel' : 
+                     workflow.currentStage === 'chapters' ? 'Chapters' : 
+                     workflow.currentStage === 'pages' ? 'Pages' : 
+                     workflow.currentStage.toUpperCase()} (Current)
+              </option>
+              <option value="init">📝 Plot</option>
+              <option value="content">📚 Novel</option>
+              <option value="chapters">📖 Chapters</option>
+              <option value="pages">🎨 Pages</option>
+            </select>
+          </div>
+          <div className="text-sm font-bold uppercase tracking-wide">
+            {chapters.length} CH · {pages.length} PG
+          </div>
         </div>
       </header>
+
+      {/* Progress Timeline */}
+      <WorkflowProgressBar stages={workflow.stages || []} />
+
+      {/* Running Job Progress Banner */}
+      <RunningJobProgress 
+        workflowId={workflowId || ''} 
+        onComplete={loadWorkflowData}
+        onProgress={handleJobProgress}
+      />
 
       <div className="grid grid-cols-[260px_1fr_320px] h-[calc(100vh-80px)]">
         {/* LEFT SIDEBAR - Chapters */}
         <aside className="bg-[var(--cream-dark)] border-r-4 border-[var(--ink)] p-4 overflow-y-auto">
           <h3 className="text-sm font-black uppercase tracking-wider mb-3">CHAPTERS</h3>
-          {chapters.length === 0 ? (
-            <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>No chapters yet</div>
-          ) : (
-            chapters.map((chapter, idx) => (
-              <div
-                key={idx}
-                onClick={() => {
-                  setSelectedChapter(chapter.chapterNumber);
-                  setActiveTab('pages');
-                }}
-                className={`rounded border-2 mb-3 cursor-pointer transition-all overflow-hidden ${
-                  selectedChapter === chapter.chapterNumber
-                    ? 'border-[var(--orange)] ring-2 ring-[var(--orange)] ring-opacity-50'
-                    : 'border-[var(--ink)] hover:border-[var(--orange)]'
-                }`}
-              >
-                {/* Chapter preview image */}
-                <div className="h-32 bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
-                  <div className="text-6xl font-black opacity-20">{chapter.chapterNumber || idx + 1}</div>
+          {(() => {
+            // Get expected chapter count from novel (default 15)
+            const expectedChapters = workflow?.screenplay ? 15 : 0;
+            if (expectedChapters === 0) {
+              return <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>No chapters yet</div>;
+            }
+            
+            // Create map of existing chapters
+            const chapterMap = new Map(chapters.map(ch => [ch.chapterNumber, ch]));
+            
+            // Render all expected chapters (existing + missing)
+            return Array.from({ length: expectedChapters }, (_, i) => {
+              const chapterNum = i + 1;
+              const chapter = chapterMap.get(chapterNum);
+              const isMissing = !chapter;
+              
+              return (
+                <div
+                  key={chapterNum}
+                  onClick={() => {
+                    if (!isMissing) {
+                      setSelectedChapter(chapterNum);
+                      setActiveTab('pages');
+                    }
+                  }}
+                  className={`rounded border-2 mb-3 transition-all overflow-hidden ${
+                    isMissing 
+                      ? 'border-[var(--red)] border-dashed opacity-60'
+                      : selectedChapter === chapterNum
+                        ? 'border-[var(--orange)] ring-2 ring-[var(--orange)] ring-opacity-50 cursor-pointer'
+                        : 'border-[var(--ink)] hover:border-[var(--orange)] cursor-pointer'
+                  }`}
+                >
+                  {/* Chapter preview */}
+                  <div className={`h-32 flex items-center justify-center ${
+                    isMissing 
+                      ? 'bg-gradient-to-br from-red-900 to-red-950' 
+                      : 'bg-gradient-to-br from-slate-700 to-slate-900'
+                  }`}>
+                    <div className="text-6xl font-black opacity-20">{chapterNum}</div>
+                    {isMissing && (
+                      <div className="absolute text-2xl">❌</div>
+                    )}
+                  </div>
+                  
+                  {/* Chapter info */}
+                  <div className="p-3 bg-[var(--paper)]">
+                    <div className="text-xs font-black uppercase mb-1" style={{ 
+                      color: isMissing ? 'var(--red)' : 'var(--orange)' 
+                    }}>
+                      Chapter {chapterNum} {isMissing && '(FAILED)'}
+                    </div>
+                    {isMissing ? (
+                      <>
+                        <div className="text-sm font-bold leading-tight mb-2" style={{ color: 'var(--red)' }}>
+                          Generation Failed
+                        </div>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!confirm(`Regenerate Chapter ${chapterNum}?`)) return;
+                            try {
+                              const response = await fetch(`http://localhost:8000/workflows/book/${workflowId}/chapters`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ chapters: String(chapterNum) }),
+                              });
+                              const data = await response.json();
+                              if (response.ok) {
+                                alert(`✓ Started regeneration\nJob: ${data.id}`);
+                                loadWorkflowData();
+                              } else {
+                                alert(`✗ ${data.detail}`);
+                              }
+                            } catch (error) {
+                              alert('Failed to start regeneration');
+                            }
+                          }}
+                          className="w-full px-2 py-1 text-xs font-bold uppercase bg-[var(--red)] text-[var(--paper)] border-2 border-[var(--ink)] rounded hover:bg-[var(--orange)] transition-colors"
+                        >
+                          🔄 Regenerate
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-sm font-bold leading-tight mb-2">
+                          {chapter.title || 'Untitled'}
+                        </div>
+                        <div className="text-xs font-bold" style={{ color: 'var(--muted)' }}>
+                          {chapter.scenes || 0} scenes · {chapter.pages || 0} pages
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                
-                {/* Chapter info */}
-                <div className="p-3 bg-[var(--paper)]">
-                  <div className="text-xs font-black uppercase mb-1" style={{ color: 'var(--orange)' }}>
-                    Chapter {chapter.chapterNumber || idx + 1}
-                  </div>
-                  <div className="text-sm font-bold leading-tight mb-2">
-                    {chapter.title || 'Untitled'}
-                  </div>
-                  <div className="text-xs font-bold" style={{ color: 'var(--muted)' }}>
-                    {chapter.scenes || 0} scenes · {chapter.pages || 0} pages
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+              );
+            });
+          })()}
         </aside>
 
         {/* CENTER CANVAS */}
         <main className="p-6 overflow-y-auto">
           {/* View Tabs */}
           <div className="flex gap-2 mb-6 border-b-2 border-[var(--ink)] pb-2">
-            {(['story', 'pages', 'timeline', 'graph'] as ViewTab[]).map((tab) => (
+            {(['plot', 'story', 'pages', 'timeline', 'graph'] as ViewTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -175,10 +367,10 @@ export const WorkflowPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Story View - Show screenplay/storyline content */}
+          {/* Story View - Show screenplay (novel) content only */}
           {activeTab === 'story' && (
             <div className="p-6">
-              {workflow.screenplay || workflow.storyline ? (
+              {workflow.screenplay ? (
                 <div className="prose prose-sm max-w-none leading-relaxed">
                   <ReactMarkdown
                     components={{
@@ -192,14 +384,45 @@ export const WorkflowPage: React.FC = () => {
                       strong: ({node, ...props}) => <strong className="font-black" {...props} />,
                     }}
                   >
-                    {workflow.screenplay || workflow.storyline}
+                    {workflow.screenplay}
                   </ReactMarkdown>
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <div className="text-lg font-black uppercase mb-2">No Story Content</div>
+                  <div className="text-lg font-black uppercase mb-2">No Screenplay Yet</div>
                   <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>
-                    Generate chapters to create the screenplay.
+                    The novel/screenplay will appear here after content generation completes.
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Plot View - Show storyline (detective structure) */}
+          {activeTab === 'plot' && (
+            <div className="p-6">
+              {workflow.storyline ? (
+                <div className="prose prose-sm max-w-none leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      h1: ({node, ...props}) => <h1 className="text-3xl font-black uppercase mb-4" {...props} />,
+                      h2: ({node, ...props}) => <h2 className="text-2xl font-black uppercase mb-3 mt-6" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="text-xl font-bold uppercase mb-2 mt-4" {...props} />,
+                      p: ({node, ...props}) => <p className="mb-4 leading-relaxed" {...props} />,
+                      ul: ({node, ...props}) => <ul className="list-disc ml-6 mb-4" {...props} />,
+                      ol: ({node, ...props}) => <ol className="list-decimal ml-6 mb-4" {...props} />,
+                      li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                      strong: ({node, ...props}) => <strong className="font-black" {...props} />,
+                    }}
+                  >
+                    {workflow.storyline}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-lg font-black uppercase mb-2">No Plotline Yet</div>
+                  <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>
+                    The detective story structure will appear here after plot generation completes.
                   </div>
                 </div>
               )}
@@ -277,23 +500,72 @@ export const WorkflowPage: React.FC = () => {
 
               {/* GitHub-Style Activity Grid */}
               <div className="space-y-4">
-                {chapters.length === 0 ? (
-                  <div className="text-center py-12 border-2 border-dashed border-[var(--ink)] rounded">
-                    <div className="text-lg font-black uppercase mb-2">No chapters yet.</div>
-                    <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>
-                      Use the generation controls in the sidebar to create chapters.
-                    </div>
-                  </div>
-                ) : (
-                  chapters.map((chapter, idx) => {
-                    const chapterNum = chapter.chapterNumber || chapter.number || idx + 1;
+                {(() => {
+                  const expectedChapters = workflow?.screenplay ? 15 : 0;
+                  if (expectedChapters === 0) {
+                    return (
+                      <div className="text-center py-12 border-2 border-dashed border-[var(--ink)] rounded">
+                        <div className="text-lg font-black uppercase mb-2">No chapters yet.</div>
+                        <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>
+                          Use the generation controls in the sidebar to create chapters.
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  const chapterMap = new Map(chapters.map(ch => [ch.chapterNumber, ch]));
+                  
+                  return Array.from({ length: expectedChapters }, (_, idx) => {
+                    const chapterNum = idx + 1;
+                    const chapter = chapterMap.get(chapterNum);
+                    const isMissing = !chapter;
+                    if (isMissing) {
+                      // Failed chapter
+                      return (
+                        <div key={idx} className="bg-red-950 border-2 border-[var(--red)] border-dashed rounded p-4 opacity-75">
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="font-black text-sm uppercase" style={{ color: 'var(--red)' }}>
+                              ❌ Chapter {chapterNum}: GENERATION FAILED
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`Regenerate Chapter ${chapterNum}?`)) return;
+                                try {
+                                  const response = await fetch(`http://localhost:8000/workflows/book/${workflowId}/chapters`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ chapters: String(chapterNum) }),
+                                  });
+                                  const data = await response.json();
+                                  if (response.ok) {
+                                    alert(`✓ Started regeneration\nJob: ${data.id}`);
+                                    loadWorkflowData();
+                                  } else {
+                                    alert(`✗ ${data.detail}`);
+                                  }
+                                } catch (error) {
+                                  alert('Failed');
+                                }
+                              }}
+                              className="px-3 py-1 text-xs font-bold uppercase bg-[var(--red)] text-[var(--paper)] border-2 border-[var(--ink)] rounded hover:bg-[var(--orange)] transition-colors"
+                            >
+                              🔄 Regenerate
+                            </button>
+                          </div>
+                          <div className="text-xs font-bold" style={{ color: 'var(--red)' }}>
+                            This chapter failed validation during generation. Click regenerate to retry.
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    // Successful chapter
                     const totalPagesInChapter = chapter.pages || 0;
                     const pagesGenerated = workflow.pagesGenerated || [];
-                    
-                    // Calculate which pages in this chapter are generated
-                    // Assuming pages are numbered sequentially across chapters
-                    const startPage = chapters.slice(0, idx).reduce((sum, ch) => sum + (ch.pages || 0), 0) + 1;
-                    const endPage = startPage + totalPagesInChapter - 1;
+                    const startPage = Array.from({ length: idx }).reduce((sum, _, i) => {
+                      const ch = chapterMap.get(i + 1);
+                      return sum + (ch?.pages || 0);
+                    }, 0) + 1;
                     
                     return (
                       <div key={idx} className="bg-[var(--cream-dark)] border-2 border-[var(--ink)] rounded p-4">
@@ -329,8 +601,8 @@ export const WorkflowPage: React.FC = () => {
                         </div>
                       </div>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
             </div>
           )}
@@ -377,7 +649,7 @@ export const WorkflowPage: React.FC = () => {
             {characters.length > 0 && (
               <div className="flex gap-2">
                 <button
-                  className={`px-2 py-1 text-[10px] font-bold uppercase border-2 border-[var(--ink)] rounded transition-colors ${
+                  className={`px-2 py-1 text-[10px] font-bold uppercase border-2 border-[var(--ink)] rounded transition-colors flex items-center gap-1 ${
                     isGenerating ? 'bg-[var(--yellow)] cursor-wait' : 'hover:bg-[var(--orange)]'
                   }`}
                   disabled={isGenerating}
@@ -390,20 +662,35 @@ export const WorkflowPage: React.FC = () => {
                       const data = await response.json();
                       if (data.status === 'already_running') {
                         // Resume polling the existing job
-                        setCharJobId(data.job_id);
+                        setCharJobId(data.id);
                       } else {
-                        setCharJobId(data.job_id);
+                        setCharJobId(data.id);
                       }
                     } catch (error) {
                       setIsGenerating(false);
                       alert('Failed to start character generation');
                     }
                   }}
+                  title="Generate all characters"
                 >
-                  {isGenerating ? '⏳ Generating...' : '🎨 Generate'}
+                  {isGenerating ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                      </svg>
+                      <span>Generate</span>
+                    </>
+                  )}
                 </button>
                 <button
-                  className="px-2 py-1 text-[10px] font-bold uppercase border-2 border-[var(--ink)] rounded hover:bg-[var(--red)] transition-colors"
+                  className="px-2 py-1 text-[10px] font-bold uppercase border-2 border-[var(--ink)] rounded hover:bg-[var(--red)] transition-colors flex items-center gap-1"
                   onClick={async () => {
                     try {
                       setIsGenerating(true);
@@ -411,15 +698,19 @@ export const WorkflowPage: React.FC = () => {
                         method: 'POST',
                       });
                       const data = await response.json();
-                      setCharJobId(data.job_id);
+                      setCharJobId(data.id);
                       console.log('Retry response:', data);
                     } catch (error) {
                       setIsGenerating(false);
                       alert('Failed to retry');
                     }
                   }}
+                  title="Retry all characters"
                 >
-                  🔄 Retry
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Retry</span>
                 </button>
               </div>
             )}
@@ -429,7 +720,7 @@ export const WorkflowPage: React.FC = () => {
               <div className="text-sm font-bold" style={{ color: 'var(--muted)' }}>No character data loaded yet</div>
             ) : (
               characters.map((char, idx) => (
-                <div key={idx} className="bg-[var(--paper)] border-2 border-[var(--ink)] rounded overflow-hidden">
+                <div key={idx} className="bg-[var(--paper)] border-2 border-[var(--ink)] rounded overflow-hidden relative">
                   {/* Character portrait */}
                   <div className="relative h-48 bg-gradient-to-br from-orange-900 to-red-900 flex items-center justify-center">
                     {char.imageUrl ? (
@@ -443,6 +734,32 @@ export const WorkflowPage: React.FC = () => {
                         {char.name?.charAt(0) || '?'}
                       </div>
                     )}
+                    
+                    {/* Regenerate button */}
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Regenerate image for ${char.name}?`)) return;
+                        try {
+                          const response = await fetch(`/workflows/${workflowId}/characters/${char.id}/regenerate`, {
+                            method: 'POST'
+                          });
+                          if (response.ok) {
+                            alert(`Regenerating ${char.name}...`);
+                            // Refresh characters after a delay
+                            setTimeout(() => window.location.reload(), 2000);
+                          }
+                        } catch (error) {
+                          console.error('Failed to regenerate character:', error);
+                          alert('Failed to regenerate character');
+                        }
+                      }}
+                      className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                      title={`Regenerate ${char.name}`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
                   </div>
                   
                   {/* Character info */}

@@ -93,9 +93,10 @@ class ComicPanel(BaseModel):
     )
     
     # Visual techniques (from knowledge/art-styles/styles.md)
-    motion_type: Optional[Literal[
-        "none", "speed-lines", "motion-blur", "impact-lines", "ghosting"
-    ]] = Field(None, description="Type of motion representation. MUST be one of: none, speed-lines, motion-blur, impact-lines, ghosting")
+    motion_type: Optional[str] = Field(
+        None, 
+        description="Type of motion representation. Common types: none, speed-lines, motion-blur, impact-lines, ghosting"
+    )
     
     rendering_style: Optional[Literal[
         "photorealistic-with-overlays", "stylized-volumetric", "flat-graphic"
@@ -145,23 +146,11 @@ class ComicPage(BaseModel):
     scene_number: int = Field(..., description="Scene number within the chapter")
     
     # Layout specification (from panel_arrangements.md)
-    panel_arrangement: Literal[
-        "horizontal-2-panel",
-        "horizontal-3-panel",
-        "vertical-2-panel",
-        "vertical-3-panel",
-        "fractured-overlapping",
-        "zoom-progression",
-        "cross-over-bleed",
-        "shattered-exploded",
-        "dynamic-grid",
-        "grid-8-panel",
-        "grid-9-panel",
-        "classic-grid-8",
-        "classic-grid-9",
-        "dynamic-8-panel",
-        "dynamic-9-panel"
-    ] = Field(..., description="How panels are arranged on the page")
+    # Flexible string to allow LLM creativity while maintaining pattern matching
+    panel_arrangement: str = Field(
+        ..., 
+        description="How panels are arranged on the page. Common patterns: horizontal-2-panel, horizontal-3-panel, vertical-2-panel, vertical-3-panel, grid-4-panel, grid-8-panel, grid-9-panel, fractured-overlapping, zoom-progression, cross-over-bleed, shattered-exploded, dynamic-grid, classic-grid-8, classic-grid-9, dynamic-8-panel, dynamic-9-panel. Must contain keywords: 'horizontal', 'vertical', or 'grid' for proper image splitting."
+    )
     
     page_aspect_ratio: Optional[str] = Field(
         None,
@@ -179,15 +168,9 @@ class ComicPage(BaseModel):
         description="Visual style of borders between panels"
     )
     
-    panel_transition_style: Optional[Literal[
-        "hard-cuts",
-        "overlapping-scenes",
-        "blended-transitions",
-        "diagonal-cuts",
-        "frame-within-frame"
-    ]] = Field(
+    panel_transition_style: Optional[str] = Field(
         None,
-        description="How panels interact visually on the page. MUST be one of: hard-cuts, overlapping-scenes, blended-transitions, diagonal-cuts, frame-within-frame"
+        description="How panels interact visually on the page. Common styles: hard-cuts, overlapping-scenes, blended-transitions, diagonal-cuts, frame-within-frame"
     )
     
     # Panels (2-9 per page, depending on layout)

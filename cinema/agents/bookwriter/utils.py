@@ -19,7 +19,8 @@ def clean_agent_thinking_from_output(raw_output: str) -> str:
     Strategy:
     1. Look for known delimiter phrases that mark the end of agent thinking
     2. If found, return everything after the delimiter
-    3. If not found, return the original output (it's likely already clean)
+    3. If output starts with "Thought" and has no delimiter, it's contaminated - return empty
+    4. If not found, return the original output (it's likely already clean)
     
     Args:
         raw_output: The raw output from crew execution
@@ -43,6 +44,13 @@ def clean_agent_thinking_from_output(raw_output: str) -> str:
             cleaned = raw_output[match.end():].strip()
             logger.info(f"Cleaned agent thinking using delimiter: '{pattern}' (removed {match.end()} chars)")
             return cleaned
+    
+    # Check if output is contaminated with agent thinking but has no delimiter
+    # This means the agent never finished and only has thinking logs
+    if raw_output.strip().startswith(('Thought', 'Action:', 'Observation:')):
+        logger.warning(f"Output appears to be contaminated agent thinking with no delimiter (length: {len(raw_output)})")
+        logger.warning(f"First 200 chars: {raw_output[:200]}")
+        return ""  # Return empty string - the actual content wasn't generated
     
     # No delimiter found - output is likely already clean
     return raw_output

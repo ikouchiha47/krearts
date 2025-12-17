@@ -33,11 +33,15 @@ async def generate_character_images_for_workflow(workflow_id: str, job_id: str):
     job_repo = get_job_repository()
     logger.info(f"Starting character generation for workflow {workflow_id} (job {job_id})")
 
-    # Check if this is a forced regeneration (retry)
+    # Check if this is a forced regeneration (retry) or single character regeneration
     job = job_repo.get(job_id)
     force_regenerate = job.metadata.get("force_regenerate", False) if job else False
+    single_character_id = job.metadata.get("character_id") if job and job.metadata.get("single_character") else None
+    
     if force_regenerate:
         logger.info("  🔄 Force regeneration enabled - will overwrite existing images")
+    if single_character_id:
+        logger.info(f"  🎯 Single character regeneration: {single_character_id}")
 
     try:
         # Get characters from database (parsed from storyline)
@@ -74,14 +78,22 @@ async def generate_character_images_for_workflow(workflow_id: str, job_id: str):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Build character descriptions with full context
+        # If single_character_id is specified, only process that character
         character_description = []
         for char_id, character in zip(char_ids, characters):
+            # Skip if single character mode and this isn't the target character
+            if single_character_id and char_id != single_character_id:
+                continue
+                
             character_description.append({
                 "id": char_id,
                 "character_full_text": character.full_text,  # Full formatted character details
                 "world_context": world_context,  # Full world era context
                 "art_style": art_style,
             })
+        
+        if single_character_id and not character_description:
+            raise ValueError(f"Character {single_character_id} not found in workflow {workflow_id}")
 
         state = PipelineState(
             movie_id=workflow_id,
@@ -134,6 +146,18 @@ async def generate_character_images_for_workflow(workflow_id: str, job_id: str):
                         image_path=str(image_path)
                     )
 
+        # Update WorkflowState to mark characters as generated
+        from cinema.workflow.book_workflow import BookWorkflow
+        from cinema.context import DirectorsContext
+        from cinema.registry import OpenAiHerd
+        
+        ctx = DirectorsContext(llmstore=OpenAiHerd, debug=True)
+        wf = BookWorkflow(workflow_id, ctx)
+        wf.state.characters_generated = True
+        wf.save_state()
+        logger.info(f"✅ Updated WorkflowState: characters_generated = True")
+        
+        # Update job status
         job = job_repo.get(job_id)
         if job:
             job.status = "completed"

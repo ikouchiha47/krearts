@@ -1,166 +1,194 @@
-"""
-Workflow Validator
+"""Workflow state validation for enforcing prerequisites."""
 
-Validates workflow parameters before API calls.
-"""
-
-import logging
-import re
-from pathlib import Path
-from typing import Any, Dict, List, Tuple
-
-from cinema.workflow.models import VeoWorkflowType
-
-logger = logging.getLogger(__name__)
+from typing import Dict, List, Optional, Any
+from pydantic import BaseModel
+from cinema.workflow.interface import WorkflowState, WorkflowStage
 
 
-class WorkflowValidator:
-    """Validates workflow parameters before API calls"""
+class ValidationResult(BaseModel):
+    """Result of state validation."""
+    valid: bool
+    current_state: Dict[str, Any]
+    missing_prerequisites: List[str] = []
+    message: Optional[str] = None
+    available_actions: List[Dict[str, str]] = []
+    blocked_actions: List[str] = []
 
-    def validate(
-        self,
-        workflow_type: VeoWorkflowType,
-        parameters: Dict[str, Any],
-        assets: Dict[str, str],
-    ) -> Tuple[bool, List[str]]:
+
+class WorkflowStateValidator:
+    """Validates workflow state transitions and prerequisites."""
+    
+    # Define prerequisites for each operation
+    PREREQUISITES = {
+        "generate_content": {
+            "requires": ["storyline_done"],
+            "message": "Complete storyline generation first (POST /workflows/book/init)"
+        },
+        "generate_cover": {
+            "requires": ["content_done"],
+            "message": "Generate novel content first (POST /workflows/{workflow_id}/content)"
+        },
+        "generate_characters": {
+            "requires": ["content_done"],
+            "message": "Generate novel content first (POST /workflows/{workflow_id}/content)"
+        },
+        "generate_chapters": {
+            "requires": ["content_done", "characters_generated"],
+            "message": "Generate characters first - needed for consistent character appearance in pages"
+        },
+        "generate_chapter_cover": {
+            "requires": ["chapters_generated"],
+            "message": "Generate chapters first"
+        },
+        "generate_pages": {
+            "requires": ["chapters_generated", "characters_generated"],
+            "message": "Generate chapters and characters first"
+        }
+    }
+    
+    # Define available actions for each state
+    AVAILABLE_ACTIONS = {
+        "storyline_done": [
+            {
+                "action": "generate_content",
+                "endpoint": "POST /workflows/{workflow_id}/content",
+                "description": "Generate novel (prose chapters from storyline)"
+            }
+        ],
+        "content_done": [
+            {
+                "action": "generate_cover",
+                "endpoint": "POST /workflows/{workflow_id}/cover",
+                "description": "Generate book cover image (optional)"
+            },
+            {
+                "action": "generate_characters",
+                "endpoint": "POST /workflows/{workflow_id}/characters/generate",
+                "description": "Generate character reference images (required for chapters)"
+            }
+        ],
+        "characters_generated": [
+            {
+                "action": "generate_chapters",
+                "endpoint": "POST /workflows/{workflow_id}/chapters",
+                "description": "Generate comic chapters (visual storyboards)"
+            }
+        ],
+        "chapters_generated": [
+            {
+                "action": "generate_pages",
+                "endpoint": "POST /workflows/{workflow_id}/pages",
+                "description": "Generate page images"
+            },
+            {
+                "action": "generate_chapter_cover",
+                "endpoint": "POST /workflows/{workflow_id}/chapters/{chapter_number}/cover",
+                "description": "Generate cover for specific chapter (optional)"
+            }
+        ]
+    }
+    
+    def validate_operation(
+        self, 
+        workflow_state: WorkflowState, 
+        operation: str
+    ) -> ValidationResult:
         """
-        Validate workflow parameters.
-
+        Validate if operation can be performed given current state.
+        
+        Args:
+            workflow_state: Current workflow state
+            operation: Operation to validate (e.g., "generate_chapters")
+        
         Returns:
-            (is_valid, error_messages)
+            ValidationResult with validation status and guidance
         """
-        errors = []
-
-        if workflow_type == VeoWorkflowType.FIRST_LAST_FRAME_INTERPOLATION:
-            errors.extend(self._validate_interpolation(parameters, assets))
-
-        elif workflow_type == VeoWorkflowType.INGREDIENTS_TO_VIDEO:
-            errors.extend(self._validate_ingredients(parameters, assets))
-
-        elif workflow_type == VeoWorkflowType.TIMESTAMP_PROMPTING:
-            errors.extend(self._validate_timestamp(parameters))
-
-        # Common validations
-        errors.extend(self._validate_duration(parameters))
-        errors.extend(self._validate_incompatible_params(parameters))
-
-        is_valid = len(errors) == 0
-
-        if not is_valid:
-            logger.warning(f"Validation failed with {len(errors)} errors")
-            for error in errors:
-                logger.warning(f"  - {error}")
-
-        return (is_valid, errors)
-
-    def _validate_interpolation(
-        self, params: Dict[str, Any], assets: Dict[str, str]
-    ) -> List[str]:
-        """Validate first and last frame interpolation parameters"""
-        errors = []
-
-        # Check required parameters
-        if "image" not in params:
-            errors.append("Missing 'image' parameter for interpolation")
-        if "last_image" not in params:
-            errors.append("Missing 'last_image' parameter for interpolation")
-
-        # Check files exist
-        if "image" in params and not self._file_exists(params["image"]):
-            errors.append(f"First frame image not found: {params['image']}")
-        if "last_image" in params and not self._file_exists(params["last_image"]):
-            errors.append(f"Last frame image not found: {params['last_image']}")
-
-        # Check incompatibility with reference_images
-        if "reference_images" in params:
-            errors.append(
-                "Cannot use 'reference_images' with 'last_image' in interpolation workflow"
+        prereqs = self.PREREQUISITES.get(operation)
+        if not prereqs:
+            # Unknown operation - allow it
+            return ValidationResult(
+                valid=True,
+                current_state=self._get_state_dict(workflow_state)
             )
-
-        return errors
-
-    def _validate_ingredients(
-        self, params: Dict[str, Any], assets: Dict[str, str]
-    ) -> List[str]:
-        """Validate ingredients to video parameters"""
-        errors = []
-
-        # Check reference_images parameter
-        if "reference_images" not in params:
-            errors.append("Missing 'reference_images' parameter for ingredients workflow")
-        else:
-            ref_images = params["reference_images"]
-
-            # Check count (max 3)
-            if len(ref_images) > 3:
-                errors.append(
-                    f"Too many reference images: {len(ref_images)}. Maximum is 3."
-                )
-
-            # Check files exist
-            for ref_img in ref_images:
-                if not self._file_exists(ref_img):
-                    errors.append(f"Reference image not found: {ref_img}")
-
-        # Check incompatibility with last_image
-        if "last_image" in params:
-            errors.append(
-                "Cannot use 'last_image' with 'reference_images' in ingredients workflow"
+        
+        # Check all prerequisites
+        missing = []
+        for req in prereqs["requires"]:
+            if req == "chapters_generated":
+                # Special case: check if any chapters generated
+                if not workflow_state.chapters_generated:
+                    missing.append(req)
+            else:
+                # Boolean flags
+                if not getattr(workflow_state, req, False):
+                    missing.append(req)
+        
+        if missing:
+            return ValidationResult(
+                valid=False,
+                current_state=self._get_state_dict(workflow_state),
+                missing_prerequisites=missing,
+                message=prereqs["message"],
+                available_actions=self._get_available_actions(workflow_state)
             )
-
-        return errors
-
-    def _validate_timestamp(self, params: Dict[str, Any]) -> List[str]:
-        """Validate timestamp prompting parameters"""
-        errors = []
-
-        # Check duration constraint (max 8 seconds)
-        duration = params.get("duration", 0)
-        if duration > 8:
-            errors.append(
-                f"Timestamp prompting duration {duration}s exceeds maximum of 8s"
-            )
-
-        # Validate timestamp format in prompt
-        prompt = params.get("prompt", "")
-        if not self._has_valid_timestamps(prompt):
-            errors.append(
-                "Prompt does not contain valid timestamp notation [HH:MM:SS-HH:MM:SS]"
-            )
-
-        return errors
-
-    def _validate_duration(self, params: Dict[str, Any]) -> List[str]:
-        """Validate duration constraints"""
-        errors = []
-        duration = params.get("duration", 0)
-
-        if duration < 4:
-            errors.append(f"Duration {duration}s is below minimum of 4s")
-        if duration > 8:
-            errors.append(f"Duration {duration}s exceeds maximum of 8s")
-
-        return errors
-
-    def _validate_incompatible_params(self, params: Dict[str, Any]) -> List[str]:
-        """Check for incompatible parameter combinations"""
-        errors = []
-
-        # last_image and reference_images are mutually exclusive
-        if "last_image" in params and "reference_images" in params:
-            errors.append(
-                "Parameters 'last_image' and 'reference_images' are mutually exclusive"
-            )
-
-        return errors
-
-    @staticmethod
-    def _file_exists(path: str) -> bool:
-        """Check if file exists"""
-        return Path(path).exists()
-
-    @staticmethod
-    def _has_valid_timestamps(prompt: str) -> bool:
-        """Check if prompt contains valid timestamp notation"""
-        pattern = r"\[\d{2}:\d{2}:\d{2}-\d{2}:\d{2}:\d{2}\]"
-        return bool(re.search(pattern, prompt))
+        
+        return ValidationResult(
+            valid=True,
+            current_state=self._get_state_dict(workflow_state)
+        )
+    
+    def _get_state_dict(self, state: WorkflowState) -> Dict[str, Any]:
+        """Get current state as dict."""
+        return {
+            "stage": state.current_stage.value,
+            "storyline_done": state.storyline_done,
+            "content_done": state.content_done,
+            "cover_generated": state.cover_generated,
+            "characters_generated": state.characters_generated,
+            "chapters_generated": state.chapters_generated,
+            "pages_generated": state.pages_generated,
+        }
+    
+    def _get_available_actions(self, state: WorkflowState) -> List[Dict[str, str]]:
+        """Get list of available actions based on current state."""
+        actions = []
+        
+        if state.storyline_done and not state.content_done:
+            actions.extend(self.AVAILABLE_ACTIONS["storyline_done"])
+        
+        if state.content_done and not state.characters_generated:
+            actions.extend(self.AVAILABLE_ACTIONS["content_done"])
+        
+        if state.characters_generated and not state.chapters_generated:
+            actions.extend(self.AVAILABLE_ACTIONS["characters_generated"])
+        
+        if state.chapters_generated:
+            actions.extend(self.AVAILABLE_ACTIONS["chapters_generated"])
+        
+        return actions
+    
+    def _get_blocked_actions(self, state: WorkflowState) -> List[str]:
+        """Get list of blocked actions based on current state.
+        
+        Checks prerequisites directly without calling validate_operation
+        to avoid infinite recursion.
+        """
+        blocked = []
+        
+        for operation, prereqs in self.PREREQUISITES.items():
+            # Check prerequisites directly
+            missing = []
+            for req in prereqs["requires"]:
+                if req == "chapters_generated":
+                    if not state.chapters_generated:
+                        missing.append(req)
+                else:
+                    # Boolean flags
+                    if not getattr(state, req, False):
+                        missing.append(req)
+            
+            # If any prerequisites are missing, operation is blocked
+            if missing:
+                blocked.append(operation)
+        
+        return blocked

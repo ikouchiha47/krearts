@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import Optional, List
 from uuid import uuid4
-import asyncio
+
+from fastapi import HTTPException
 
 from cinema.context import DirectorsContext
 from cinema.jobs.storage import JobRepository, get_job_repository
 from cinema.server.storage.interface import Job
 from cinema.workflow.book_workflow import BookWorkflow
-
-# Keep references to background tasks to prevent garbage collection
-_background_tasks: set = set()
+from cinema.workflow.validator import WorkflowStateValidator, ValidationResult
 
 class BookWorkflowService:
     """Application service layer around BookWorkflow.
@@ -23,9 +22,12 @@ class BookWorkflowService:
         self,
         ctx: DirectorsContext,
         job_repo: Optional[JobRepository] = None,
+        storage = None,
     ) -> None:
         self._ctx = ctx
         self._job_repo = job_repo or get_job_repository()
+        self._storage = storage  # Will be injected by dependency
+        self._validator = WorkflowStateValidator()  # NEW: State validator
 
     def _new_job(self, workflow_id: str, type_: str, metadata: dict) -> Job:
         job = Job(
@@ -37,44 +39,79 @@ class BookWorkflowService:
         )
         self._job_repo.save(job)
         return job
+    
+    async def _validate_operation(
+        self, 
+        workflow_id: str, 
+        operation: str
+    ) -> ValidationResult:
+        """Validate operation can be performed."""
+        from cinema.workflow.interface import WorkflowType
+
+        assert self._storage is not None
+        
+        # Load workflow state
+        wf_state = await self._storage.load_state(workflow_id, WorkflowType.BOOK)
+        if not wf_state:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Workflow {workflow_id} not found"
+            )
+        
+        # Validate
+        return self._validator.validate_operation(wf_state, operation)
 
     async def init(self, payload: dict) -> Job:
         """Initialize a new book workflow (storyline + critique)."""
+        from cinema.workflow.interface import WorkflowState, WorkflowType, WorkflowStage
+        from pathlib import Path
+
+        assert self._storage is not None
 
         workflow_id = payload.get("workflow_id") or str(uuid4())[:8]
+        output_dir = f"./output/book_{workflow_id}"
+        
+        # Create workflow entry FIRST so /workflows/{id} works immediately
+        workflow_state = WorkflowState(
+            id=workflow_id,
+            type=WorkflowType.BOOK,
+            current_stage=WorkflowStage.INIT,
+            storyline_done=False,
+            content_done=False,
+            cover_generated=False,
+            chapters_generated=[],
+            pages_generated=[],
+            output_dir=output_dir,
+            config=payload,
+        )
+        await self._storage.save_state(workflow_state)
+        
+        # Now create the job
         job = self._new_job(
             workflow_id,
             "book_init",
-            {"config_keys": list(payload.keys())},
+            {"config": payload},  # Store full config for worker
         )
 
-        # Run workflow execution in background
-        asyncio.create_task(self._execute_init(job.id, workflow_id, payload))
+        # Job is saved with status="pending"
+        # Background worker will pick it up and process it
         return job
-    
-    async def _execute_init(self, job_id: str, workflow_id: str, payload: dict):
-        """Background task to execute init workflow."""
-        job = self._job_repo.get(job_id)
-        if not job:
-            return
-        
-        wf = BookWorkflow(workflow_id, self._ctx)
-        try:
-            job.status = "running"
-            self._job_repo.save(job)
-            
-            result = await wf.init(**payload)
-            job.status = "completed"
-            job.metadata["output_dir"] = wf.output_dir
-            job.metadata["workflow_id"] = workflow_id
-            self._job_repo.save(job)
-        except Exception as e:  # pragma: no cover - defensive
-            job.status = "failed"
-            job.error = str(e)
-            self._job_repo.save(job)
+
 
     async def generate_content(self, workflow_id: str, continue_from: bool) -> Job:
         """Generate novel content for an existing workflow."""
+        
+        # Validate prerequisites
+        validation = await self._validate_operation(workflow_id, "generate_content")
+        if not validation.valid:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "prerequisite_not_met",
+                    "operation": "generate_content",
+                    **validation.model_dump()
+                }
+            )
 
         job = self._new_job(
             workflow_id,
@@ -82,31 +119,9 @@ class BookWorkflowService:
             {"continue_from": bool(continue_from)},
         )
         
-        # Run workflow execution in background
-        asyncio.create_task(self._execute_content(job.id, workflow_id, continue_from))
+        # Job is saved with status="pending"
+        # Background worker will pick it up and process it
         return job
-    
-    async def _execute_content(self, job_id: str, workflow_id: str, continue_from: bool):
-        """Background task to execute content generation."""
-        job = self._job_repo.get(job_id)
-        if not job:
-            return
-        
-        wf = BookWorkflow(workflow_id, self._ctx)
-        try:
-            job.status = "running"
-            self._job_repo.save(job)
-            
-            result = await wf.generate_content(
-                continue_from=workflow_id if continue_from else None
-            )
-            job.status = "completed"
-            job.metadata["output_file"] = result.get("output_file")
-            self._job_repo.save(job)
-        except Exception as e:  # pragma: no cover - defensive
-            job.status = "failed"
-            job.error = str(e)
-            self._job_repo.save(job)
 
     async def generate_chapters(
         self,
@@ -118,6 +133,18 @@ class BookWorkflowService:
         background_tasks=None,  # Unused, kept for compatibility
     ) -> Job:
         """Generate comic chapters - job will be processed by background worker."""
+        
+        # Validate prerequisites
+        validation = await self._validate_operation(workflow_id, "generate_chapters")
+        if not validation.valid:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "prerequisite_not_met",
+                    "operation": "generate_chapters",
+                    **validation.model_dump()
+                }
+            )
 
         job = self._new_job(
             workflow_id,
@@ -192,29 +219,28 @@ class BookWorkflowService:
 
     async def generate_cover(self, workflow_id: str) -> Job:
         """Generate book cover image for the given workflow."""
+        
+        # Validate prerequisites
+        validation = await self._validate_operation(workflow_id, "generate_cover")
+        if not validation.valid:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "prerequisite_not_met",
+                    "operation": "generate_cover",
+                    **validation.model_dump()
+                }
+            )
 
         job = self._new_job(
             workflow_id,
             "book_cover",
             {},
         )
-        wf = BookWorkflow(workflow_id, self._ctx)
-        try:
-            result = await wf.generate_cover()
-            job.status = "completed"
-            job.metadata.update(
-                {
-                    "cover_path": result.get("cover_path"),
-                    "prompt": result.get("prompt"),
-                }
-            )
-            self._job_repo.save(job)
-            return job
-        except Exception as e:  # pragma: no cover - defensive
-            job.status = "failed"
-            job.error = str(e)
-            self._job_repo.save(job)
-            raise
+        
+        # Job is saved with status="pending"
+        # Background worker will pick it up and process it
+        return job
 
     async def generate_pages(
         self,
@@ -222,8 +248,19 @@ class BookWorkflowService:
         pages: Optional[List[int]],
         continue_from: bool,
     ) -> Job:
-        """Generate page images for the given workflow (async with background task)."""
-        import asyncio
+        """Generate page images for the given workflow."""
+        
+        # Validate prerequisites
+        validation = await self._validate_operation(workflow_id, "generate_pages")
+        if not validation.valid:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "prerequisite_not_met",
+                    "operation": "generate_pages",
+                    **validation.model_dump()
+                }
+            )
 
         job = self._new_job(
             workflow_id,
@@ -231,41 +268,6 @@ class BookWorkflowService:
             {"pages": pages, "continue_from": bool(continue_from)},
         )
         
-        # Run in background task
-        asyncio.create_task(
-            self._run_pages_generation(job.id, workflow_id, pages, continue_from)
-        )
-        
+        # Job is saved with status="pending"
+        # Background worker will pick it up and process it
         return job
-    
-    async def _run_pages_generation(
-        self,
-        job_id: str,
-        workflow_id: str,
-        pages: Optional[List[int]],
-        continue_from: bool,
-    ):
-        """Background task for pages generation."""
-        job = self._job_repo.get(job_id)
-        job.status = "running"
-        self._job_repo.save(job)
-        
-        wf = BookWorkflow(workflow_id, self._ctx)
-        try:
-            result = await wf.generate_pages(
-                pages=pages,
-                continue_from=continue_from,
-            )
-            job.status = "completed"
-            job.metadata.update(
-                {
-                    "pages_generated": result.get("pages", []),
-                    "total_generated": result.get("total_generated"),
-                    "output_dir": result.get("output_dir"),
-                }
-            )
-            self._job_repo.save(job)
-        except Exception as e:
-            job.status = "failed"
-            job.error = str(e)
-            self._job_repo.save(job)

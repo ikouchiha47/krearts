@@ -46,48 +46,48 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Define characters - more complex cast
+    # Define characters with generic identifiers (LLM will assign names, roles, personalities)
     characters = [
-        Character("Detective Sarah Chen", "detective"),
-        Character("Marcus Blackwood", "victim"),  # Primary victim - wealthy businessman
-        Character("Elena Volkov", "killer"),  # The actual killer - business rival
-        Character("Thomas Reed", "accomplice", faction="conspirators"),  # Elena's partner
-        Character("Dr. James Morrison", "witness"),  # Witness who gets eliminated
-        Character("Catherine Blackwood", "wife", faction="family"),  # Framed suspect
-        Character("Richard Sterling", "lawyer", faction="family"),  # Red herring
+        Character("Character A", "detective"),
+        Character("Character B", "victim"),  # Primary victim
+        Character("Character C", "killer"),  # The actual killer
+        Character("Character D", "accomplice", faction="conspirators"),  # Killer's partner
+        Character("Character E", "witness"),  # Witness who gets eliminated
+        Character("Character F", "framed_suspect", faction="family"),  # Framed suspect
+        Character("Character G", "red_herring", faction="family"),  # Red herring
     ]
 
     # Complex plot with multiple deaths and twists
     constraints = PlotConstraints(
         # Primary murder
-        killer="Elena Volkov",
-        victim="Marcus Blackwood",
+        killer="Character C",
+        victim="Character B",
         
         # Accomplice helps with the murder
-        accomplices=["Thomas Reed"],
+        accomplices=["Character D"],
         
-        # Frame the wife
-        framed_suspect="Catherine Blackwood",
+        # Frame Character F
+        framed_suspect="Character F",
         
         # Witness sees something suspicious
         witnesses=[
-            ("Dr. James Morrison", "saw Elena leaving the crime scene"),
+            ("Character E", "saw Character C leaving the crime scene"),
         ],
         
         # Alliance between killer and accomplice
         alliances=[
-            ("Elena Volkov", "Thomas Reed"),
+            ("Character C", "Character D"),
         ],
         
-        # The twist: Thomas double-crosses Elena by eliminating the witness
+        # The twist: Accomplice double-crosses Killer by eliminating the witness
         # This creates a second murder that complicates the investigation
         betrayals=[
-            ("Thomas Reed", "Dr. James Morrison"),  # Kills witness to protect conspiracy
+            ("Character D", "Character E"),  # Kills witness to protect conspiracy
         ],
         
         # Winners and losers
         winners=[],  # Detective solves it - no one wins
-        losers=["Elena Volkov", "Thomas Reed", "Catherine Blackwood"],
+        losers=["Character C", "Character D", "Character F"],
     )
 
     # Initialize DirectorsContext

@@ -53,14 +53,58 @@ class JobWorker:
         try:
             wf = BookWorkflow(job.workflow_id, self.ctx)
             
-            if job.type == "book_chapters":
+            if job.type == "book_init":
+                # Extract config from metadata
+                config = job.metadata.get("config", {})
+                
+                logger.info(f"   Initializing book workflow")
+                result = await wf.init(**config)
+                
+                job.status = "completed"
+                job.metadata.update({
+                    "output_dir": wf.output_dir,
+                    "storyline_generated": bool(result.get("storyline")),
+                })
+                
+            elif job.type == "book_content":
+                # Extract parameters from metadata
+                continue_from = job.metadata.get("continue_from", False)
+                
+                logger.info(f"   Generating novel content")
+                result = await wf.generate_content(
+                    continue_from=workflow_id if continue_from else None
+                )
+                
+                job.status = "completed"
+                job.metadata.update({
+                    "output_file": result.get("output_file")
+                })
+                
+            elif job.type == "book_cover":
+                logger.info(f"   Generating book cover")
+                result = await wf.generate_cover()
+                
+                job.status = "completed"
+                job.metadata.update({
+                    "cover_path": result.get("cover_path"),
+                    "prompt": result.get("prompt"),
+                })
+                
+            elif job.type == "book_chapters":
                 # Extract parameters from metadata
                 chapters = job.metadata.get("chapters")
                 continue_from = job.metadata.get("continue_from", False)
-                art_style = job.metadata.get("art_style", "Print Comic Noir Style")
-                aspect_ratio = job.metadata.get("aspect_ratio", "4:5")
+                art_style = job.metadata.get("art_style")
+                aspect_ratio = job.metadata.get("aspect_ratio")
+                
+                if not art_style:
+                    raise ValueError("art_style is required in job metadata but was None")
+                if not aspect_ratio:
+                    raise ValueError("aspect_ratio is required in job metadata but was None")
                 
                 logger.info(f"   Generating chapters: {chapters}")
+                logger.info(f"   art_style: {art_style}")
+                logger.info(f"   aspect_ratio: {aspect_ratio}")
                 result = await wf.generate_chapters(
                     chapters=chapters,
                     continue_from=continue_from,

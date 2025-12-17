@@ -106,6 +106,7 @@ class GenerationHerd(LLMStore):
             "model": model_cfg.name,
             "temperature": model_cfg.temp,
             "max_tokens": model_cfg.max_tokens,
+            "max_completion_tokens": model_cfg.max_tokens,
             "stream": model_cfg.stream,
         }
 
@@ -184,6 +185,7 @@ class GenerationHerd(LLMStore):
 
             if model_or_cfg.loader == LLM:
                 return LLM(**model_args)
+
             elif issubclass(model_or_cfg.loader, Embedder):
                 return model_or_cfg.loader(
                     model=model_or_cfg.name,
@@ -230,16 +232,16 @@ OpenAiHerd = (
         ),
     )
     .register_model(
-        LLMThinkerIntent,  # used by bookwriter/novel, try gemini is novely
+        LLMThinkerIntent,  # used by bookwriter/novel
         ModelConfig(
-            # name="openai/gpt-4.1",
-            name="gemini/gemini-2.5-pro",
+            name="openai/gpt-5-mini",
+            # name="gemini/gemini-2.5-pro",  # Has known tool contamination issues, exposes internal reasoning and sometimes dies
             is_hosted=False,
-            temp=0.8,
+            temp=1.0, # gpt-5 temp, 0 or 1
             lazy_load=True,
             loader=LLM,
-            max_tokens=30000,
-            reasoning_effort="medium",
+            max_tokens=128000,  # GPT-5 max context
+            reasoning_effort="medium",  # Only for reasoning models
         ),
     )
     .register_model(

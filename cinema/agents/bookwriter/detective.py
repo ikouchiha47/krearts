@@ -71,14 +71,14 @@ class ConstraintTableBuilder:
                 target=ally2,
                 action=ActionType.ALLIED_WITH,
                 time=t,
-                location="pre_crime",
-                motive="mutual benefit"
+                location="[location before crime]",
+                motive="[alliance motive]"
             ))
             t += 1
         
         # 2. The murder (main event)
         logger.info("\n2. Adding murder...")
-        crime_location = "crime_scene"
+        crime_location = "[primary crime scene]"
         murder_time = t
         
         self.graph.add_relationship(Relationship(
@@ -87,7 +87,7 @@ class ConstraintTableBuilder:
             action=ActionType.KILLED,
             time=murder_time,
             location=crime_location,
-            motive="to be described by LLM",
+            motive="[murder motive]",
             witnessed_by=[]  # Will add witnesses
         ))
         t += 1
@@ -101,7 +101,7 @@ class ConstraintTableBuilder:
                 action=ActionType.ALLIED_WITH,
                 time=murder_time - 1,  # Before murder
                 location=crime_location,
-                motive="accomplice motive",
+                motive="[accomplice motive]",
             ))
         
         # 4. Add witnesses
@@ -118,7 +118,7 @@ class ConstraintTableBuilder:
                 action=ActionType.WITNESSED,
                 time=murder_time,
                 location=crime_location,
-                motive="was at scene"
+                motive="[witness motive]"
             ))
         
         # 5. Frame someone (if specified)
@@ -130,7 +130,7 @@ class ConstraintTableBuilder:
                 action=ActionType.FRAMED,
                 time=murder_time + 1,
                 location=crime_location,
-                motive="deflect suspicion"
+                motive="[framing motive]"
             ))
             t += 1
         
@@ -148,8 +148,8 @@ class ConstraintTableBuilder:
                     target=betrayed,
                     action=ActionType.KILLED,  # This is a murder, not just betrayal
                     time=t,
-                    location="secondary_crime_scene",
-                    motive="eliminate witness"
+                    location="[secondary crime scene]",
+                    motive="[witness elimination motive]"
                 ))
             else:
                 # Regular betrayal (non-lethal)
@@ -159,8 +159,8 @@ class ConstraintTableBuilder:
                     target=betrayed,
                     action=ActionType.BETRAYED,
                     time=t,
-                    location="various",
-                    motive="self-interest"
+                    location="[various locations]",
+                    motive="[betrayal motive]"
                 ))
             t += 1
         
@@ -179,7 +179,7 @@ class ConstraintTableBuilder:
                 action=ActionType.DISCOVERED,
                 time=murder_time + 2,
                 location=crime_location,
-                motive="investigation"
+                motive="[discovery motive]"
             ))
         
         logger.info("\n✓ Graph built from constraints")
@@ -320,91 +320,95 @@ class TruthTable:
         }
 
 
-class NarrativeGenerator:
-    """
-    LLM only fills in NARRATIVE DESCRIPTIONS for pre-determined logical structure.
-    Everything structural is already decided by the graph.
-    """
-
-    def __init__(
-        self,
-        plotbuilder: "DetectivePlotBuilder",
-        storyboard: "ComicStripStoryBoarding",
-    ):
-
-        logger.info("Initialized NarrativeGenerator")
-        self.plotbuilder = plotbuilder
-        self.storyboard = storyboard
-
-    async def generate_descriptions(
-        self,
-        graph: RelationshipGraph,
-        constraints: PlotConstraints,
-        artstyle: Optional[str] = "noir",
-    ):
-        """
-        Ask LLM to generate ONLY descriptions for the logical structure.
-        Structure is locked, LLM just adds flavor text.
-        
-        Returns:
-            DetectiveStoryOutput with complete narrative and panel prompts
-        """
-        from cinema.models.detective_output import DetectiveStoryOutput
-        
-        logger.info("\n" + "="*80)
-        logger.info("GENERATING NARRATIVE DESCRIPTIONS")
-        logger.info("="*80)
-        
-        # Step 1: Build input for detective plotbuilder
-        # Export graph to dict format
-        graph_dict = graph.export_to_dict()
-        
-        # Get allowed art styles from manifest
-        allowed_art_styles = get_allowed_art_styles()
-        
-        # Build inputs for plotbuilder crew
-        plotbuilder_inputs = {
-            "characters": json.dumps(graph_dict["characters"], indent=2),
-            "relationships": json.dumps(graph_dict["relationships"], indent=2, default=str),
-            "killer": constraints.killer,
-            "victim": constraints.victim,
-            "accomplices": constraints.accomplices,
-            "witnesses": [w[0] for w in constraints.witnesses],
-            "betrayals": [b[0] for b in constraints.betrayals],
-            "allowed_art_styles": ", ".join(allowed_art_styles),
-        }
-        
-        logger.info("Running DetectivePlotBuilder crew...")
-        plotbuilder_result = await self.plotbuilder.crew().kickoff_async(
-            inputs=plotbuilder_inputs
-        )
-
-        # Collect narrative structure as raw text
-        from cinema.agents.bookwriter.crew import DetectivePlotBuilder as DPB
-
-        narrative_text = DPB.collect(plotbuilder_result)  # type: ignore[attr-defined]
-        logger.info("✓ Detective plot narrative generated")
-        
-        # Step 2: Build inputs for comic strip storyboarding
-        storyboard_inputs = {
-            "narrative_structure": narrative_text,
-            "art_style": artstyle,
-        }
-        
-        logger.info("Running ComicStripStoryBoarding crew...")
-        storyboard_result = await self.storyboard.crew().kickoff_async(
-            inputs=storyboard_inputs
-        )
-
-        # Collect as DetectiveStoryOutput pydantic model
-        from cinema.agents.bookwriter.crew import ComicStripStoryBoarding as CSB
-
-        detective_output = CSB.collect(  # type: ignore[attr-defined]
-            storyboard_result, output_model=DetectiveStoryOutput
-        )
-        
-        logger.info("✓ Generated narrative descriptions with panel prompts")
-        return detective_output
+# DEPRECATED: NarrativeGenerator is no longer used in the main pipeline.
+# The full StoryBuilder Flow is used instead via NarrativeBuilderWithStoryBuilder.
+# Keeping this commented out for reference.
+#
+# class NarrativeGenerator:
+#     """
+#     LLM only fills in NARRATIVE DESCRIPTIONS for pre-determined logical structure.
+#     Everything structural is already decided by the graph.
+#     """
+#
+#     def __init__(
+#         self,
+#         plotbuilder: "DetectivePlotBuilder",
+#         storyboard: "ComicStripStoryBoarding",
+#     ):
+#
+#         logger.info("Initialized NarrativeGenerator")
+#         self.plotbuilder = plotbuilder
+#         self.storyboard = storyboard
+#
+#     async def generate_descriptions(
+#         self,
+#         graph: RelationshipGraph,
+#         constraints: PlotConstraints,
+#         artstyle: Optional[str] = "noir",
+#     ):
+#         """
+#         Ask LLM to generate ONLY descriptions for the logical structure.
+#         Structure is locked, LLM just adds flavor text.
+#         
+#         Returns:
+#             DetectiveStoryOutput with complete narrative and panel prompts
+#         """
+#         from cinema.models.detective_output import DetectiveStoryOutput
+#         
+#         logger.info("\n" + "="*80)
+#         logger.info("GENERATING NARRATIVE DESCRIPTIONS")
+#         logger.info("="*80)
+#         
+#         # Step 1: Build input for detective plotbuilder
+#         # Export graph to dict format
+#         graph_dict = graph.export_to_dict()
+#         
+#         # Get allowed art styles from manifest
+#         allowed_art_styles = get_allowed_art_styles()
+#         
+#         # Build inputs for plotbuilder crew
+#         plotbuilder_inputs = {
+#             "characters": json.dumps(graph_dict["characters"], indent=2),
+#             "relationships": json.dumps(graph_dict["relationships"], indent=2, default=str),
+#             "killer": constraints.killer,
+#             "victim": constraints.victim,
+#             "accomplices": constraints.accomplices,
+#             "witnesses": [w[0] for w in constraints.witnesses],
+#             "betrayals": [b[0] for b in constraints.betrayals],
+#             "allowed_art_styles": ", ".join(allowed_art_styles),
+#         }
+#         
+#         logger.info("Running DetectivePlotBuilder crew...")
+#         plotbuilder_result = await self.plotbuilder.crew().kickoff_async(
+#             inputs=plotbuilder_inputs
+#         )
+#
+#         # Collect narrative structure as raw text
+#         from cinema.agents.bookwriter.crew import DetectivePlotBuilder as DPB
+#
+#         narrative_text = DPB.collect(plotbuilder_result)  # type: ignore[attr-defined]
+#         logger.info("✓ Detective plot narrative generated")
+#         
+#         # Step 2: Build inputs for comic strip storyboarding
+#         storyboard_inputs = {
+#             "narrative_structure": narrative_text,
+#             "art_style": artstyle,
+#         }
+#         
+#         logger.info("Running ComicStripStoryBoarding crew...")
+#         storyboard_result = await self.storyboard.crew().kickoff_async(
+#             inputs=storyboard_inputs
+#         )
+#
+#         # Collect as DetectiveStoryOutput pydantic model
+#         from cinema.agents.bookwriter.crew import ComicStripStoryBoarding as CSB
+#
+#         detective_output = CSB.collect(  # type: ignore[attr-defined]
+#             storyboard_result, output_model=DetectiveStoryOutput
+#         )
+#         
+#         logger.info("✓ Generated narrative descriptions with panel prompts")
+#         return detective_output
 
 
 
@@ -412,6 +416,8 @@ class DetectivePlotSystem:
     """
     Main system: Pure constraint-based plot generation.
     Graph + Tables define ALL logic, LLM only adds descriptions.
+    
+    DEPRECATED: This system is no longer used. Use StoryBuilder Flow instead.
     """
 
     def __init__(
@@ -423,13 +429,15 @@ class DetectivePlotSystem:
         self.validator = ConsistencyValidator()
         self.truth_table = TruthTable()
         
+        # DEPRECATED: NarrativeGenerator is no longer used
         # Only create narrator if crews are provided
-        if plotbuilder and storyboard:
-            self.narrator = NarrativeGenerator(plotbuilder, storyboard)
-        else:
-            self.narrator = None
+        # if plotbuilder and storyboard:
+        #     self.narrator = NarrativeGenerator(plotbuilder, storyboard)
+        # else:
+        #     self.narrator = None
+        self.narrator = None
             
-        logger.info("Initialized DetectivePlotSystem")
+        logger.info("Initialized DetectivePlotSystem (DEPRECATED)")
     
     async def generate_from_constraints(
         self,
@@ -465,11 +473,12 @@ class DetectivePlotSystem:
         truth_matrix = self.truth_table.build_from_graph(graph, constraints)
         
         # Step 4: Generate narrative (LLM only does this part) - optional
+        # DEPRECATED: narrator/NarrativeGenerator is no longer used
         detective_output = None
-        if self.narrator:
-            detective_output = await self.narrator.generate_descriptions(
-                graph, constraints, artstyle
-            )
+        # if self.narrator:
+        #     detective_output = await self.narrator.generate_descriptions(
+        #         graph, constraints, artstyle
+        #     )
         
         logger.info("\n" + "#"*80)
         logger.info("# PLOT GENERATION COMPLETE")
