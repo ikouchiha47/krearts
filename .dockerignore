@@ -1,0 +1,132 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Tests
+tests/
+test_*.py
+*_test.py
+evals/
+
+# Examples and docs
+examples/
+docs/
+*.md
+!README.md
+
+# Output and data
+output/
+dataset/
+qdrant_storage/
+*.db
+*.db-shm
+*.db-wal
+*.log
+logs
+logs_*
+logss
+logsss
+
+# Temporary files
+tmp/
+*.tmp
+*.bak
+*.cache
+
+# Node modules (if any)
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.next/
+
+# Development files
+.env.local
+.env.development
+*.local
+
+# Jupyter
+*.ipynb
+.ipynb_checkpoints/
+
+# Coverage
+.coverage
+htmlcov/
+.tox/
+
+# Misc
+*.json.bak
+*.txt.bak
+history.txt
+googledocs-links
+run
+screenplay*.json
+screenplay*.md
+screenplay*.txt
+test_*.json
+test_*.log
+test_*.txt
+memory_*.log
+quick_*.log
+plotgraph_*.log
+cricket_*
+gemini_*
+extracted_*
+storyline_*.md
+novel.md
+script.md
+manager_llm.md
+critique_storyline.md
+detective_storyline.md
+
+# Release artifacts
+releases/
+
+# Documentation markdown files (keep only essential)
+*_SUMMARY.md
+*_PLAN.md
+*_GUIDE.md
+*_IMPLEMENTATION.md
+*_COMPLETE.md
+*_FIX.md
+*_INTEGRATION.md
+*_CLEANUP.md
+*_DESIGN.md
+*_REFERENCE.md
+*_ARCHITECTURE.md
+*_FLOW.md
+*_MECHANICS.md
+*_PROMPT.md
+*_RESEARCH.md
+*_VALIDATION.md
+
+# Keep only essential files
+!pyproject.toml
+!poetry.lock
+!.env.example
+!Dockerfile
+!docker-compose.yml
+!.dockerignore

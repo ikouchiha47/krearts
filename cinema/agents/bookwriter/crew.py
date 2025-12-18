@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, List, NewType, Optional, Type, TypeAlias, TypeVar, Union
+from typing import Any, List, Set, Optional, Type, TypeAlias, TypeVar, Union, Dict
 
 from crewai.knowledge.source.base_file_knowledge_source import BaseFileKnowledgeSource
 from crewai.knowledge.source.base_knowledge_source import BaseKnowledgeSource
@@ -125,7 +125,7 @@ class CrewLike:
 @CrewBase
 class DetectivePlotBuilder:
     agents_config = "plotbuilder/agents.yaml"
-    tasks_config = "plotbuilder/tasks.yaml"
+    tasks_config = "plotbuilder/tasks_old.yaml"
 
     # config: CrewConfig
     # narrative_index_docs: TextFileKnowledgeSource
@@ -281,7 +281,8 @@ class PlotCritique:
     # config: CrewConfig
     # narrative_index_docs: TextFileKnowledgeSource
 
-    role_name: str = "critique"
+    namespace: str = "critique"
+    role_name: str = "detective"
     default_outfile: str = "critique_storyline.md"
 
     # ctx: Optional[DirectorsContext] = None
@@ -343,14 +344,14 @@ class PlotCritique:
         assert self.ctx is not None
 
         agent = Agent(
-            config=self.agents_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
+            config=self.agents_config[self.namespace][self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMCritiqueIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )
 
         task = Task(  # pyright: ignore[reportCallIssue]
-            config=self.tasks_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
+            config=self.tasks_config[self.namespace][self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
             agent=agent,
             output_file=self.outfile,
             markdown=True,
@@ -375,6 +376,653 @@ class PlotCritique:
             knowledge_sources=[self.narrative_index_docs],
             external_memory=self.external_memory,
         )
+
+
+class ArcMetadata(BaseModel):
+    """Arc information for series expansion"""
+    current_arc: str = ""
+    arc_name: str = ""
+    foreshadowing: str = ""
+    power_level: str = ""
+    arc_number: int = 1
+    total_arcs: Optional[int] = None
+    arc_theme: str = ""
+    next_arc_setup: str = ""
+
+
+class PlotGraphInput(BaseModel):
+    """
+    Input for PlotGraphBuilder - extracts plot structure from seed text.
+    
+    The LLM will automatically detect genre from the seed content.
+    """
+    seed: str = Field(
+        ..., 
+        description="Story seed - can be user requirements, existing storyline, or brief concept"
+    )
+    art_style: Optional[str] = Field(
+        None, 
+        description="Optional art style preference (noir, anime, cyberpunk, etc.)"
+    )
+
+
+class GenericPlotBuilderSchema(BaseModel):
+    """Input schema for GenericPlotBuilder - converts PlotGraphOutput to task inputs"""
+    
+    # From PlotGraphOutput
+    genres: str = Field(..., description="JSON string of genres list")
+    primary_genre: str = Field(..., description="Primary genre")
+    characters: str = Field(..., description="JSON string of characters list")
+    relationships: str = Field(..., description="JSON string of relationships list")
+    events: str = Field(..., description="JSON string of events list")
+    world_context: str = Field(..., description="JSON string of world context dict")
+    genre_metadata: str = Field(..., description="JSON string of genre metadata dict")
+    
+    # User inputs
+    user_requirements: str = Field(default="", description="User's original requirements")
+    art_style: str = Field(default="", description="Selected art style")
+    allowed_art_styles: str = Field(default="", description="Available art styles")
+    selected_art_styles: str = Field(default="", description="User-selected art styles")
+    
+    # Feedback loop
+    feedback: str = Field(default="", description="Critique feedback")
+    storyline: str = Field(default="", description="Previous storyline for improvement")
+    examples: str = Field(default="", description="Examples")
+    
+    @classmethod
+    def from_plotgraph(
+        cls,
+        plot_graph: "PlotGraphOutput",
+        user_requirements: str = "",
+        art_style: str = "",
+        allowed_art_styles: str = "",
+        selected_art_styles: str = "",
+        examples: str = "",
+    ) -> "GenericPlotBuilderSchema":
+        """Convert PlotGraphOutput to schema"""
+        import json
+        
+        return cls(
+            genres=json.dumps(plot_graph.genres),
+            primary_genre=plot_graph.primary_genre,
+            characters=json.dumps(plot_graph.characters, indent=2),
+            relationships=json.dumps(plot_graph.relationships, indent=2),
+            events=json.dumps(plot_graph.events, indent=2),
+            world_context=json.dumps(plot_graph.world_context, indent=2),
+            genre_metadata=json.dumps(plot_graph.genre_metadata, indent=2),
+            user_requirements=user_requirements,
+            art_style=art_style,
+            allowed_art_styles=allowed_art_styles,
+            selected_art_styles=selected_art_styles,
+            examples=examples,
+        )
+
+
+class PlotGraphOutput(BaseModel):
+    """
+    Output from PlotGraphBuilder - structured plot graph.
+    
+    This is a generic version of DetectivePlotBuilderSchema that works for any genre.
+    Contains characters, relationships, events, and metadata.
+    LLM automatically detects genre(s) from seed text.
+    """
+    # Core story elements
+    genres: List[str] = Field(
+        ..., 
+        description="Detected genres (can be multiple: ['detective', 'noir'], ['shonen', 'romance'])"
+    )
+    primary_genre: str = Field(
+        ..., 
+        description="Primary genre for validation and plot structure"
+    )
+    title: str = Field(default="", description="Story title")
+    theme: str = Field(default="", description="Story theme")
+    
+    # Characters (generic roles)
+    characters: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of characters with properties (name, role, backstory, etc.)"
+    )
+    
+    # Relationships (edges in graph)
+    relationships: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of relationships between characters (source, target, type, time, etc.)"
+    )
+    
+    # Events (plot beats)
+    events: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of key events (name, type, participants, time, location)"
+    )
+    
+    # World context
+    world_context: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="World building (era, setting, technology, culture, etc.)"
+    )
+    
+    # Genre-specific metadata
+    genre_metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Genre-specific data (power_system for shonen, evidence for detective, etc.)"
+    )
+    
+    # Art style
+    # art_style: Optional[str] = Field(None, description="Selected art style")
+    
+    # Narrative structure
+    narrative_structure: Optional[str] = Field(None, description="Narrative structure (three-act, hero's journey, etc.)")
+    
+    # References used
+    references: List[str] = Field(
+        default_factory=list,
+        description="Knowledge base files used"
+    )
+    
+    # Arc metadata (for serialized/episodic content)
+    arc_metadata: "ArcMetadata" = Field(
+        default_factory=lambda: ArcMetadata(),
+        description="Arc information for series expansion"
+    )
+
+@CrewBase
+class PlotGraphBuilder:
+    agents_config = "plotbuilder/agents.yaml"
+    tasks_config = "plotbuilder/tasks.yaml"
+
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
+
+    role_name: str = "plotgraph"
+    default_outfile: str = "plotgraph.md"
+
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
+
+    def __init__(
+        self,
+        ctx: DirectorsContext,
+        outfile: Optional[str] = None,
+        external_memory: Optional[ExternalMemory] = None,
+        use_mock: Optional[bool] = False,
+    ):
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+
+        self.outfile: Optional[str] = outfile 
+        self.use_mock: bool = bool(use_mock)
+
+        self.narrative_index_docs = knowledge_registry.get(
+            "detective_plot",
+            [
+                "GLOSSARY.md",
+                "storywriting/detective/principles.md",
+                "storywriting/detective/storytelling-techniques.md",
+                "narrative-structures/index.md",
+                "art-styles/index.md",
+                "art-styles/combinations.md",
+                "art-styles/character-guidelines.md"
+            ],
+        )
+
+        self.config.tools = [
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "narrative-structures")),
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "art-styles" / "references")),
+            FileReadTool(),
+        ]
+
+    @classmethod
+    def collect(
+        cls,
+        result: CrewOutput,
+        output_model: Optional[Type[T]] = None,
+        use_crew_result: bool = True,  # Use clean crew output by default
+    ) -> T | str | None:
+
+        if use_crew_result:
+            logger.info(f"[PlotGraphBuilder] Using crew result directly")
+            
+            if not output_model:
+                raw_output = result.raw or ""
+                logger.info(f"[PlotGraphBuilder] Using result.raw (length: {len(raw_output)})")
+                return clean_agent_thinking_from_output(raw_output)
+            elif output_model and isinstance(result.pydantic, output_model):
+                return output_model.model_validate(result.pydantic)
+
+        logger.info(f"[PlotGraphBuilder] Using task results directly") 
+        logger.info(f"[PlotGraphBuilder] Number of task outputs: {len(result.tasks_output)}")
+
+        for task_output in result.tasks_output:
+            if output_model is None:
+                logger.info(f"[PlotGraphBuilder] Returning task raw output (length: {len(task_output.raw)})")
+                return clean_agent_thinking_from_output(task_output.raw)
+
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
+
+        return None
+
+    # @classmethod
+    # def load_examples(cls):
+    #     try:
+    #         with open(
+    #             Path(__file__).parent / "plotbuilder/examples.yaml",
+    #             "r+",
+    #         ) as f:
+    #             examples_config = yaml.safe_load(f)
+    #             return (
+    #                 examples_config.get("plotbuilder", {})
+    #                 .get("detective", {})
+    #                 .get("examples", "")
+    #             )
+
+    #     except Exception as e:
+    #         print(e)
+    #         return ""
+
+    def _validate_ctx(self):
+        assert self.ctx is not None, "EmptyCtx"
+
+    def get_config(self):
+        return self.config
+
+    def bootstrap(self):
+        assert self.ctx is not None
+
+        agent = Agent(
+            config=self.agents_config[self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
+            llm=self.ctx.llmstore.load(LLMPlannerIntent),
+            tools=self.config.tools,
+            verbose=self.ctx.debug,
+        )
+
+        task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
+            agent=agent,
+            output_file=self.outfile,
+            output_pydantic=PlotGraphOutput,  # Structured output
+        )
+
+        self.config.agents.append(agent)
+        self.config.tasks.append(task)
+
+        return self
+
+    def crew(self):
+        assert self.ctx is not None
+
+        if self.use_mock and self.outfile:
+            return CrewLike(self.outfile)
+
+        _ = self.bootstrap()
+
+        return Crew(
+            agents=self.config.agents,
+            tasks=self.config.tasks,
+            verbose=self.ctx.debug,
+            # planning=True,
+            knowledge_sources=[self.narrative_index_docs],
+            external_memory=self.external_memory,
+        )
+
+from typing import TypedDict
+
+class PlotBuilderOverrides(TypedDict):
+    genre_roles: Optional[str]
+    genre_world_additions: Optional[str]
+    genre_actions_additions: Optional[str]
+    genre_specific_content: Optional[str]
+    genre_validation_rules: Optional[str]
+
+@CrewBase
+class GenericPlotBuilder:
+    agents_config = "plotbuilder/agents.yaml"
+    tasks_config = "plotbuilder/tasks.yaml"
+
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
+
+    namespace: str = "plotbuilder"
+    role_name: str = "generic"
+    default_outfile: str = "detective_storyline.md"
+
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
+
+    def __init__(
+        self,
+        ctx: DirectorsContext,
+        role_override: Optional[str] = None,
+        outfile: Optional[str] = None,
+        external_memory: Optional[ExternalMemory] = None,
+        use_mock: Optional[bool] = False,
+    ):
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+
+        self.outfile: Optional[str] = outfile 
+        self.use_mock: bool = bool(use_mock)
+        self.role_override = role_override or self.role_name
+
+        self.narrative_index_docs = knowledge_registry.get(
+            "detective_plot",
+            [
+                "GLOSSARY.md",
+                "storywriting/detective/principles.md",
+                "storywriting/detective/storytelling-techniques.md",
+                "narrative-structures/index.md",
+                "art-styles/index.md",
+                "art-styles/combinations.md",
+                "art-styles/character-guidelines.md"
+            ],
+        )
+
+        self.config.tools = [
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "narrative-structures")),
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "art-styles" / "references")),
+            FileReadTool(),
+        ]
+
+    @classmethod
+    def collect(
+        cls,
+        result: CrewOutput,
+        output_model: Optional[Type[T]] = None,
+        use_crew_result: bool = True,  # Use clean crew output by default
+    ) -> T | str | None:
+
+        if use_crew_result:
+            logger.info(f"[DetectivePlotBuilder] Using crew result directly")
+            
+            if not output_model:
+                raw_output = result.raw or ""
+                logger.info(f"[DetectivePlotBuilder] Using result.raw (length: {len(raw_output)})")
+                return clean_agent_thinking_from_output(raw_output)
+            elif output_model and isinstance(result.pydantic, output_model):
+                return output_model.model_validate(result.pydantic)
+
+        logger.info(f"[DetectivePlotBuilder] Using task results directly") 
+        logger.info(f"[DetectivePlotBuilder] Number of task outputs: {len(result.tasks_output)}")
+
+        for task_output in result.tasks_output:
+            if output_model is None:
+                logger.info(f"[DetectivePlotBuilder] Returning task raw output (length: {len(task_output.raw)})")
+                return clean_agent_thinking_from_output(task_output.raw)
+
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
+
+        return None
+
+    @classmethod
+    def load_examples(cls):
+        try:
+            with open(
+                Path(__file__).parent / "plotbuilder/examples.yaml",
+                "r+",
+            ) as f:
+                examples_config = yaml.safe_load(f)
+                return (
+                    examples_config.get("plotbuilder", {})
+                    .get("detective", {})
+                    .get("examples", "")
+                )
+
+        except Exception as e:
+            print(e)
+            return ""
+
+    def _validate_ctx(self):
+        assert self.ctx is not None, "EmptyCtx"
+
+    def get_config(self):
+        return self.config
+
+    # Genre alias mapping - multiple names for same override
+    GENRE_ALIASES = {
+        "anime": "shonen",
+        "manga": "shonen",
+        "mystery": "detective",
+        "noir": "detective",
+        "suspense": "thriller",
+        "sci-fi": "cyberpunk",  # Can be separated later if needed
+    }
+    
+    def __override_role(self, genres: List[str]) -> List[str]:
+        """
+        Find all matching genre overrides from task config.
+        
+        Logic:
+        1. Get available overrides from tasks.yaml (detective, shonen, cyberpunk, etc.)
+        2. Create expanded set: overrides + all their aliases
+        3. Match input genres against expanded set
+        4. Return matched OVERRIDE names (not alias names)
+        
+        Example:
+          Input: ["anime", "detective"]
+          Overrides: ["detective", "shonen", "cyberpunk"]
+          Expanded: ["detective", "shonen", "cyberpunk", "anime", "manga", "mystery", "noir", ...]
+          Match: "anime" -> "shonen", "detective" -> "detective"
+          Return: ["shonen", "detective"]
+        """
+        task_keys: Dict[str, Any] = self.tasks_config[self.namespace]  # pyright: ignore[reportArgumentType, reportAssignmentType]
+        genre_overrides: Set[str] = set(task_keys.keys())
+        
+        # Build reverse mapping: alias → override
+        # Also include override → override (identity mapping)
+        alias_to_override: Dict[str, str] = {}
+        
+        # Add identity mappings (override names map to themselves)
+        for override in genre_overrides:
+            alias_to_override[override.lower()] = override
+        
+        # Add alias mappings
+        for alias, override in self.GENRE_ALIASES.items():
+            if override in genre_overrides:  # Only if override exists
+                alias_to_override[alias.lower()] = override
+        
+        # Match input genres against expanded set
+        matched_overrides: Set[str] = set()
+        for genre in genres:
+            genre_lower = genre.lower()
+            if genre_lower in alias_to_override:
+                matched_overrides.add(alias_to_override[genre_lower])
+        
+        return list(matched_overrides)
+
+    def bootstrap(self, genres: List[str] = []):
+        assert self.ctx is not None
+        if not genres or len(genres) == 0:
+            genres = ["generic"]
+            
+        # Get ALL matching genre overrides
+        matched_overrides = self.__override_role(genres)
+
+        agent = Agent(
+            config=self.agents_config[self.namespace],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
+            llm=self.ctx.llmstore.load(LLMPlannerIntent),
+            tools=self.config.tools,
+            verbose=self.ctx.debug,
+        )
+
+        base_task: Dict[str, Any] = self.tasks_config[self.namespace]  # pyright: ignore[reportArgumentType, reportAssignmentType]
+        expected_output = base_task[self.role_name]["expected_output"]
+        description: str = base_task[self.role_name]["description"]
+
+        # Initialize override placeholders
+        override_conf: PlotBuilderOverrides = {
+            "genre_roles": "",
+            "genre_world_additions": "",
+            "genre_actions_additions": "",
+            "genre_specific_content": "",
+            "genre_validation_rules": ""
+        }
+
+        # Concatenate ALL matching overrides
+        for override_key in matched_overrides:
+            if override_key in base_task and override_key != self.role_name:
+                overrides: PlotBuilderOverrides = base_task[override_key]
+                logger.info(f"Applying override: {override_key}")
+                
+                # Concatenate each field
+                for key in override_conf.keys():
+                    if key in overrides and overrides[key]:
+                        override_conf[key] += "\n" + overrides[key]
+
+        # Replace genre override placeholders only (not schema placeholders)
+        # Using str.replace() instead of .format() to avoid KeyError on schema placeholders
+        for key, value in override_conf.items():
+            placeholder = "{" + key + "}"
+            description = description.replace(placeholder, value)
+        
+        logger.info(f"Applied {len(matched_overrides)} genre overrides: {matched_overrides}")
+
+        task = Task(  # pyright: ignore[reportCallIssue]
+            expected_output=expected_output,
+            description=description,            
+            agent=agent,
+            output_file=self.outfile,
+            markdown=True,
+        )
+
+        # manager = Agent(
+        #     config=self.agents_config["manager"],  # type:ignore[index]
+        #     llm=self.ctx.llmstore.load(LLMLongPlannerIntent),
+        #     tools=self.config.tools,
+        #     verbose=self.ctx.debug,
+        # )
+
+        self.config.agents.append(agent)
+        self.config.tasks.append(task)
+
+        return self
+
+    def crew(self):
+        assert self.ctx is not None
+
+        if self.use_mock and self.outfile:
+            return CrewLike(self.outfile)
+
+        _ = self.bootstrap()
+
+        return Crew(
+            agents=self.config.agents,
+            tasks=self.config.tasks,
+            verbose=self.ctx.debug,
+            # planning=True,
+            knowledge_sources=[self.narrative_index_docs],
+            external_memory=self.external_memory,
+        )
+
+@CrewBase
+class GenericPlotCritique:
+    agents_config = "plotbuilder/agents.yaml"
+    tasks_config = "plotbuilder/tasks.yaml"
+
+    # config: CrewConfig
+    # narrative_index_docs: TextFileKnowledgeSource
+
+    namespace: str = "critique"
+    role_name: str = "generic"
+    default_outfile: str = "critique_storyline.md"
+
+    # ctx: Optional[DirectorsContext] = None
+    # external_memory: Optional[ExternalMemory] = None
+    # use_mock: Optional[bool] = False
+
+    def __init__(
+        self,
+        ctx: DirectorsContext,
+        outfile: str | None = None,
+        external_memory: ExternalMemory | None = None,
+        use_mock: bool | None = False,
+    ):
+        self.ctx: DirectorsContext = ctx
+        self.config: CrewConfig = CrewConfig()
+        self.external_memory: Optional[ExternalMemory] = external_memory
+        self.outfile: Optional[str] = outfile
+
+        self.use_mock: bool = True if use_mock else False
+
+        self.narrative_index_docs = knowledge_registry.get(
+            "plot_critique",
+            [
+                "GLOSSARY.md",
+                "storywriting/detective/principles.md",
+                "storywriting/detective/storytelling-techniques.md",
+                "narrative-structures/index.md",
+            ],
+        )
+
+        self.config.tools = [
+            DirectoryReadTool(directory=str(KNOWLEDGE_DIR / "narrative-structures")),
+            FileReadTool(),
+        ]
+
+    @classmethod
+    def collect(
+        cls,
+        result: CrewOutput,
+        output_model: Optional[Type[T]] = None,
+    ) -> T | str | None:
+
+        for task_output in result.tasks_output:
+            if not output_model:
+                return task_output.raw
+            
+            if isinstance(task_output.pydantic, output_model):
+                return output_model.model_validate(task_output.pydantic)
+
+        return None
+
+    def _validate_ctx(self):
+        assert self.ctx is not None, "EmptyCtx"
+
+    def get_config(self):
+        return self.config
+
+    def bootstrap(self):
+        assert self.ctx is not None
+
+        agent = Agent(
+            config=self.agents_config[self.namespace][self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
+            llm=self.ctx.llmstore.load(LLMCritiqueIntent),
+            tools=self.config.tools,
+            verbose=self.ctx.debug,
+        )
+
+        task = Task(  # pyright: ignore[reportCallIssue]
+            config=self.tasks_config[self.namespace][self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
+            agent=agent,
+            output_file=self.outfile,
+            markdown=True,
+        )
+
+        self.config.agents.append(agent)
+        self.config.tasks.append(task)
+
+    def crew(self):
+        assert self.ctx is not None
+
+        if self.use_mock and self.outfile:
+            return CrewLike(self.outfile)
+
+        self.bootstrap()
+
+        return Crew(
+            agents=self.config.agents,
+            tasks=self.config.tasks,
+            verbose=self.ctx.debug,
+            # planning=True,
+            knowledge_sources=[self.narrative_index_docs],
+            external_memory=self.external_memory,
+        )
+
 
 
 class ScreenplayWriterSchema(BaseModel):

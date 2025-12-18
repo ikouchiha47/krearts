@@ -1,74 +1,319 @@
+plotgraph:
+  expected_output: >
+    A structured plot graph in JSON format containing characters, relationships,
+    events, world context, and genre-specific metadata
+
+  description: |
+    Extract the core plot structure from user requirements or an existing storyline.
+    
+    Your task is to analyze the input and create a structured plot graph that captures:
+    
+    ## What to Extract
+    
+    ### 1. Characters (Nodes)
+    For each character, identify:
+    - name: Full character name
+    - role: **IMPORTANT** Use EXACT genre-specific role names:
+      - **Detective/Mystery**: detective, victim, killer, accomplice, witness, framed_suspect
+      - **Shonen/Anime**: protagonist, rival, mentor, arc_villain, final_boss, team_member
+      - **Cyberpunk**: hacker, corpo, netrunner, street_kid, fixer, ripperdoc, ai
+      - **Horror**: final_girl, monster, skeptic, believer, sacrifice, first_victim, investigator
+      - **Thriller**: protagonist, antagonist, ally, victim, authority, informant, red_herring
+      - **Generic**: protagonist, antagonist, mentor, ally, rival
+    - properties:
+      - backstory: Brief background
+      - motivation: What drives them
+      - personality: Key traits
+      - skills: Abilities/powers
+      - arc: How they change
+    
+    ### 2. Relationships (Edges)
+    For each relationship, identify:
+    - source: Character name
+    - target: Character name  
+    - type: Relationship type (allied_with, opposed_to, mentors, loves, betrays, etc.)
+    - time: When this relationship forms/changes (timeline order)
+    - properties:
+      - strength: How strong is this relationship
+      - reason: Why this relationship exists
+    
+    ### 3. Events (Plot Beats)
+    For each key event, identify:
+    - name: Event name
+    - type: Event type (battle, discovery, betrayal, revelation, training, etc.)
+    - participants: Characters involved
+    - time: When it happens (timeline order)
+    - location: Where it happens
+    - outcome: What changes as a result
+    
+    ### 4. World Context
+    Extract world-building elements:
+    - era: Time period
+    - setting: Geographic location
+    - technology_level: Tech available
+    - culture: Social norms
+    - politics: Power structures
+    - magic_or_powers: Supernatural elements (if any)
+    
+    ### 5. Genre-Specific Metadata
+    Based on detected genre(s), extract relevant metadata:
+    
+    **For Detective/Mystery:**
+    ```json
+    "genre_metadata": {
+      "detective": {
+        "evidence": ["clue1", "clue2", ...],
+        "crime": "description of crime",
+        "suspects": ["suspect1", "suspect2", ...],
+        "red_herrings": ["false_lead1", ...]
+      }
+    }
+    ```
+    
+    **For Shonen/Anime/Manga:**
+    ```json
+    "genre_metadata": {
+      "shonen": {
+        "power_system": "description of how powers work",
+        "power_levels": {"character": "level", ...},
+        "training_arcs": ["arc1", "arc2", ...],
+        "transformations": ["form1", "form2", ...]
+      }
+    }
+    ```
+    
+    **For Cyberpunk:**
+    ```json
+    "genre_metadata": {
+      "cyberpunk": {
+        "corporations": ["corp1", "corp2", ...],
+        "technology": ["tech1", "tech2", ...],
+        "class_divide": "description",
+        "macguffin": "object description"
+      }
+    }
+    ```
+    
+    **For Horror:**
+    ```json
+    "genre_metadata": {
+      "horror": {
+        "threat_type": "monster/supernatural/psychological",
+        "fear_types": ["dread", "body_horror", ...],
+        "isolation_level": "description",
+        "kill_rules": "how the threat kills"
+      }
+    }
+    ```
+    
+    **For Thriller:**
+    ```json
+    "genre_metadata": {
+      "thriller": {
+        "ticking_clock": "deadline description",
+        "stakes": "what happens if fail",
+        "twists": ["twist1", "twist2", ...],
+        "paranoia_level": "high/medium/low"
+      }
+    }
+    ```
+    
+    **For Romance:**
+    ```json
+    "genre_metadata": {
+      "romance": {
+        "obstacles": ["obstacle1", "obstacle2", ...],
+        "chemistry": "why attracted",
+        "growth": "how they change each other"
+      }
+    }
+    ```
+    
+    **Note:**
+    - If multiple genres, include metadata for each under its genre key.
+    - You are also allowed to invent your own genres. **ALWAYS** make sure they are in lowercase
+    
+    ---
+    
+    ## Knowledge Base
+    
+    Available in memory:
+    - GLOSSARY.md: Definitions of knowledge categories
+    - storywriting/detective/principles.md: Detective story rules
+    - storywriting/genres/: Genre-specific templates
+    - narrative-structures/index.md: Plot structures
+    - art-styles/index.md: Visual styles
+    
+    ## Tool Usage
+    - Use DirectoryReadTool to explore knowledge/storywriting/genres/
+    - Use FileReadTool to read genre-specific templates
+    - Use DirectoryReadTool before FileReadTool
+    - Reference GLOSSARY for correct file paths
+    
+    ---
+    
+    ## Input
+    
+    **Story Seed:**
+    {seed}
+    
+    **Art Style (optional):**
+    {art_style}
+    
+    ---
+    
+    ## Context (Previous Iteration)
+    {context}
+    
+    <logic>
+    if context is provided:
+      - This is a retry/refinement iteration
+      - Use context to understand what was attempted before
+      - Improve based on feedback below
+    else:
+      - This is the first iteration
+      - Extract fresh from seed
+    </logic>
+    
+    ---
+    
+    ## Feedback (Validation Issues)
+    {feedback}
+    
+    <logic>
+    if feedback contains "CRITICAL" or "HIGH":
+      - Fix these issues immediately
+      - Adjust graph structure to address violations
+      
+    if feedback contains "IMPROVE":
+      - Enhance the graph based on suggestions
+      - Add missing elements
+      - Strengthen weak connections
+      
+    if feedback is empty:
+      - No issues, proceed normally
+    </logic>
+    
+    ---
+    
+    ## Instructions
+    
+    1. **Detect Genres:** Read the seed and identify ALL applicable genres (can be multiple: detective+noir, shonen+romance, cyberpunk+detective)
+       - Primary genre: The main genre that drives the plot structure
+       - Secondary genres: Additional genre elements that flavor the story
+    2. **Extract Characters:** Find all characters and their roles
+    3. **Map Relationships:** Identify how characters relate
+    4. **Timeline Events:** Order key plot beats chronologically
+    5. **World Building:** Extract setting and context
+    6. **Genre Elements:** Capture genre-specific requirements based on detected genre
+    7. **Validate:** Ensure all required elements for that genre are present
+    
+    ---
+    
+    ## Output Format
+    
+    Return a PlotGraphOutput with:
+    
+    ```json
+    {
+      "genres": ["detective", "noir"],
+      "primary_genre": "detective",
+      "title": "Story Title
+      "theme": "Core theme",
+      "characters": [
+        {
+          "name": "Character Name",
+          "role": "protagonist|antagonist|mentor|etc",
+          "backstory": "...",
+          "motivation": "...",
+          "personality": "...",
+          "skills": "...",
+          "arc": "..."
+        }
+      ],
+      "relationships": [
+        {
+          "source": "Character A",
+          "target": "Character B",
+          "type": "allied_with|opposed_to|mentors|etc",
+          "time": 0,
+          "strength": "strong|weak",
+          "reason": "..."
+        }
+      ],
+      "events": [
+        {
+          "name": "Event Name",
+          "type": "battle|discovery|betrayal|etc",
+          "participants": ["Character A", "Character B"],
+          "time": 1,
+          "location": "...",
+          "outcome": "..."
+        }
+      ],
+      "world_context": {
+        "era": "...",
+        "setting": "...",
+        "technology_level": "...",
+        "culture": "...",
+        "politics": "...",
+        "magic_or_powers": "..."
+      },
+      "genre_metadata": {
+        // Genre-specific data
+      },
+      "art_style": "...",
+      "narrative_structure": "three-act|hero's-journey|etc",
+      "references": ["files used from knowledge base"]
+    }
+    ```
+    
+    ---
+    
+    ## Validation Checklist
+    
+    Before outputting, ensure:
+    - [ ] At least 1 protagonist character
+    - [ ] At least 1 antagonist character
+    - [ ] Protagonist opposes antagonist (relationship edge)
+    - [ ] At least 3 key events
+    - [ ] Events are in chronological order
+    - [ ] World context is defined
+    - [ ] Genre-specific metadata is present
+    - [ ] All characters in relationships exist in characters list
+    - [ ] All participants in events exist in characters list
+
 plotbuilder:
-  detective:
+  generic:
     expected_output: >
-      A comprehensive list of character profiles, their backstory,
-      and the story connecting the plotline
+      A comprehensive storyline with character profiles, world context,
+      and detailed narrative following genre conventions
 
     description: |
-      Given this FIXED plot structure (you cannot change the logic, only describe it)
-
+      Given a plot structure, expand it into a rich, detailed storyline.
+      
       Your task is to:
-      - Generate character personas and backstories, their motivations, and quirks
-      - Narrative descriptions for each relationship
-      - Build a solid plotline for a detective story, with the created characters.
-        Making sure the motivations and behaviours serve the storyline.
-
+      - Generate vivid character personas and backstories
+      - Create narrative descriptions for relationships
+      - Build a solid plotline that serves the characters and genre
+      - Add atmospheric details and emotional depth
+      
       You MAY add:
       - Vivid descriptions
       - Character personalities
       - Atmospheric details
       - Emotional depth
-
-      ---
-
-      ## Knowledge
-      Present In memory
-
-      - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
-      - Story Writing Principles (storywriting/detective/principles.md)
-
-      - Narrative Patterns:
-        - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
-        - File: storywriting/detective/storytelling-techniques.md
-      - Available Narrative Structures:
-        - Intent: HOW to organize the story timeline
-        - File: knowledge/narrative-structures/index.md
-      - Art Styles:
-        - Intent: Visual art styles for comic book generation
-        - File: knowledge/art-styles/index.md
-        - Character Guidelines: knowledge/art-styles/character-guidelines.md
-        - Style Combinations: knowledge/art-styles/combinations.md
-
-      ## Tool USAGE
-      - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
-      - Using the knowledge/art-styles/index.md find appropriate art style(s) for the story
-      - Use the DirectoryReadTool to understand the file structure in narrative-structures and art-styles
-      - And the FileReadTool to read the detailed narrative structures and art style references
-      - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
-
-      ## Art Style Selection
-      - Available art styles: {allowed_art_styles}
-      - User selected art styles: {selected_art_styles}
-      - If user selected styles, USE THEM (they can be combined)
-      - If no styles selected, choose from available styles based on story tone
-      - Art styles can be COMBINED (e.g., "noir + cyberpunk", "anime + pop-art")
-      - See art-styles/combinations.md for proven combinations
-      - For sci-fi stories:
-        - Use "sci-fi" for clean, optimistic future aesthetics
-        - Use "cyberpunk" for dystopian, gritty, neon-drenched aesthetics
-      - Include selected art styles in storyline metadata
-      - From directories, files and knowledgebase, choose the best possible styles matching intent.
-
+      
       IMPORTANT:
       - Text inside (), [] and <> are instructions or intent
       - **ALWAYS** use the GLOSSARY to get the correct file paths
-
+      
       ---
-
+      
       ## User Requirements (Optional Seed)
       
       {user_requirements}
-
+      
       <logic>
       if user_requirements is provided:
         - Use these as creative constraints and inspiration
@@ -78,231 +323,529 @@ plotbuilder:
       else:
         - Create story freely based on plot structure
       </logic>
-
+      
       ---
-
-      ## Plot Structure (1)
-
-      ### CHARACTERS
-      {characters}
-
-      ### RELATIONSHIPS (FIXED):
-      {relationships}
-
-      ### Roles (FIXED):
-      - Killer: {killer}
-      - Victim: {victim}
-      - Accomplices: {accomplices}
-      - Witnesses: {witnesses}
-      - Betrayals: {betrayals}
-
-      ### Detective Declaration (ENFORCED)
-      - You MUST declare detective primacy explicitly:
-        - Primary Detective: <name>  (this character MUST have role `detective`)
-        - Secondary Detectives (optional): [<name>, ...] (each MUST have role `detective`)
-      - If multiple detectives exist, include a POV Plan: the primary owns ≥ 60% of investigative beats; label POV in key scenes.
-
+      
+      ## Input Structure
+      
+      **Genres:** {genres}
+      **Primary Genre:** {primary_genre}
+      **Characters:** {characters}
+      **Relationships:** {relationships}
+      **Events:** {events}
+      **World Context:** {world_context}
+      **Genre Metadata:** {genre_metadata}
+      **Art Style:** {art_style}
+      
       ---
-
-      Respond in the markdown heirarchical format
+      
+      ## Knowledge Base
+      
+      Available in memory:
+      - Glossary (GLOSSARY.md)
+      - Narrative Structures (narrative-structures/index.md)
+      - Art Styles (art-styles/index.md)
+      - Character Guidelines (art-styles/character-guidelines.md)
+      - Style Combinations (art-styles/combinations.md)
+      
+      ## Tool Usage
+      - Use DirectoryReadTool to explore knowledge/narrative-structures
+      - Use DirectoryReadTool to explore knowledge/art-styles
+      - Use FileReadTool to read specific narrative structures
+      - Use FileReadTool to read art style references
+      - **ALWAYS use DirectoryReadTool before FileReadTool**
+      
+      ---
+      
+      ## Art Style Selection
+      - Available art styles: {allowed_art_styles}
+      - User selected art styles: {selected_art_styles}
+      - If user selected styles, USE THEM (they can be combined)
+      - If no styles selected, choose from available styles based on story tone
+      - Art styles can be COMBINED (e.g., "noir + cyberpunk", "anime + pop-art")
+      - See art-styles/combinations.md for proven combinations
+      - Include selected art styles in storyline metadata
+      
+      ---
+      
+      ## Output Format
+      
+      Respond in markdown hierarchical format.
       **STRICTLY ADHERE TO THE BELOW FORMAT**
-
+      
       ---
-
+      
       ## World & Era Context
-
+      
       - Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
       - Geography and Setting: <city/region, urban/rural, climate>
       - Culture and Traditions: <norms impacting behavior/conflict>
-      - Socital Constructs: <how society was defined during the era, the definitions of good and bad>
+      - Societal Constructs: <how society was defined during the era>
       - Geopolitics and Legal Context: <jurisdiction, legal constraints>
-      - Technology Level and Forensics: <tools available, limitations>
-      - Policing Style and Jurisdiction: <detective's authority, procedures>
+      - Technology Level: <tools available, limitations>
       - Media Environment: <press influence, public perception>
       - Thematic Constraints: <tone, taboos, social dynamics>
-
-      ## Characters
-
+      
+      {genre_world_additions}
+      
       ---
-  
-      ### Character 1 (index)
+      
+      ## Characters
+      
+      ### Character N (index)
       
       **Name:** <full name>
-      **Physical Traits:** <detailed physical description. this should emobody the characters beliefs, allowing the reader to feel the differences or similarites>
+      **Physical Traits:** <detailed physical description embodying character's beliefs>
       **Ethnicity:** <ethnicity>
       **Age:** <age>
       **Quirks:** <list of quirks>
-      **Clothing:** <type of clothings prefered>
-
+      **Clothing:** <type of clothing preferred>
+      
       #### Backstory
       (in details)
       <name> is a calculating individual with a dark secret.
-      <name>  was a wealthy and influential figure.
-      (and how they met or knew or are related to the main victim)
+      <name> was a wealthy and influential figure.
+      (and how they met or knew or are related to other key characters)
+      
+      Describe the character's history, formative events, and how they relate to other characters.
       
       #### Role
-      IMPORTANT: Use EXACTLY ONE of these role names (do not invent new roles):
-      - killer: The person who committed the murder
-      - victim: The person who was killed
-      - accomplice: Helped the killer before/during/after the crime
-      - witness: Saw something suspicious (may be eliminated later)
-      - betrayal: Betrayed an ally or accomplice
-      - detective: Investigates the crime
-      - framed_suspect: Falsely implicated by planted evidence (red herring)
-
-      #### Actions & Locations
-      A date and time wise breakdown of:
+      IMPORTANT: Use EXACTLY ONE of these role names:
+      
+      {genre_roles}
+      
+      #### Actions & Timeline
+      A chronological breakdown of:
       - what the person did
       - where the person was
       - what role the person played
-      - allibies
-
-      All the actions before, during and after the discovery of the crime has to be accounted for.
-      ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
-
-      The Actions done should deeply matter to the character, and hence the reader.
-
+      - key moments
+      
+      {genre_actions_additions}
+      
       #### Motivations
-      The actions commited by the person, and the reasons for doing so. It has to come from
-      the backstory, their role and their actions.
-
+      The actions committed by the person, and the reasons for doing so.
+      It must come from the backstory, their role, and their actions.
+      
       #### World View and Cultural Context
-      This is individual character's:
-      - Cultural
-      - Emotional, and
-      - Philosophical beliefs.
-
-      How the character feels in the world era and context of the story timeline.
-      How are the pros and cons of the socital constructs, as seen from the character's ideology
-
+      This is the individual character's:
+      - Cultural, Emotional, and Philosophical beliefs
+      - How the character feels in the world era and context
+      - How they view the societal constructs
+      
       #### Identity Anchors
-      - Core beliefs
-      - Core values
-      - **Behavioral Patterns**
-      - vices
-      - secrets, and
-      - ideologies that drive decisions.
+      - Core beliefs and values
+      - Behavioral Patterns
+      - Vices, secrets, and ideologies that drive decisions
       
       These should be set with respect to the World context.
-
+      
       #### Long-term Goals
       Career/personal goals and current constraints.
-
+      
       #### Relationships Graph Notes
       Key allies, rivals, obligations; how ties influence choices.
-
+      
       #### Triggers and Stress Responses
       What escalates them and how they react under pressure.
-      Emotional conflicts
-      Philosophical conflicts
-
+      Emotional conflicts and philosophical conflicts.
+      
       #### Skills / Toolkit (Era-Appropriate)
       Practical skills and tools available given the era and context.
-
+      
       #### Memory Hooks
-      - Canonical facts to persist in the character node for future evolution.
-      - 3-6 bullet points, specific and verifiable from backstory/actions.
-
-
+      - Canonical facts to persist in the character node for future evolution
+      - 3-6 bullet points, specific and verifiable from backstory/actions
+      
       ---
-
-      ### Character N
-      [repeat the above structure for each character]
-      ...
-
-
-      All the character definitions and attributes, should be designed
-      to serve the conflicts and tensions and evolution of the characters
-      in the detailed storyline, later.
-
+      
+      [Repeat for each character]
+      
+      All character definitions should be designed to serve the conflicts,
+      tensions, and evolution in the detailed storyline.
+      
       ---
-
+      
       ## Storyline
-
+      
       ### Metadata
       - Title: <title of the book (max. 1-3 words)>
       - Theme: <description>
-      - Genre: <description>
+      - Genres: <list of genres>
+      - Primary Genre: <primary genre>
       - Adults Only: <boolean>
-      - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
+      - Narrative Structure: "<linear or non-linear>/<which_specific_structure>"
       - Art Style: <description>
       - Story Telling Style: <description>
       - Suited For: movie, shorts, microdrama, tv-show, novel, short-story, comic book
-      - Colors: list of color name with their hex codes. (<color_name>(#<hex_code>)...)
+      - Colors: list of color names with hex codes (<color_name>(#<hex_code>)...)
       - Cover/Thumbnail Image Concept: <description>
-
+      
       ### Detailed Storyline
       The entire storyline told using one of the narrative-styles in knowledgebase.
-
-      ----
-
+      
+      ---
+      
       ## References
       - [Which parts of knowledgebase was used for understanding]
-      - [Files were actually used for narrative-structures.]
+      - [Files were actually used for narrative-structures]
         This will be used in the next stage, for quick accessing files.
-
+      
       ---
-
+      
       ## Context
       {storyline}
-
+      
       ---
-
+      
       ## Improvement Feedback
-
+      
       {feedback}
-
+      
       <logic>
       if "IMPROVE" in feedback:
         Use the feedback to improve the storyline.
       
       if "REWRITE" in feedback:
         Use the feedback to rewrite the storyline.
-
+      
       else:
         Ignore, and do nothing to influence the storyline.
       </logic>
-
+      
       ---
-
+      
       ## MANDATORY GUIDELINES
-
+      
       - You MUST NOT change:
-      - Who did what
-      - Timeline order
-      - Relationships
-      - Logic structure
-      - Use the knowledgebase to have a better understading on writer better detective plotline
-
-      - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
-        like, **lives of people depend on it**.      
-
+        - Who did what
+        - Timeline order
+        - Relationships
+        - Logic structure
+      - Use the knowledgebase to have a better understanding of how to write better storylines
+      
+      - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory** plausibility checks, like, **lives of people depend on it**.
+      
       ---
-
+      
+      ## Genre-Specific Content
+      
+      {genre_specific_content}
+      
+      ---
+      
+      ## Validation Rules
+      
+      ### Universal Rules
+      - Every alliance needs concrete stakes + mutual risk/benefit
+      - Character motivations must be clear and consistent
+      - Timeline must be logical and consistent
+      - World rules must be established and followed
+      
+      ### Genre-Specific Rules
+      
+      {genre_validation_rules}
+      
+      ---
+      
+      ## Suspense and Pacing
+      
       To invoke suspense and anticipation (Zeigarnik effect):
-      Build up to climatic events where they occur, choosing the final action as a countdown
+      - Build up to climactic events
       - Anchor the plot to a tangible central event
-      - Underlying current of momentum, leading upto it (central event)
-
+      - Create underlying current of momentum leading to it
+      
       ---
-
-      ## **CRITICAL COHERENECE VALIDATIONS**:
-  
-      - One primary detective with POV control.
-      - Every alliance needs concrete stakes + mutual risk/benefit.
-      - Use multiple forensic evidence types (2+), each with clear provenance.
-      - Any framing needs mechanism + plausibility + a detectable flaw.
-      - Every deduction must map to explicit clues; no leaps.
-      - Red herrings must be grounded, explainable, and resolved.
-      - Detective Primacy Rule: 
-        You MUST designate exactly one Primary Detective by name.
-        Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`.
-        If multiples exist, provide a POV Plan (primary ≥ 60%).
-    
-      ---
-
+      
       ## Examples
       {examples}
+
+  # GENRE OVERRIDES - Concatenated when genre detected
+  
+  detective:
+    genre_roles: |
+      
+      **Detective Genre Roles:**
+      - detective: Investigates the crime
+      - victim: The person who was killed
+      - killer: The person who committed the murder
+      - accomplice: Helped the killer before/during/after the crime
+      - witness: Saw something suspicious (may be eliminated later)
+      - betrayal: Betrayed an ally or accomplice
+      - framed_suspect: Falsely implicated by planted evidence (red herring)
+    
+    genre_world_additions: |
+      
+      **Detective-Specific World Context:**
+      - Policing Style and Jurisdiction: <detective's authority, procedures>
+      - Forensics Capabilities: <forensic tools available, limitations>
+    
+    genre_actions_additions: |
+      
+      **Detective-Specific Actions:**
+      Include alibis for the crime window. All actions before, during, and after
+      the discovery of the crime must be accounted for.
+      Examples: first saw the body, discreetly sought medicine, was reading newspaper, was asleep.
+    
+    genre_specific_content: |
+      
+      ### Detective-Specific Requirements
+      
+      #### Detective Declaration (ENFORCED)
+      - You MUST declare detective primacy explicitly:
+        - Primary Detective: <name> (this character MUST have role `detective`)
+        - Secondary Detectives (optional): [<name>, ...] (each MUST have role `detective`)
+      - If multiple detectives exist, include a POV Plan: primary owns ≥ 60% of investigative beats
+      
+      #### Evidence Requirements
+      - Use multiple forensic evidence types (2+), each with clear provenance
+      - Every deduction must map to explicit clues; no leaps
+      - Red herrings must be grounded, explainable, and resolved
+    
+    genre_validation_rules: |
+      
+      **Detective Validation:**
+      - One primary detective with POV control
+      - Every alliance needs concrete stakes + mutual risk/benefit
+      - Use multiple forensic evidence types (2+), each with clear provenance
+      - Any framing needs mechanism + plausibility + a detectable flaw
+      - Every deduction must map to explicit clues; no leaps
+      - Red herrings must be grounded, explainable, and resolved
+  
+  cyberpunk:
+    genre_roles: |
+      
+      **Cyberpunk Genre Roles:**
+      - hacker: Tech-savvy rebel protagonist
+      - corpo: Corporate antagonist
+      - netrunner: Digital world specialist
+      - street_kid: Survivor from lower class
+      - fixer: Connection broker
+      - ripperdoc: Cybernetic surgeon
+      - ai: Artificial intelligence entity
+    
+    genre_world_additions: |
+      
+      **Cyberpunk-Specific World Context:**
+      - Corporate Control: <which corporations dominate, their power>
+      - Technology Integration: <cybernetics, neural interfaces, AI prevalence>
+      - Class Divide: <rich vs poor, corpo vs street, access to tech>
+      - Underground Culture: <hacker collectives, street gangs, resistance>
+    
+    genre_specific_content: |
+      
+      ### Cyberpunk-Specific Requirements
+      
+      #### Technology Level
+      Must include at least 2 of: cybernetics, AI, VR/neural interfaces, advanced hacking
+      
+      #### Class Divide
+      Show clear distinction between corporate elite and street-level survivors.
+      This divide must impact the plot directly.
+      
+      #### MacGuffin
+      Define the data/tech/artifact that everyone wants. Explain:
+      - What it is
+      - Why it's valuable
+      - Who wants it and why
+      - What happens if wrong person gets it
+    
+    genre_validation_rules: |
+      
+      **Cyberpunk Validation:**
+      - Class divide must be present and impact plot
+      - Technology level must be consistent throughout
+      - MacGuffin must have clear stakes and multiple parties wanting it
+      - Corporate oppression must be tangible, not abstract
+      - Protagonist must be fighting against "the system"
+  
+  shonen:
+    genre_roles: |
+      
+      **Shonen Genre Roles:**
+      - protagonist: Young hero with hidden potential
+      - rival: Equal/superior fighter who pushes protagonist
+      - mentor: Teaches techniques and philosophy
+      - arc_villain: Current major threat
+      - final_boss: Ultimate antagonist (optional)
+      - team: Friends/allies with complementary powers (2-4 characters)
+    
+    genre_specific_content: |
+      
+      ### Shonen-Specific Requirements
+      
+      #### Power System
+      Define how powers work in this world:
+      - Base rules (what is the power source?)
+      - Progression path (how do characters get stronger?)
+      - Limits and weaknesses
+      - Creative applications
+      
+      #### Training Arcs
+      Show protagonist getting stronger through:
+      - Specific training methods
+      - Mentor guidance
+      - Overcoming personal limits
+      - Unlocking new abilities
+      
+      #### Battle Choreography
+      Describe key battles with:
+      - Opening (power assessment)
+      - Escalation (technique exchange)
+      - Turning point (power-up or revelation)
+      - Climax (ultimate clash)
+      - Resolution (growth achieved)
+    
+    genre_validation_rules: |
+      
+      **Shonen Validation:**
+      - Power system has clear rules and limits
+      - Protagonist has growth arc (weak → strong)
+      - Training sequences before major power-ups
+      - Villain is stronger than protagonist initially
+      - Protagonist wins through growth, not just power
+      - Friendship/bonds provide strength
+  
+  horror:
+    genre_roles: |
+      
+      **Horror Genre Roles:**
+      - final_girl: Main survivor (often female, but can be anyone)
+      - monster: The threat (creature, killer, entity)
+      - skeptic: Doesn't believe in threat until too late
+      - believer: Knows the danger, tries to warn others
+      - sacrifice: Dies to save others or buy time
+      - first_victim: Dies early to establish threat
+      - investigator: Tries to understand/stop the threat
+    
+    genre_world_additions: |
+      
+      **Horror-Specific World Context:**
+      - Isolation Level: <how trapped/isolated are characters>
+      - Threat Nature: <supernatural, human, creature, psychological>
+      - Atmosphere: <oppressive, creeping dread, sudden terror>
+      - Escape Difficulty: <why can't they just leave?>
+    
+    genre_actions_additions: |
+      
+      **Horror-Specific Actions:**
+      Track fear escalation. Show how characters react to:
+      - First signs of threat (dismissed, rationalized)
+      - Undeniable evidence (panic, denial, acceptance)
+      - Direct encounters (fight, flight, freeze)
+      - Survival decisions (who to save, who to sacrifice)
+    
+    genre_specific_content: |
+      
+      ### Horror-Specific Requirements
+      
+      #### Threat Establishment
+      - First victim dies early (establishes danger)
+      - Threat must have clear rules (how it kills, what it wants)
+      - Escalation: starts small, builds to overwhelming
+      
+      #### Atmosphere Building
+      Use sensory details to create dread:
+      - Sounds: creaking, breathing, silence
+      - Sights: shadows, movement at edge of vision
+      - Smells: decay, blood, wrongness
+      - Touch: cold spots, sticky surfaces
+      
+      #### Survival Logic
+      - Characters make realistic decisions (not stupid horror movie choices)
+      - Attempts to escape/fight must fail for good reasons
+      - Final confrontation must feel earned, not convenient
+      
+      #### Fear Types (use at least 2):
+      - Jump scares: Sudden shocks
+      - Dread: Slow building tension
+      - Body horror: Physical transformation/mutilation
+      - Psychological: Paranoia, gaslighting, sanity
+      - Cosmic: Incomprehensible entities beyond understanding
+    
+    genre_validation_rules: |
+      
+      **Horror Validation:**
+      - Threat is established early and clearly
+      - Atmosphere is consistently maintained
+      - Character deaths serve the story (not random)
+      - Escalation is logical (threat gets worse, not better)
+      - Survival attempts fail for believable reasons
+      - Final survivor(s) earn their survival through growth/sacrifice
+      - At least one "oh fuck" moment where hope seems lost
+  
+  thriller:
+    genre_roles: |
+      
+      **Thriller Genre Roles:**
+      - protagonist: Person in danger/pursuing truth
+      - antagonist: Person creating the danger
+      - ally: Helps protagonist (may betray)
+      - victim: Person already harmed (motivates protagonist)
+      - authority: Police/FBI (often incompetent or corrupt)
+      - informant: Has crucial information
+      - red_herring: Seems guilty but isn't
+    
+    genre_world_additions: |
+      
+      **Thriller-Specific World Context:**
+      - Stakes: <what happens if protagonist fails>
+      - Time Pressure: <deadline, ticking clock>
+      - Trust Level: <who can be trusted, paranoia level>
+      - Scope: <personal, city-wide, national, global>
+    
+    genre_actions_additions: |
+      
+      **Thriller-Specific Actions:**
+      Track tension escalation:
+      - Discovery: protagonist learns something dangerous
+      - Chase: antagonist pursues or protagonist pursues
+      - Narrow escapes: close calls that raise stakes
+      - Betrayals: allies turn, trust broken
+      - Reversals: tables turn, hunter becomes hunted
+    
+    genre_specific_content: |
+      
+      ### Thriller-Specific Requirements
+      
+      #### Ticking Clock
+      - Establish clear deadline or time pressure
+      - Show time running out
+      - Raise stakes as time decreases
+      
+      #### Twists and Turns
+      - At least 2 major plot twists
+      - Each twist must be:
+        - Surprising but logical in hindsight
+        - Raise stakes or change understanding
+        - Not feel cheap or arbitrary
+      
+      #### Paranoia and Trust
+      - Protagonist can't trust everyone
+      - At least one betrayal
+      - Questioning reality/information
+      
+      #### Action Sequences
+      - High-stakes chases or confrontations
+      - Protagonist uses intelligence, not just strength
+      - Environment plays a role (use surroundings)
+      
+      #### Information Control
+      - Protagonist discovers information gradually
+      - Each discovery leads to more questions
+      - Final revelation ties everything together
+    
+    genre_validation_rules: |
+      
+      **Thriller Validation:**
+      - Clear ticking clock or time pressure
+      - Stakes are high and personal
+      - At least 2 major twists that are earned
+      - Protagonist is proactive (not just reactive)
+      - Tension escalates consistently
+      - Betrayal feels earned, not random
+      - Final confrontation is high-stakes and clever
+      - Resolution addresses all major plot threads
 
 chapterbuilder:
   expected_output: >
@@ -1411,353 +1954,354 @@ stripper:
     ---
 
 critique:
-  expected_output: >
-    A detailed critique report in markdown format with:
-    1. PASS/FAIL verdict for each principle check
-    2. Severity-ranked list of violations (CRITICAL, HIGH, MEDIUM, LOW)
-    3. Specific actionable fixes for each violation
-    4. Evidence density score and recommendations
-
-  description: |
-    You are critiquing a detective storyline against established detective story principles.
-    
-    Your task is to validate the storyline against these MANDATORY checks:
-    
-    ## EVIDENCE DISTRIBUTION CHECKLIST (MUST PASS)
-    
-    ### 1. Evidence Density Check
-    - Count total clues mentioned in the storyline
-    - REQUIREMENT: ≥ 5 clues total
-    - REQUIREMENT: ≥ 2 clues that directly implicate the killer
-    - REQUIREMENT: ≥ 1 clue that directly exonerates the framed suspect
-    - FAIL if any requirement not met
-    
-    ### 2. Red Herring Balance
-    - Count red herrings vs. true clues
-    - REQUIREMENT: Red herrings ≤ 40% of total clues
-    - FAIL if red herrings dominate
-    
-    ### 3. Motivation Tie-In (Concrete Stakes)
-    - For EACH alliance/betrayal, verify there is concrete proof:
-      * Financial transaction (ledger, bank transfer, receipt)
-      * Reputational threat (document, email, recording, witness statement)
-      * Physical evidence (contract, letter, photograph)
-    - CRITICAL FAIL if any alliance/betrayal lacks concrete proof
-    
-    ### 4. Temporal Plausibility
-    - Verify killer has opportunity (timestamped presence or gap in logs)
-    - Check alibi contradictions are documented
-    - FAIL if killer's presence at crime scene is not established
-    
-    ### 5. Forensic Corroboration (Multilayered Evidence)
-    - REQUIREMENT: At least ONE physical clue connecting killer to scene:
-      * DNA/blood type
-      * Fiber (clothing, glove, carpet)
-      * Fingerprints or glove marks
-      * Tool marks or weapon trace
-      * Unique physical marks (cleaning patterns, polishing abrasions)
-    - FAIL if only circumstantial evidence exists
-    
-    ---
-
-    # **SPECIFIC CRITIQUE POINTS (General-Purpose Version)**
-
-    These checks apply to *all* detective stories, regardless of characters, setting, or plot structure.
-    They evaluate the structural integrity, forensic rigor, and logical plausibility of the narrative.
-
-    ---
-
-    ## **0. Detective Primacy & POV (Universal Rule)**
-
-    * Exactly one **Primary Detective** must exist, explicitly designated.
-    * Every detective listed in the story must appear in the Characters roster with the role `detective`.
-    * If multiple detectives exist, a **POV allocation plan** must be identifiable.
-    * The Primary Detective must own **≥ 60% of meaningful investigative beats** (interviews, deductions, clue interpretation, reveals).
-    * **FAIL** if:
-
-      * No primary detective is declared
-      * Another character performs more critical investigative functions than the primary
-      * POV control becomes fragmented or unclear
-
-    ---
-
-    ## **A. Accomplice / Witness Motivation Integrity**
-
-    Every accomplice, witness, co-conspirator, or betrayer must have **documented, concrete motivation**.
-
-    The critique agent must check:
-
-    1. **Concrete Stakes**
-      Each alliance or betrayal requires *at least one* of the following:
-
-      * Financial incentive (payment, debt, bribe, asset transfer, inheritance dispute)
-      * Reputational leverage (blackmail material, damaging documents, witness statements)
-      * Physical or situational leverage (compromise, coercion, incriminating items)
-
-    2. **Mutual Risk / Mutual Benefit**
-      Alliances must make sense from both sides.
-      Each participant needs:
-
-      * Something to gain
-      * Something to lose
-      * A rational reason not to betray the other prematurely
-
-    3. **Plausible Calculus**
-      Motivation must align with:
-
-      * Personality traits
-      * Prior behavior
-      * Risk exposure
-      * Stakes in the core conflict
+  detective:
+    expected_output: >
+      A detailed critique report in markdown format with:
+      1. PASS/FAIL verdict for each principle check
+      2. Severity-ranked list of violations (CRITICAL, HIGH, MEDIUM, LOW)
+      3. Specific actionable fixes for each violation
+      4. Evidence density score and recommendations
+
+    description: |
+      You are critiquing a detective storyline against established detective story principles.
+      
+      Your task is to validate the storyline against these MANDATORY checks:
+      
+      ## EVIDENCE DISTRIBUTION CHECKLIST (MUST PASS)
+      
+      ### 1. Evidence Density Check
+      - Count total clues mentioned in the storyline
+      - REQUIREMENT: ≥ 5 clues total
+      - REQUIREMENT: ≥ 2 clues that directly implicate the killer
+      - REQUIREMENT: ≥ 1 clue that directly exonerates the framed suspect
+      - FAIL if any requirement not met
+      
+      ### 2. Red Herring Balance
+      - Count red herrings vs. true clues
+      - REQUIREMENT: Red herrings ≤ 40% of total clues
+      - FAIL if red herrings dominate
+      
+      ### 3. Motivation Tie-In (Concrete Stakes)
+      - For EACH alliance/betrayal, verify there is concrete proof:
+        * Financial transaction (ledger, bank transfer, receipt)
+        * Reputational threat (document, email, recording, witness statement)
+        * Physical evidence (contract, letter, photograph)
+      - CRITICAL FAIL if any alliance/betrayal lacks concrete proof
+      
+      ### 4. Temporal Plausibility
+      - Verify killer has opportunity (timestamped presence or gap in logs)
+      - Check alibi contradictions are documented
+      - FAIL if killer's presence at crime scene is not established
+      
+      ### 5. Forensic Corroboration (Multilayered Evidence)
+      - REQUIREMENT: At least ONE physical clue connecting killer to scene:
+        * DNA/blood type
+        * Fiber (clothing, glove, carpet)
+        * Fingerprints or glove marks
+        * Tool marks or weapon trace
+        * Unique physical marks (cleaning patterns, polishing abrasions)
+      - FAIL if only circumstantial evidence exists
+      
+      ---
+
+      # **SPECIFIC CRITIQUE POINTS (General-Purpose Version)**
+
+      These checks apply to *all* detective stories, regardless of characters, setting, or plot structure.
+      They evaluate the structural integrity, forensic rigor, and logical plausibility of the narrative.
+
+      ---
+
+      ## **0. Detective Primacy & POV (Universal Rule)**
+
+      * Exactly one **Primary Detective** must exist, explicitly designated.
+      * Every detective listed in the story must appear in the Characters roster with the role `detective`.
+      * If multiple detectives exist, a **POV allocation plan** must be identifiable.
+      * The Primary Detective must own **≥ 60% of meaningful investigative beats** (interviews, deductions, clue interpretation, reveals).
+      * **FAIL** if:
+
+        * No primary detective is declared
+        * Another character performs more critical investigative functions than the primary
+        * POV control becomes fragmented or unclear
+
+      ---
+
+      ## **A. Accomplice / Witness Motivation Integrity**
+
+      Every accomplice, witness, co-conspirator, or betrayer must have **documented, concrete motivation**.
+
+      The critique agent must check:
+
+      1. **Concrete Stakes**
+        Each alliance or betrayal requires *at least one* of the following:
+
+        * Financial incentive (payment, debt, bribe, asset transfer, inheritance dispute)
+        * Reputational leverage (blackmail material, damaging documents, witness statements)
+        * Physical or situational leverage (compromise, coercion, incriminating items)
+
+      2. **Mutual Risk / Mutual Benefit**
+        Alliances must make sense from both sides.
+        Each participant needs:
+
+        * Something to gain
+        * Something to lose
+        * A rational reason not to betray the other prematurely
+
+      3. **Plausible Calculus**
+        Motivation must align with:
+
+        * Personality traits
+        * Prior behavior
+        * Risk exposure
+        * Stakes in the core conflict
 
-    **CRITICAL** if any alliance, betrayal, or assistance occurs without identifiable and concrete stakes.
+      **CRITICAL** if any alliance, betrayal, or assistance occurs without identifiable and concrete stakes.
 
-    ---
+      ---
 
-    ## **B. Forensic Evidence Quality & Multilayer Corroboration**
+      ## **B. Forensic Evidence Quality & Multilayer Corroboration**
 
-    A detective narrative must support deductions with **multiple categories of evidence**, not just circumstantial hints.
+      A detective narrative must support deductions with **multiple categories of evidence**, not just circumstantial hints.
 
-    Checks:
+      Checks:
 
-    1. **Forensic Variety**
-      Evaluate if the story includes at least two distinct forms of physical evidence, such as:
+      1. **Forensic Variety**
+        Evaluate if the story includes at least two distinct forms of physical evidence, such as:
 
-      * Fingerprints / glove marks
-      * DNA / blood / fluids
-      * Fibers (clothing, carpet, rope)
-      * Tool marks / weapon residue
-      * Chemical traces
-      * Document analysis (paper, ink, stationery)
-      * Digital footprints (timestamps, logs)
+        * Fingerprints / glove marks
+        * DNA / blood / fluids
+        * Fibers (clothing, carpet, rope)
+        * Tool marks / weapon residue
+        * Chemical traces
+        * Document analysis (paper, ink, stationery)
+        * Digital footprints (timestamps, logs)
 
-    2. **Provenance Traceability**
-      Each physical clue must have a clear chain:
+      2. **Provenance Traceability**
+        Each physical clue must have a clear chain:
 
-      * Where it was found
-      * Why it matters
-      * What it connects to
-      * Whether it can be falsified or contested
+        * Where it was found
+        * Why it matters
+        * What it connects to
+        * Whether it can be falsified or contested
 
-    3. **Corroboration**
-      A key deduction should never rely on a single clue type.
-      Layers must support each other (e.g., fingerprint + ledger + timestamp).
+      3. **Corroboration**
+        A key deduction should never rely on a single clue type.
+        Layers must support each other (e.g., fingerprint + ledger + timestamp).
 
-    **MEDIUM severity** if only one type of forensic evidence exists.
-    **FAIL** if the story relies entirely on circumstantial logic.
+      **MEDIUM severity** if only one type of forensic evidence exists.
+      **FAIL** if the story relies entirely on circumstantial logic.
 
-    ---
+      ---
 
-    ## **C. Framing / Misdirection Plausibility**
+      ## **C. Framing / Misdirection Plausibility**
 
-    For any framed suspect:
+      For any framed suspect:
 
-    1. **Mechanism of Evidence Placement**
-      The story must provide:
+      1. **Mechanism of Evidence Placement**
+        The story must provide:
 
-      * How the framing evidence was introduced
-      * When it was introduced
-      * Why it wasn’t immediately detected as planted
+        * How the framing evidence was introduced
+        * When it was introduced
+        * Why it wasn’t immediately detected as planted
 
-    2. **Plausible Perception**
-      The framed suspect must:
+      2. **Plausible Perception**
+        The framed suspect must:
 
-      * Have a believable reason to fall under suspicion
-      * Fit the apparent surface evidence
-      * Have timing/location plausibility
+        * Have a believable reason to fall under suspicion
+        * Fit the apparent surface evidence
+        * Have timing/location plausibility
 
-    3. **Detectable Slip**
-      The eventual unmasking must arise from:
+      3. **Detectable Slip**
+        The eventual unmasking must arise from:
 
-      * A subtle inconsistency
-      * A mismatched detail
-      * A forensic contradiction
-      * A behavioral tell
-      * A timeline breach
+        * A subtle inconsistency
+        * A mismatched detail
+        * A forensic contradiction
+        * A behavioral tell
+        * A timeline breach
 
-    If the framing feels arbitrary or contrived: **HIGH severity**.
+      If the framing feels arbitrary or contrived: **HIGH severity**.
 
-    ---
+      ---
 
-    ## **D. Clue Provenance & Deduction Validity**
+      ## **D. Clue Provenance & Deduction Validity**
 
-    Every major deduction by the detective must map to **explicit clues** reachable by a reader.
+      Every major deduction by the detective must map to **explicit clues** reachable by a reader.
 
-    Checklist:
-
-    1. **Traceability**
-      Each deduction should refer to:
-
-      * A clue
-      * A testimony
-      * A document
-      * A timestamp
-      * A behavior
-      * A visual detail
-
-    2. **No Leapfrogging**
-      Deductions cannot skip steps or rely on unstated insider logic.
-
-    3. **Reader-Reconstructability**
-      A hypothetical reader should be able to:
-
-      * List clues
-      * Rebuild the reasoning chain
-      * Reach the same interim conclusions
-
-    **CRITICAL** if any key reveal happens without evidence.
-
-    ---
-
-    ## **E. Red Herring Explainability & Narrative Hygiene**
-
-    Red herrings (false or misleading clues) must follow these rules:
-
-    1. **Mundane Foundations**
-      They must arise from:
-
-      * Routine behavior (cleaning, habits, misunderstandings)
-      * Coincidences that still obey causality
-      * Misinterpreted but real data
-
-    2. **No Supernatural or Arbitrary Artifacts**
-      Red herrings cannot rely on:
-
-      * Mystical misdirections
-      * Unexplained interventions
-      * Deus-ex-machina anomalies
-
-    3. **Resolution Requirement**
-      Every red herring must be explained away during or before the final reveal.
-
-    4. **Impact Boundaries**
-      Red herrings should add tension but must not overshadow the true evidence structure.
-
-    **LOW severity** unless they actively undermine logic.
-
-    ---
-
-    
-    ## OUTPUT FORMAT
-    
-    ```markdown
-    # Detective Storyline Critique Report
-    
-    ## Executive Summary
-    - Overall Verdict: PASS / FAIL
-    - Critical Issues: [count]
-    - High Priority Issues: [count]
-    - Medium Priority Issues: [count]
-    - Low Priority Issues: [count]
-    
-    ## Evidence Distribution Checklist
-    
-    ### 1. Evidence Density: PASS/FAIL
-    - Total clues found: [X]
-    - Clues implicating killer: [X]
-    - Clues exonerating framed suspect: [X]
-    - **Verdict**: [PASS/FAIL with explanation]
-    
-    ### 2. Red Herring Balance: PASS/FAIL
-    - Red herrings: [X]
-    - True clues: [X]
-    - Ratio: [X%]
-    - **Verdict**: [PASS/FAIL with explanation]
-    
-    ### 3. Motivation Tie-In: PASS/FAIL
-    - Butler-Price alliance: [concrete proof present? Y/N]
-    - [Other alliances]: [concrete proof present? Y/N]
-    - **Verdict**: [PASS/FAIL with explanation]
-    
-    ### 4. Temporal Plausibility: PASS/FAIL
-    - Killer opportunity established: [Y/N]
-    - Timeline gaps documented: [Y/N]
-    - **Verdict**: [PASS/FAIL with explanation]
-    
-    ### 5. Forensic Corroboration: PASS/FAIL
-    - Physical evidence types: [list]
-    - Multilayered: [Y/N]
-    - **Verdict**: [PASS/FAIL with explanation]
-
-    ## Detailed Critique
-    
-    ### CRITICAL Issues (Must Fix)
-    1. **[Issue Title]**
-       - **Problem**: [Specific description]
-       - **Evidence**: [Quote from storyline or "MISSING"]
-       - **Fix**: [Actionable recommendation]
-       - **Priority**: CRITICAL
-    
-    ### HIGH Priority Issues
-    [Same format as above]
-    
-    ### MEDIUM Priority Issues
-    [Same format as above]
-    
-    ### LOW Priority Issues
-    [Same format as above]
-    
-    ## Recommended Fixes (Prioritized)
-    
-    1. [Most critical fix]
-    2. [Second most critical fix]
-    3. [etc.]
-    
-    ## Strengths
-    - [What the storyline does well]
-    
-    ## Final Recommendation
-    If the storyline is structurally sound and passes all mandatory evidence and plausibility checks.
-    No more recommendations are needed and the Verdict should be a pass.
-    [Overall assessment and next steps, to strengthen the plot line, and improves plausibility, iff needed.]
-
-
-    ## Final Binary Verdict
-    - PASS / IMPROVE
-
-    IMPROVE, if any of these are present:
-    - CRITICAL ISSUES
-    - HIGH Priority Issues
-    - MEDIUM Priority issues
-    - Recommended Fixes
-
-    ```
-    ---
-
-    ## Storyline
-
-    {storyline}
-
-    ---
-    
-    ## Knowledge
-    Present in Memory
-
-    - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
-    - Story Writing Principles (knowledge/storywriting/detective/principles.md)
-
-    - Narrative Patterns:
-      - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
-      - File: storywriting/detective/storytelling-techniques.md
-    - Available Narrative Structures:
-      - Intent: HOW to organize the story timeline
-      - File: knowledge/narrative-structures/index.md
-
-    ## Tool USAGE
-
-    - If references to files were provided in storyline, use the FileReadTool to directly access them.
-    - If not found, Use the DirectoryReadTool to understand the file structure in narrative-structures
-    
-    Otherwise:
-    - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
-    - Use DirectoryReadTool and the FileReadTool to read the detailed narrative structure.
-    - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
-
-    IMPORTANT:
-    - Text inside (), [] and <> are instructions or intent
-    - **ALWAYS** use the GLOSSARY to get the correct file paths
-
-    ---
+      Checklist:
+
+      1. **Traceability**
+        Each deduction should refer to:
+
+        * A clue
+        * A testimony
+        * A document
+        * A timestamp
+        * A behavior
+        * A visual detail
+
+      2. **No Leapfrogging**
+        Deductions cannot skip steps or rely on unstated insider logic.
+
+      3. **Reader-Reconstructability**
+        A hypothetical reader should be able to:
+
+        * List clues
+        * Rebuild the reasoning chain
+        * Reach the same interim conclusions
+
+      **CRITICAL** if any key reveal happens without evidence.
+
+      ---
+
+      ## **E. Red Herring Explainability & Narrative Hygiene**
+
+      Red herrings (false or misleading clues) must follow these rules:
+
+      1. **Mundane Foundations**
+        They must arise from:
+
+        * Routine behavior (cleaning, habits, misunderstandings)
+        * Coincidences that still obey causality
+        * Misinterpreted but real data
+
+      2. **No Supernatural or Arbitrary Artifacts**
+        Red herrings cannot rely on:
+
+        * Mystical misdirections
+        * Unexplained interventions
+        * Deus-ex-machina anomalies
+
+      3. **Resolution Requirement**
+        Every red herring must be explained away during or before the final reveal.
+
+      4. **Impact Boundaries**
+        Red herrings should add tension but must not overshadow the true evidence structure.
+
+      **LOW severity** unless they actively undermine logic.
+
+      ---
+
+      
+      ## OUTPUT FORMAT
+      
+      ```markdown
+      # Detective Storyline Critique Report
+      
+      ## Executive Summary
+      - Overall Verdict: PASS / FAIL
+      - Critical Issues: [count]
+      - High Priority Issues: [count]
+      - Medium Priority Issues: [count]
+      - Low Priority Issues: [count]
+      
+      ## Evidence Distribution Checklist
+      
+      ### 1. Evidence Density: PASS/FAIL
+      - Total clues found: [X]
+      - Clues implicating killer: [X]
+      - Clues exonerating framed suspect: [X]
+      - **Verdict**: [PASS/FAIL with explanation]
+      
+      ### 2. Red Herring Balance: PASS/FAIL
+      - Red herrings: [X]
+      - True clues: [X]
+      - Ratio: [X%]
+      - **Verdict**: [PASS/FAIL with explanation]
+      
+      ### 3. Motivation Tie-In: PASS/FAIL
+      - Butler-Price alliance: [concrete proof present? Y/N]
+      - [Other alliances]: [concrete proof present? Y/N]
+      - **Verdict**: [PASS/FAIL with explanation]
+      
+      ### 4. Temporal Plausibility: PASS/FAIL
+      - Killer opportunity established: [Y/N]
+      - Timeline gaps documented: [Y/N]
+      - **Verdict**: [PASS/FAIL with explanation]
+      
+      ### 5. Forensic Corroboration: PASS/FAIL
+      - Physical evidence types: [list]
+      - Multilayered: [Y/N]
+      - **Verdict**: [PASS/FAIL with explanation]
+
+      ## Detailed Critique
+      
+      ### CRITICAL Issues (Must Fix)
+      1. **[Issue Title]**
+        - **Problem**: [Specific description]
+        - **Evidence**: [Quote from storyline or "MISSING"]
+        - **Fix**: [Actionable recommendation]
+        - **Priority**: CRITICAL
+      
+      ### HIGH Priority Issues
+      [Same format as above]
+      
+      ### MEDIUM Priority Issues
+      [Same format as above]
+      
+      ### LOW Priority Issues
+      [Same format as above]
+      
+      ## Recommended Fixes (Prioritized)
+      
+      1. [Most critical fix]
+      2. [Second most critical fix]
+      3. [etc.]
+      
+      ## Strengths
+      - [What the storyline does well]
+      
+      ## Final Recommendation
+      If the storyline is structurally sound and passes all mandatory evidence and plausibility checks.
+      No more recommendations are needed and the Verdict should be a pass.
+      [Overall assessment and next steps, to strengthen the plot line, and improves plausibility, iff needed.]
+
+
+      ## Final Binary Verdict
+      - PASS / IMPROVE
+
+      IMPROVE, if any of these are present:
+      - CRITICAL ISSUES
+      - HIGH Priority Issues
+      - MEDIUM Priority issues
+      - Recommended Fixes
+
+      ```
+      ---
+
+      ## Storyline
+
+      {storyline}
+
+      ---
+      
+      ## Knowledge
+      Present in Memory
+
+      - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+      - Story Writing Principles (knowledge/storywriting/detective/principles.md)
+
+      - Narrative Patterns:
+        - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
+        - File: storywriting/detective/storytelling-techniques.md
+      - Available Narrative Structures:
+        - Intent: HOW to organize the story timeline
+        - File: knowledge/narrative-structures/index.md
+
+      ## Tool USAGE
+
+      - If references to files were provided in storyline, use the FileReadTool to directly access them.
+      - If not found, Use the DirectoryReadTool to understand the file structure in narrative-structures
+      
+      Otherwise:
+      - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
+      - Use DirectoryReadTool and the FileReadTool to read the detailed narrative structure.
+      - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+      IMPORTANT:
+      - Text inside (), [] and <> are instructions or intent
+      - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+      ---
 
 screenplay:
   expected_output: >

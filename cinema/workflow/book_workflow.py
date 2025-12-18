@@ -36,9 +36,20 @@ class BookWorkflow(WorkflowInterface):
         """
         Generate storyline up to critique.
         
+        Supports two paths:
+        1. Detective genre: Use DetectivePlotBuilder (legacy path)
+        2. Other genres: Use PlotGraphFlow + GenericPlotBuilder (new path)
+        
         Returns storyline and critique result.
         """
         logger.info(f"📖 Initializing book workflow: {self.workflow_id}")
+        
+        # Check genre to determine path
+        genre = kwargs.get('genre', 'detective').lower()
+        use_generic_flow = genre != 'detective'
+        
+        logger.info(f"   Genre: {genre}")
+        logger.info(f"   Flow: {'Generic (PlotGraphFlow)' if use_generic_flow else 'Detective (legacy)'}")
         
         # Use defaults if not provided (generic character identifiers, LLM will assign names/roles)
         characters = kwargs.get('characters') or "Character A (killer), Character B (victim), Character C, Character D"
@@ -75,13 +86,29 @@ class BookWorkflow(WorkflowInterface):
         # Import required classes
         from cinema.agents.bookwriter.crew import (
             DetectivePlotBuilder,
+            GenericPlotBuilder,
             PlotCritique,
             ScreenplayWriter,
             BookWriter,
             ComicStripStoryBoarding,
             DetectivePlotBuilderSchema,
+            GenericPlotBuilderSchema,
         )
         from cinema.agents.bookwriter.flow import StoryBuilder, StoryBuilderInput
+        
+        # Step 1: Generate plot graph if using generic flow
+        if use_generic_flow:
+            logger.info("🔷 Step 1: Generating plot graph...")
+            plotgraph_result = await self._generate_plotgraph(kwargs)
+            
+            # Store in state
+            self.state.plot_graph = plotgraph_result.plot_graph.model_dump() if plotgraph_result.plot_graph else None
+            self.state.plot_graph_validation = plotgraph_result.validation_result.model_dump() if plotgraph_result.validation_result else None
+            
+            logger.info(f"   ✓ Plot graph: {len(plotgraph_result.plot_graph.characters)} characters, {len(plotgraph_result.plot_graph.events)} events")
+            logger.info(f"   ✓ Validation: {'PASS' if plotgraph_result.is_valid else 'FAIL'} ({plotgraph_result.iterations} iterations)")
+        else:
+            logger.info("🔷 Step 1: Skipping plot graph (using detective legacy path)")
         
         # Get skipper settings from config
         skipper = kwargs.get('skipper', {})
@@ -92,9 +119,66 @@ class BookWorkflow(WorkflowInterface):
         
         logger.info(f"   Skipper config: plot={use_mock_plot}, critique={use_mock_critique}, screenplay={use_mock_screenplay}, storyboard={use_mock_storyboard}")
         
-        # Create crews with skipper settings
-        plotbuilder = DetectivePlotBuilder(ctx=self.ctx, use_mock=use_mock_plot)
-        critique = PlotCritique(ctx=self.ctx, use_mock=use_mock_critique)
+        # Get allowed art styles from manifest
+        allowed_art_styles = get_allowed_art_styles()
+        
+        logger.info(f"   Selected art styles: {selected_art_styles or 'None (LLM will choose)'}")
+        logger.info(f"   User requirements: {user_requirements[:100] if user_requirements else 'None'}...")
+        
+        # Create crews and prepare input based on genre
+        if use_generic_flow:
+            # GENERIC PATH: Use PlotGraphFlow + GenericPlotBuilder
+            logger.info("📝 Step 2: Converting plot graph to storyline schema...")
+            
+            # Convert plot graph dict back to PlotGraphOutput
+            from cinema.agents.bookwriter.crew import PlotGraphOutput
+            
+            if not self.state.plot_graph:
+                raise ValueError("No plot graph available for generic flow")
+            
+            plot_graph_obj = PlotGraphOutput(**self.state.plot_graph)
+            
+            # Convert plot graph to schema
+            plot_schema = GenericPlotBuilderSchema.from_plotgraph(
+                plot_graph=plot_graph_obj,
+                user_requirements=user_requirements,
+                art_style=selected_art_styles,
+                allowed_art_styles=", ".join(allowed_art_styles),
+                selected_art_styles=selected_art_styles,
+                examples=GenericPlotBuilder.load_examples(),
+            )
+            
+            # Create generic crews
+            from cinema.agents.bookwriter.crew import GenericPlotCritique
+            
+            plotbuilder = GenericPlotBuilder(ctx=self.ctx, use_mock=use_mock_plot)
+            critique = GenericPlotCritique(ctx=self.ctx, use_mock=use_mock_critique)
+            
+            # Bootstrap with genres from plot graph
+            plotbuilder.bootstrap(genres=plot_graph_obj.genres)
+            
+        else:
+            # DETECTIVE PATH: Use DetectivePlotBuilder (legacy)
+            logger.info("📝 Step 2: Using detective-specific flow...")
+            
+            plot_schema = DetectivePlotBuilderSchema(
+                characters=characters,
+                relationships=relationships,
+                killer=killer,
+                victim=victim,
+                accomplices=accomplices,
+                witnesses=witnesses,
+                betrayals=betrayals,
+                allowed_art_styles=", ".join(allowed_art_styles),
+                selected_art_styles=selected_art_styles,
+                user_requirements=user_requirements,
+                examples="",
+            )
+            
+            plotbuilder = DetectivePlotBuilder(ctx=self.ctx, use_mock=use_mock_plot)
+            critique = PlotCritique(ctx=self.ctx, use_mock=use_mock_critique)
+        
+        # Common crews (same for both paths)
         screenplay = ScreenplayWriter(ctx=self.ctx, use_mock=use_mock_screenplay)
         booker = BookWriter(ctx=self.ctx, use_mock=use_mock_screenplay)
         storyboard = ComicStripStoryBoarding(ctx=self.ctx, use_mock=use_mock_storyboard)
@@ -114,27 +198,6 @@ class BookWorkflow(WorkflowInterface):
         # Set generation target and halt point
         flow.generation_target = "bookerama"
         flow.state.waits_at = {"bookerama": True}
-        
-        # Get allowed art styles from manifest
-        allowed_art_styles = get_allowed_art_styles()
-        
-        logger.info(f"   Selected art styles: {selected_art_styles or 'None (LLM will choose)'}")
-        logger.info(f"   User requirements: {user_requirements[:100] if user_requirements else 'None'}...")
-        
-        # Prepare input
-        plot_schema = DetectivePlotBuilderSchema(
-            characters=characters,
-            relationships=relationships,
-            killer=killer,
-            victim=victim,
-            accomplices=accomplices,
-            witnesses=witnesses,
-            betrayals=betrayals,
-            allowed_art_styles=", ".join(allowed_art_styles),
-            selected_art_styles=selected_art_styles,
-            user_requirements=user_requirements,
-            examples="",
-        )
         
         from cinema.agents.bookwriter.flow import StripperInputSchema, ScreenplayWriterSchema
         
@@ -197,6 +260,7 @@ class BookWorkflow(WorkflowInterface):
             "killer": killer,
             "victim": victim,
             "halted_at": flow.state.halted_at,
+            "plot_graph": self.state.plot_graph if use_generic_flow else None,
         }
         
         self.state.storyline_done = True
@@ -1406,3 +1470,31 @@ The cover should immediately convey the genre and tone of the story while being 
         logger.info(f"✅ Text overlays added to {text_added} pages")
     
 
+
+    async def _generate_plotgraph(self, kwargs: Dict[str, Any]):
+        """Generate and validate plot graph using PlotGraphFlow."""
+        from cinema.agents.bookwriter.plotgraph_flow import PlotGraphFlow, PlotGraphFlowInput
+        
+        # Extract seed from kwargs
+        user_requirements = kwargs.get('user_requirements') or kwargs.get('requirements') or ""
+        art_styles = kwargs.get('art_styles') or kwargs.get('art_style') or []
+        if isinstance(art_styles, str):
+            art_styles = [art_styles] if art_styles else []
+        art_style = ", ".join(art_styles) if art_styles else ""
+        
+        # Create flow
+        flow = PlotGraphFlow(ctx=self.ctx)
+        flow.state.input = PlotGraphFlowInput(
+            seed=user_requirements,
+            art_style=art_style,
+            max_retries=kwargs.get('max_plotgraph_retries', 3)
+        )
+        
+        # Run flow
+        await flow.kickoff_async()
+        
+        # Return output
+        if not flow.state.output:
+            raise ValueError("PlotGraphFlow did not produce output")
+        
+        return flow.state.output

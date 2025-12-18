@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  cinema:
+    build: .
+    ports:
+      - "8000:8000"  # API
+      - "5174:5173"  # Frontend
+    volumes:
+      - ./output:/app/output  # Only mount output directory
+    environment:
+      - PYTHONPATH=/app
+      - ENVIRONMENT=production
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: separate services if you want to scale independently
+  # cinema-api:
+  #   build: .
+  #   command: ["sh", "-c", "cd /app && source .venv/bin/activate && uvicorn cinema.server.app:app --host 0.0.0.0 --port 8000"]
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./output:/app/output
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+
+  # cinema-worker:
+  #   build: .
+  #   command: ["sh", "-c", "cd /app && source .venv/bin/activate && python -m cinema.server.worker"]
+  #   volumes:
+  #     - ./output:/app/output
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - cinema-api

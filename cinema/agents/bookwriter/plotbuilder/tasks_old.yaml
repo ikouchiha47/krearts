@@ -1,0 +1,305 @@
+plotbuilder:
+  detective:
+    expected_output: >
+      A comprehensive list of character profiles, their backstory,
+      and the story connecting the plotline
+
+    description: |
+      Given this FIXED plot structure (you cannot change the logic, only describe it)
+
+      Your task is to:
+      - Generate character personas and backstories, their motivations, and quirks
+      - Narrative descriptions for each relationship
+      - Build a solid plotline for a detective story, with the created characters.
+        Making sure the motivations and behaviours serve the storyline.
+
+      You MAY add:
+      - Vivid descriptions
+      - Character personalities
+      - Atmospheric details
+      - Emotional depth
+
+      ---
+
+      ## Knowledge
+      Present In memory
+
+      - Glossary containting definitons of different knowledge base categories (eg: narrative-structures, storytelling-techniques, storywriting)
+      - Story Writing Principles (storywriting/detective/principles.md)
+
+      - Narrative Patterns:
+        - Intent: Detective-specific STORYTELLING TECHNIQUES for reveals and interrogations
+        - File: storywriting/detective/storytelling-techniques.md
+      - Available Narrative Structures:
+        - Intent: HOW to organize the story timeline
+        - File: knowledge/narrative-structures/index.md
+      - Art Styles:
+        - Intent: Visual art styles for comic book generation
+        - File: knowledge/art-styles/index.md
+        - Character Guidelines: knowledge/art-styles/character-guidelines.md
+        - Style Combinations: knowledge/art-styles/combinations.md
+
+      ## Tool USAGE
+      - Using the knowledge/narrative-structures/index.md find the proper narrative structure (linear/non-linear)
+      - Using the knowledge/art-styles/index.md find appropriate art style(s) for the story
+      - Use the DirectoryReadTool to understand the file structure in narrative-structures and art-styles
+      - And the FileReadTool to read the detailed narrative structures and art style references
+      - **ALWAYS use the DirectoryReadTool tool before FileReadTool**
+
+      ## Art Style Selection
+      - Available art styles: {allowed_art_styles}
+      - User selected art styles: {selected_art_styles}
+      - If user selected styles, USE THEM (they can be combined)
+      - If no styles selected, choose from available styles based on story tone
+      - Art styles can be COMBINED (e.g., "noir + cyberpunk", "anime + pop-art")
+      - See art-styles/combinations.md for proven combinations
+      - For sci-fi stories:
+        - Use "sci-fi" for clean, optimistic future aesthetics
+        - Use "cyberpunk" for dystopian, gritty, neon-drenched aesthetics
+      - Include selected art styles in storyline metadata
+      - From directories, files and knowledgebase, choose the best possible styles matching intent.
+
+      IMPORTANT:
+      - Text inside (), [] and <> are instructions or intent
+      - **ALWAYS** use the GLOSSARY to get the correct file paths
+
+      ---
+
+      ## User Requirements (Optional Seed)
+      
+      {user_requirements}
+
+      <logic>
+      if user_requirements is provided:
+        - Use these as creative constraints and inspiration
+        - Incorporate themes, settings, character types mentioned
+        - Respect any specific requests (era, location, tone, etc.)
+        - Build the story around these requirements
+      else:
+        - Create story freely based on plot structure
+      </logic>
+
+      ---
+
+      ## Plot Structure (1)
+
+      ### CHARACTERS
+      {characters}
+
+      ### RELATIONSHIPS (FIXED):
+      {relationships}
+
+      ### Roles (FIXED):
+      - Killer: {killer}
+      - Victim: {victim}
+      - Accomplices: {accomplices}
+      - Witnesses: {witnesses}
+      - Betrayals: {betrayals}
+
+      ### Detective Declaration (ENFORCED)
+      - You MUST declare detective primacy explicitly:
+        - Primary Detective: <name>  (this character MUST have role `detective`)
+        - Secondary Detectives (optional): [<name>, ...] (each MUST have role `detective`)
+      - If multiple detectives exist, include a POV Plan: the primary owns ≥ 60% of investigative beats; label POV in key scenes.
+
+      ---
+
+      Respond in the markdown heirarchical format
+      **STRICTLY ADHERE TO THE BELOW FORMAT**
+
+      ---
+
+      ## World & Era Context
+
+      - Era and Time Window: <e.g., 1950s Noir / Contemporary / Near-Future>
+      - Geography and Setting: <city/region, urban/rural, climate>
+      - Culture and Traditions: <norms impacting behavior/conflict>
+      - Socital Constructs: <how society was defined during the era, the definitions of good and bad>
+      - Geopolitics and Legal Context: <jurisdiction, legal constraints>
+      - Technology Level and Forensics: <tools available, limitations>
+      - Policing Style and Jurisdiction: <detective's authority, procedures>
+      - Media Environment: <press influence, public perception>
+      - Thematic Constraints: <tone, taboos, social dynamics>
+
+      ## Characters
+
+      ---
+  
+      ### Character 1 (index)
+      
+      **Name:** <full name>
+      **Physical Traits:** <detailed physical description. this should emobody the characters beliefs, allowing the reader to feel the differences or similarites>
+      **Ethnicity:** <ethnicity>
+      **Age:** <age>
+      **Quirks:** <list of quirks>
+      **Clothing:** <type of clothings prefered>
+
+      #### Backstory
+      (in details)
+      <name> is a calculating individual with a dark secret.
+      <name>  was a wealthy and influential figure.
+      (and how they met or knew or are related to the main victim)
+      
+      #### Role
+      IMPORTANT: Use EXACTLY ONE of these role names (do not invent new roles):
+      - killer: The person who committed the murder
+      - victim: The person who was killed
+      - accomplice: Helped the killer before/during/after the crime
+      - witness: Saw something suspicious (may be eliminated later)
+      - betrayal: Betrayed an ally or accomplice
+      - detective: Investigates the crime
+      - framed_suspect: Falsely implicated by planted evidence (red herring)
+
+      #### Actions & Locations
+      A date and time wise breakdown of:
+      - what the person did
+      - where the person was
+      - what role the person played
+      - allibies
+
+      All the actions before, during and after the discovery of the crime has to be accounted for.
+      ex: first saw the body, discreetly seeked in medicine, was reading a newspaper, was asleep.
+
+      The Actions done should deeply matter to the character, and hence the reader.
+
+      #### Motivations
+      The actions commited by the person, and the reasons for doing so. It has to come from
+      the backstory, their role and their actions.
+
+      #### World View and Cultural Context
+      This is individual character's:
+      - Cultural
+      - Emotional, and
+      - Philosophical beliefs.
+
+      How the character feels in the world era and context of the story timeline.
+      How are the pros and cons of the socital constructs, as seen from the character's ideology
+
+      #### Identity Anchors
+      - Core beliefs
+      - Core values
+      - **Behavioral Patterns**
+      - vices
+      - secrets, and
+      - ideologies that drive decisions.
+      
+      These should be set with respect to the World context.
+
+      #### Long-term Goals
+      Career/personal goals and current constraints.
+
+      #### Relationships Graph Notes
+      Key allies, rivals, obligations; how ties influence choices.
+
+      #### Triggers and Stress Responses
+      What escalates them and how they react under pressure.
+      Emotional conflicts
+      Philosophical conflicts
+
+      #### Skills / Toolkit (Era-Appropriate)
+      Practical skills and tools available given the era and context.
+
+      #### Memory Hooks
+      - Canonical facts to persist in the character node for future evolution.
+      - 3-6 bullet points, specific and verifiable from backstory/actions.
+
+
+      ---
+
+      ### Character N
+      [repeat the above structure for each character]
+      ...
+
+
+      All the character definitions and attributes, should be designed
+      to serve the conflicts and tensions and evolution of the characters
+      in the detailed storyline, later.
+
+      ---
+
+      ## Storyline
+
+      ### Metadata
+      - Title: <title of the book (max. 1-3 words)>
+      - Theme: <description>
+      - Genre: <description>
+      - Adults Only: <boolean>
+      - Narrative Structure: "<linear or non-linear>/<which_specfic_structure>" (linear/five-act)
+      - Art Style: <description>
+      - Story Telling Style: <description>
+      - Suited For: movie, shorts, microdrama, tv-show, novel, short-story, comic book
+      - Colors: list of color name with their hex codes. (<color_name>(#<hex_code>)...)
+      - Cover/Thumbnail Image Concept: <description>
+
+      ### Detailed Storyline
+      The entire storyline told using one of the narrative-styles in knowledgebase.
+
+      ----
+
+      ## References
+      - [Which parts of knowledgebase was used for understanding]
+      - [Files were actually used for narrative-structures.]
+        This will be used in the next stage, for quick accessing files.
+
+      ---
+
+      ## Context
+      {storyline}
+
+      ---
+
+      ## Improvement Feedback
+
+      {feedback}
+
+      <logic>
+      if "IMPROVE" in feedback:
+        Use the feedback to improve the storyline.
+      
+      if "REWRITE" in feedback:
+        Use the feedback to rewrite the storyline.
+
+      else:
+        Ignore, and do nothing to influence the storyline.
+      </logic>
+
+      ---
+
+      ## MANDATORY GUIDELINES
+
+      - You MUST NOT change:
+      - Who did what
+      - Timeline order
+      - Relationships
+      - Logic structure
+      - Use the knowledgebase to have a better understading on writer better detective plotline
+
+      - **IMPORTANT**: Make sure to reflect on the storylines, and **make sure** it's **structurally sound** and passes **all mandatory evidence** and **plausibility checks**,
+        like, **lives of people depend on it**.      
+
+      ---
+
+      To invoke suspense and anticipation (Zeigarnik effect):
+      Build up to climatic events where they occur, choosing the final action as a countdown
+      - Anchor the plot to a tangible central event
+      - Underlying current of momentum, leading upto it (central event)
+
+      ---
+
+      ## **CRITICAL COHERENECE VALIDATIONS**:
+  
+      - One primary detective with POV control.
+      - Every alliance needs concrete stakes + mutual risk/benefit.
+      - Use multiple forensic evidence types (2+), each with clear provenance.
+      - Any framing needs mechanism + plausibility + a detectable flaw.
+      - Every deduction must map to explicit clues; no leaps.
+      - Red herrings must be grounded, explainable, and resolved.
+      - Detective Primacy Rule: 
+        You MUST designate exactly one Primary Detective by name.
+        Secondary detectives are allowed but optional; all detectives must be clearly labeled and appear in the Characters list with role `detective`.
+        If multiples exist, provide a POV Plan (primary ≥ 60%).
+    
+      ---
+
+      ## Examples
+      {examples}

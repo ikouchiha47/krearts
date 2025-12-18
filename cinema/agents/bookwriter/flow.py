@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from crewai.flow.flow import Flow, listen, or_, router, start
 from pydantic import BaseModel, Field
@@ -46,7 +46,7 @@ class StoryBuilderOutput(BaseModel):
 
 
 class StoryBuilderInput(BaseModel):
-    plotbuilder: Optional[DetectivePlotBuilderSchema] = None
+    plotbuilder: Optional[Union[DetectivePlotBuilderSchema, Any]] = None  # Any to support GenericPlotBuilderSchema
     stripper: Optional[StripperInputSchema] = None
     critiuqe: Optional[CritiqueSchema] = None
     screenplay: Optional[ScreenplayWriterSchema] = None

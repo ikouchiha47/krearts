@@ -50,6 +50,10 @@ class WorkflowState(BaseModel):
     # Configuration (includes skipper settings)
     config: Dict[str, Any] = {}
     
+    # Plot graph (for generic genre system)
+    plot_graph: Optional[Dict[str, Any]] = None
+    plot_graph_validation: Optional[Dict[str, Any]] = None
+    
     def save(self):
         """Save state to disk"""
         import json
