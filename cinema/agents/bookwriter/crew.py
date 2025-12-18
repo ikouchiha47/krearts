@@ -21,6 +21,7 @@ from cinema.models.detective_output import DetectiveStoryOutput
 from cinema.models.comic_output import ComicBookOutput
 from cinema.providers.shared import CrewConfig
 from cinema.registry import (
+    LLMChapterBuilder,
     LLMCritiqueIntent,
     LLMExecutorIntent,
     LLMPlannerIntent,
@@ -1405,7 +1406,7 @@ class ChapterBuilder:
 
         plotbuilder_agent = Agent(
             config=self.agents_config[self.role_name],  # type:ignore[index]  # pyright: ignore[reportArgumentType]
-            llm=self.ctx.llmstore.load(LLMExecutorIntent),
+            llm=self.ctx.llmstore.load(LLMChapterBuilder),
             tools=self.config.tools,
             verbose=self.ctx.debug,
         )

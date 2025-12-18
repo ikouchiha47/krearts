@@ -90,6 +90,7 @@ class LLMStore(ABC):
 LLMExecutorIntent = "executor"
 LLMPlannerIntent = "planner"
 LLMThinkerIntent = "thinker"
+LLMChapterBuilder = "chapterbuilder"
 LLMCritiqueIntent = "critique"
 LLMSubScenePlannerIntent = "sub_scene_planner"
 LLMVideoGenIntent = "video_gen"
@@ -219,7 +220,7 @@ class GenerationHerd(LLMStore):
 
 
 OpenAiHerd = (
-    GenerationHerd()
+    GenerationHerd()  # pyright: ignore[reportUnknownMemberType]
     .register_model(
         LLMPlannerIntent,  # used by plotbuilder,
         ModelConfig(
@@ -234,10 +235,10 @@ OpenAiHerd = (
     .register_model(
         LLMThinkerIntent,  # used by bookwriter/novel
         ModelConfig(
-            name="openai/gpt-5-mini",
+            name="openai/gpt-5",
             # name="gemini/gemini-2.5-pro",  # Has known tool contamination issues, exposes internal reasoning and sometimes dies
             is_hosted=False,
-            temp=1.0, # gpt-5 temp, 0 or 1
+            temp=1.0, # gpt-5 temp. 1
             lazy_load=True,
             loader=LLM,
             max_tokens=128000,  # GPT-5 max context
@@ -247,12 +248,24 @@ OpenAiHerd = (
     .register_model(
         LLMExecutorIntent,
         ModelConfig(
-            name="openai/gpt-4.1",  # chapterbuilder, gpt for better thinking
+            name="openai/gpt-4.1",
             # name="gemini/gemini-2.5-pro",
             is_hosted=False,
             temp=0.2,
             loader=LLM,
-            max_tokens=12000,
+            max_tokens=12000,  # Increased for large chapter content
+            reasoning_effort="low",  # For prose-to-comic adaptation
+        ),
+    )
+    .register_model(
+        LLMChapterBuilder,
+        ModelConfig(
+            name="openai/gpt-5",  # chapterbuilder, gpt for better thinking
+            # name="gemini/gemini-2.5-pro",
+            is_hosted=False,
+            temp=1,
+            loader=LLM,
+            max_tokens=128000,  # Increased for large chapter content
             reasoning_effort="low",  # For prose-to-comic adaptation
         ),
     )
