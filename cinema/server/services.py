@@ -130,6 +130,11 @@ class BookWorkflowService:
         continue_from: bool,
         art_style: Optional[str],
         aspect_ratio: Optional[str],
+        comic_config = None,  # New: ComicGenerationConfig
+        # Legacy parameters (for backward compatibility)
+        target_pages_per_chapter: Optional[int] = None,
+        total_novel_pages: Optional[int] = None,
+        use_smart_compression: Optional[bool] = None,
         background_tasks=None,  # Unused, kept for compatibility
     ) -> Job:
         """Generate comic chapters - job will be processed by background worker."""
@@ -146,21 +151,66 @@ class BookWorkflowService:
                 }
             )
 
-        job = self._new_job(
-            workflow_id,
-            "book_chapters",
-            {
+        # Handle comic config (new) vs legacy parameters
+        if comic_config:
+            metadata = {
                 "chapters": chapters,
                 "continue_from": bool(continue_from),
                 "art_style": art_style,
                 "aspect_ratio": aspect_ratio,
-            },
-        )
+                "comic_config": comic_config.model_dump(),
+                # Legacy fields for backward compatibility
+                "target_pages_per_chapter": comic_config.pages_per_chapter,
+                "total_novel_pages": (comic_config.total_chapters or 10) * comic_config.pages_per_chapter,
+                "use_smart_compression": comic_config.use_smart_compression,
+            }
+        else:
+            # Legacy mode
+            metadata = {
+                "chapters": chapters,
+                "continue_from": bool(continue_from),
+                "art_style": art_style,
+                "aspect_ratio": aspect_ratio,
+                "target_pages_per_chapter": target_pages_per_chapter or 5,
+                "total_novel_pages": total_novel_pages or 50,
+                "use_smart_compression": use_smart_compression if use_smart_compression is not None else True,
+            }
+
+        job = self._new_job(workflow_id, "book_chapters", metadata)
         
         # Job is saved with status="pending"
         # Background worker will pick it up and process it
         
         return job
+    
+    async def get_comic_config(self, workflow_id: str):
+        """Get comic generation configuration for workflow"""
+        from cinema.server.controllers import ComicGenerationConfig
+        
+        # Try to load from workflow state first
+        try:
+            workflow = BookWorkflow(workflow_id, self._ctx)
+            if hasattr(workflow.state, 'comic_config'):
+                return ComicGenerationConfig(**workflow.state.comic_config)
+        except Exception:
+            pass
+        
+        # Return defaults
+        return ComicGenerationConfig()
+    
+    async def set_comic_config(self, workflow_id: str, config):
+        """Set comic generation configuration for workflow"""
+        from cinema.server.controllers import ComicGenerationConfig
+        
+        # Save to workflow state
+        try:
+            workflow = BookWorkflow(workflow_id, self._ctx)
+            workflow.state.comic_config = config.model_dump()
+            workflow.save_state()
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to save comic config: {e}")
+        
+        return config
     
     async def _run_chapters_generation(
         self,

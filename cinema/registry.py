@@ -266,7 +266,7 @@ OpenAiHerd = (
             temp=1,
             loader=LLM,
             max_tokens=128000,  # Increased for large chapter content
-            reasoning_effort="low",  # For prose-to-comic adaptation
+            reasoning_effort=None,
         ),
     )
     .register_model(

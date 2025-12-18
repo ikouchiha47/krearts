@@ -50,6 +50,9 @@ class WorkflowState(BaseModel):
     # Configuration (includes skipper settings)
     config: Dict[str, Any] = {}
     
+    # Comic generation configuration
+    comic_config: Optional[Dict[str, Any]] = None
+    
     # Plot graph (for generic genre system)
     plot_graph: Optional[Dict[str, Any]] = None
     plot_graph_validation: Optional[Dict[str, Any]] = None

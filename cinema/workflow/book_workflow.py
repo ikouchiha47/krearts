@@ -360,6 +360,15 @@ class BookWorkflow(WorkflowInterface):
         output_file.parent.mkdir(parents=True, exist_ok=True)
         output_file.write_text(output.screenplay)
         
+        # Generate smart compression summaries after novel generation
+        logger.info("📊 Generating smart compression summaries...")
+        try:
+            await self._generate_smart_summaries(output.screenplay)
+            logger.info("✅ Smart compression summaries generated")
+        except Exception as e:
+            logger.warning(f"⚠️  Smart compression failed: {e}")
+            # Don't fail the workflow if summarization fails
+        
         result = {
             "content": output.screenplay,
             "type": "book",
@@ -820,6 +829,22 @@ The cover should immediately convey the genre and tone of the story while being 
         max_concurrent = get_max_concurrent_chapters()
         logger.info(f"   Max concurrent chapter jobs: {max_concurrent}")
 
+        # Get comic generation config
+        comic_config = kwargs.get('comic_config')
+        if comic_config:
+            logger.info(f"   Using comic config:")
+            logger.info(f"     Pages per chapter: {comic_config.get('pages_per_chapter', 5)}")
+            logger.info(f"     Panels per page: {comic_config.get('panels_per_page', 4)}")
+            logger.info(f"     Panel layout: {comic_config.get('panel_layout', 'dynamic')}")
+            logger.info(f"     Smart compression: {comic_config.get('use_smart_compression', True)}")
+        
+        # Determine pages per chapter
+        pages_per_chapter = 5  # default
+        if comic_config:
+            pages_per_chapter = comic_config.get('pages_per_chapter', 5)
+        elif 'target_pages_per_chapter' in kwargs:
+            pages_per_chapter = kwargs['target_pages_per_chapter']
+        
         generator = ParallelComicGenerator(
             ctx=self.ctx,
             screenplay=novel_text,
@@ -828,6 +853,7 @@ The cover should immediately convey the genre and tone of the story while being 
             use_mock=use_mock_chapters,  # Pass skipper config
             workflow_id=self.workflow_id,
             metadata_repo=self._comic_repo,
+            total_pages_per_chapter=pages_per_chapter,  # Pass pages per chapter
         )
         
         art_style = kwargs.get('art_style')
@@ -841,12 +867,20 @@ The cover should immediately convey the genre and tone of the story while being 
         logger.info(f"   Running ParallelComicGenerator for {len(new_chapters)} chapters...")
         logger.info(f"   Art style: {art_style}")
         logger.info(f"   Aspect ratio: {aspect_ratio}")
+        logger.info(f"   Pages per chapter: {pages_per_chapter}")
         logger.info(f"   use_mock={use_mock_chapters} (from skipper['s'])")
-        comic_output = await generator.generate(
-            novel=filtered_novel,
-            art_style=art_style,
-            aspect_ratio=aspect_ratio
-        )
+        
+        # Pass comic config to generator
+        generate_kwargs = {
+            'novel': filtered_novel,
+            'art_style': art_style,
+            'aspect_ratio': aspect_ratio
+        }
+        
+        if comic_config:
+            generate_kwargs['comic_config'] = comic_config
+        
+        comic_output = await generator.generate(**generate_kwargs)
         
         # Update state ONLY if chapters were actually generated
         successfully_generated = [ch.chapter_number for ch in comic_output.chapters]
@@ -1498,3 +1532,69 @@ The cover should immediately convey the genre and tone of the story while being 
             raise ValueError("PlotGraphFlow did not produce output")
         
         return flow.state.output
+    
+    async def _generate_smart_summaries(self, screenplay: str):
+        """
+        Generate smart compression summaries and update flow state.
+        
+        This runs after novel generation to create chapter summaries
+        that can be used for efficient comic generation.
+        """
+        from cinema.agents.bookwriter.smart_compression import SmartScreenplayCompressor
+        from cinema.agents.bookwriter.storage import get_storybuilder_storage
+        
+        logger.info("🧠 Generating smart compression summaries...")
+        
+        # Initialize compressor
+        compressor = SmartScreenplayCompressor(self.ctx, model="openai/gpt-5")
+        
+        # Parse novel structure
+        structure = compressor.parse_novel_structure(screenplay)
+        logger.info(f"   Novel structure: {len(structure.chapters)} chapters, {structure.total_words} words")
+        
+        if not structure.chapters:
+            logger.warning("   No chapters found in screenplay - skipping summarization")
+            return
+        
+        # Generate all summaries in one shot
+        try:
+            all_summaries = await compressor._get_all_chapter_summaries_oneshot(structure, self.workflow_id)
+            logger.info(f"   ✅ Generated summaries for {len(all_summaries)} chapters")
+            
+            # Update flow state with summaries
+            storage = get_storybuilder_storage()
+            try:
+                flow_data = storage.load(self.workflow_id)
+                
+                # Add summaries to flow state
+                if 'smart_compression' not in flow_data:
+                    flow_data['smart_compression'] = {}
+                
+                flow_data['smart_compression']['summaries'] = {
+                    str(ch_num): {
+                        'key_events': summary.key_events,
+                        'character_actions': summary.character_actions,
+                        'visual_details': summary.visual_details,
+                        'plot_advancement': summary.plot_advancement,
+                        'compressed_summary': summary.compressed_summary,
+                        'chapter_number': summary.chapter_number
+                    }
+                    for ch_num, summary in all_summaries.items()
+                }
+                flow_data['smart_compression']['structure'] = {
+                    'total_chapters': len(structure.chapters),
+                    'total_words': structure.total_words,
+                    'header_words': len(structure.header.split())
+                }
+                
+                # Save updated flow state
+                storage.save(self.workflow_id, flow_data)
+                logger.info(f"   ✅ Updated flow state with {len(all_summaries)} summaries")
+                
+            except Exception as e:
+                logger.warning(f"   ⚠️  Could not update flow state: {e}")
+                # Continue anyway - summaries are cached in compressor
+        
+        except Exception as e:
+            logger.error(f"   ❌ Summarization failed: {e}")
+            raise

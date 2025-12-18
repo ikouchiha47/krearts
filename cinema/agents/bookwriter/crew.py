@@ -231,7 +231,7 @@ class DetectivePlotBuilder:
         assert self.ctx is not None
 
         agent = Agent(
-            config=self.agents_config[self.namespace][self.role_name],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
+            config=self.agents_config[self.namespace],  # type: ignore[index]  # pyright: ignore[reportArgumentType]
             llm=self.ctx.llmstore.load(LLMPlannerIntent),
             tools=self.config.tools,
             verbose=self.ctx.debug,
@@ -1153,7 +1153,7 @@ class ScreenplayWriter:
     def crew(self):
         assert self.ctx is not None, "EmptyCtx"
 
-        if self.use_mock:
+        if self.use_mock and self.outfile:
             return CrewLike(self.outfile)
 
         self.bootstrap()
@@ -1317,6 +1317,7 @@ class ChapterBuilderSchema(BaseModel):
     aspect_ratio: Optional[str] = "4:5"  # or 5:4
     motion_types_list: Optional[str] = None  # Comma-separated list of valid motion_type values
     panel_transitions_list: Optional[str] = None  # Comma-separated list of valid panel_transition_style values
+
 
 KnowledgeSources: TypeAlias = Union[BaseKnowledgeSource, BaseFileKnowledgeSource]
 

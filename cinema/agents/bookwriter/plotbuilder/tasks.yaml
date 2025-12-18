@@ -1499,6 +1499,8 @@ chapterbuilder:
 
     ## User request
     
+    Total Pages per chapter: {total_pages}
+
     Generate the panels for chapter {chapter_id}:
 
     **Chapter Content (Prose)**:

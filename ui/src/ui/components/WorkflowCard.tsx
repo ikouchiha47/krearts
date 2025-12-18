@@ -28,10 +28,10 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({ workflow, index }) =
     >
       {/* Card Container - White background like e-commerce */}
       <div className="bg-white border-2 border-[var(--ink)] rounded-lg overflow-hidden shadow-md">
-        {/* Cover Image */}
-        <div className="aspect-[2/3] relative">
+        {/* Cover Image - Reduced height */}
+        <div className="aspect-[3/2] relative">
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-            <BookOpen className="w-16 h-16 text-white" strokeWidth={2.5} />
+            <BookOpen className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
 
           {/* Spinner badge for in-progress workflows */}
@@ -42,33 +42,26 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({ workflow, index }) =
           )}
         </div>
 
-        {/* Metadata Section - Inside card with white background */}
-        <div className="p-4 bg-white">
+        {/* Metadata Section - Reduced padding */}
+        <div className="p-3 bg-white">
           {/* Title */}
-          <h3 className="text-sm font-black uppercase leading-tight mb-2 line-clamp-2 min-h-[2.5rem]">
+          <h3 className="text-sm font-black uppercase leading-tight mb-2 line-clamp-1">
             {workflow.title}
           </h3>
 
-          {/* Status Badge */}
-          <div className="mb-3">
+          {/* Status and Stats in one row */}
+          <div className="flex items-center justify-between">
             <span className={`inline-block px-2 py-1 text-[10px] font-bold uppercase rounded ${
               isGenerating 
                 ? 'bg-[var(--orange)] text-white' 
                 : 'bg-[var(--cream)] text-[var(--ink)]'
             }`}>
-              {isGenerating ? 'GENERATING' : workflow.currentStage}
+              {isGenerating ? 'GEN' : workflow.currentStage}
             </span>
-          </div>
-
-          {/* Stats - Like product details */}
-          <div className="flex items-center justify-between text-xs font-bold border-t-2 border-[var(--cream)] pt-3">
-            <div className="flex items-center gap-1">
-              <span className="text-[var(--muted)]">Chapters:</span>
-              <span className="text-[var(--ink)]">{workflow.chaptersGenerated}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[var(--muted)]">Pages:</span>
-              <span className="text-[var(--ink)]">{workflow.pagesGenerated}</span>
+            
+            <div className="flex items-center gap-3 text-xs font-bold">
+              <span className="text-[var(--muted)]">Ch: {workflow.chaptersGenerated}</span>
+              <span className="text-[var(--muted)]">Pg: {workflow.pagesGenerated}</span>
             </div>
           </div>
         </div>

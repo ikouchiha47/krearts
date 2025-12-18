@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from cinema.agents.bookwriter.utils import clean_agent_thinking_from_output
 from cinema.jobs.storage import get_job_repository
@@ -138,11 +138,37 @@ def _parse_range(value: Optional[str]) -> Optional[List[int]]:
         raise HTTPException(status_code=400, detail="Invalid range format, use '1,5' or 'all'")
 
 
+class ComicGenerationConfig(BaseModel):
+    """Comic generation configuration"""
+    # Chapter Controls
+    total_chapters: Optional[int] = Field(default=None, ge=1, le=50, description="Total chapters (auto-detected if None)")
+    pages_per_chapter: Optional[int] = Field(default=5, ge=1, le=25, description="Pages per chapter")
+    chapter_style: Optional[str] = Field(default="modern", description="Chapter style: 'classic_dense' or 'modern_cinematic'")
+    
+    # Page Controls  
+    panels_per_page: Optional[int] = Field(default=4, ge=2, le=9, description="Panels per page")
+    panel_layout: Optional[str] = Field(default="dynamic", description="Panel layout: 'grid_3x3', 'grid_2x4', 'dynamic', 'custom'")
+    panel_transitions: Optional[str] = Field(default="hard_cuts", description="Panel transitions: 'hard_cuts', 'smooth', 'cinematic'")
+    
+    # Compression Controls
+    use_smart_compression: Optional[bool] = Field(default=True, description="Enable smart screenplay compression")
+    context_window: Optional[int] = Field(default=1, ge=1, le=3, description="Full chapters before/after target")
+    summary_window: Optional[int] = Field(default=2, ge=1, le=5, description="Summary chapters before/after context")
+
+
 class ChaptersRequest(BaseModel):
     chapters: Optional[str] = None   # "all" or "1,5"
     continue_from: bool = False
     art_style: Optional[str] = None
     aspect_ratio: Optional[str] = None
+    
+    # Legacy fields (for backward compatibility)
+    target_pages_per_chapter: Optional[int] = Field(default=None, description="Legacy: use comic_config.pages_per_chapter instead")
+    total_novel_pages: Optional[int] = Field(default=None, description="Legacy: calculated from chapters * pages_per_chapter")
+    use_smart_compression: Optional[bool] = Field(default=None, description="Legacy: use comic_config.use_smart_compression instead")
+    
+    # New comic generation config
+    comic_config: Optional[ComicGenerationConfig] = Field(default_factory=ComicGenerationConfig, description="Comic generation configuration")
 
 
 @router.post("/{workflow_id}/chapters", response_model=JobResponse)
@@ -169,15 +195,48 @@ async def generate_chapters(
         wf = BookWorkflow(workflow_id, ctx)
         art_style = wf._get_art_style()
     
+    # Handle legacy fields vs new comic_config
+    comic_config = req.comic_config or ComicGenerationConfig()
+    
+    # Legacy compatibility: override comic_config with legacy fields if provided
+    if req.target_pages_per_chapter is not None:
+        comic_config.pages_per_chapter = req.target_pages_per_chapter
+    if req.use_smart_compression is not None:
+        comic_config.use_smart_compression = req.use_smart_compression
+    if req.total_novel_pages is not None:
+        # Calculate pages_per_chapter from total_novel_pages if not explicitly set
+        if req.target_pages_per_chapter is None and comic_config.total_chapters:
+            comic_config.pages_per_chapter = req.total_novel_pages // comic_config.total_chapters
+    
     job = await svc.generate_chapters(
         workflow_id=workflow_id,
         chapters=chapter_list,
         continue_from=req.continue_from,
         art_style=art_style,
         aspect_ratio=aspect_ratio,
+        comic_config=comic_config,
         background_tasks=background_tasks,
     )
     return JobResponse.from_job(job)
+
+
+@router.get("/{workflow_id}/comic-config", response_model=ComicGenerationConfig)
+async def get_comic_config(
+    workflow_id: str,
+    svc: BookWorkflowService = Depends(get_book_service),
+):
+    """Get comic generation configuration for workflow"""
+    return await svc.get_comic_config(workflow_id)
+
+
+@router.post("/{workflow_id}/comic-config", response_model=ComicGenerationConfig)
+async def set_comic_config(
+    workflow_id: str,
+    config: ComicGenerationConfig,
+    svc: BookWorkflowService = Depends(get_book_service),
+):
+    """Set comic generation configuration for workflow"""
+    return await svc.set_comic_config(workflow_id, config)
 
 
 @router.post("/{workflow_id}/cover", response_model=JobResponse)
