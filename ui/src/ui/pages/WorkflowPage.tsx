@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../api/ApiProvider';
+import { ChapterSelection, PageSelection, GenerateChaptersPayload, GeneratePagesPayload } from '../api/ApiClient';
 import ReactMarkdown from 'react-markdown';
 import { useJobPoller } from '../hooks/useJobPoller';
 import { WorkflowProgressBar } from '../components/WorkflowProgressBar';
 import { RunningJobProgress } from '../components/RunningJobProgress';
+import { WorkflowConfig } from '../components/WorkflowConfig';
+import { GenerationControls } from '../components/GenerationControls';
 
 type ViewTab = 'story' | 'plot' | 'pages' | 'timeline' | 'graph';
 
@@ -116,6 +119,43 @@ export const WorkflowPage: React.FC = () => {
     }
   };
 
+  const handleRunChapters = async (args: { selection: ChapterSelection; batchSize?: number; continueFrom?: boolean }) => {
+    if (!workflowId) return;
+    
+    try {
+      const payload: GenerateChaptersPayload = {
+        workflowId,
+        selection: args.selection,
+        continueFrom: args.continueFrom,
+        batchSize: args.batchSize,
+      };
+      
+      const job = await api.generateChapters(payload);
+      alert(`✓ Chapter generation started\nJob ID: ${job.id}`);
+      loadWorkflowData();
+    } catch (error) {
+      alert(`Failed to start chapter generation: ${error}`);
+    }
+  };
+
+  const handleRunPages = async (args: { selection: PageSelection; continueFrom?: boolean }) => {
+    if (!workflowId) return;
+    
+    try {
+      const payload: GeneratePagesPayload = {
+        workflowId,
+        selection: args.selection,
+        continueFrom: args.continueFrom,
+      };
+      
+      const job = await api.generatePages(payload);
+      alert(`✓ Page generation started\nJob ID: ${job.id}`);
+      loadWorkflowData();
+    } catch (error) {
+      alert(`Failed to start page generation: ${error}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -137,7 +177,11 @@ export const WorkflowPage: React.FC = () => {
       {/* Header */}
       <header className="comic-header px-10 py-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="text-[var(--cream)] hover:text-[var(--orange)] text-2xl font-black">←</Link>
+          <Link to="/dashboard" className="text-[var(--cream)] hover:text-[var(--orange)] p-2 rounded-lg transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
           <strong className="text-3xl uppercase">{workflow.title}</strong>
           <span className="comic-badge px-3 py-1 rounded">
             {workflow.currentStage.toUpperCase()}
@@ -154,7 +198,7 @@ export const WorkflowPage: React.FC = () => {
                   });
                   const data = await response.json();
                   if (response.ok) {
-                    alert(`✓ ${data.message}\nJob ID: ${data.id}`);
+                    alert(`✓ ${data.message}\nJob ID: ${data.job_id}`);
                     loadWorkflowData();
                   } else {
                     alert(`✗ ${data.detail || 'Failed to continue workflow'}`);
@@ -248,6 +292,48 @@ export const WorkflowPage: React.FC = () => {
         {/* LEFT SIDEBAR - Chapters */}
         <aside className="bg-[var(--cream-dark)] border-r-4 border-[var(--ink)] p-4 overflow-y-auto">
           <h3 className="text-sm font-black uppercase tracking-wider mb-3">CHAPTERS</h3>
+          
+          {/* Config Panel - show when plot is done but novel not started yet */}
+          {workflow.storyline && workflow.currentStage === 'content' && !workflow.screenplay && (
+            <div className="bg-[var(--paper)] border-2 border-[var(--ink)] rounded p-3 mb-4">
+              <WorkflowConfig
+                disabled={false}
+                onSave={async (config) => {
+                  try {
+                    const response = await fetch(`http://localhost:8000/workflows/book/${workflowId}/comic-config`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        total_chapters: config.totalChapters,
+                        pages_per_chapter: config.pagesPerChapter,
+                      }),
+                    });
+                    
+                    if (response.ok) {
+                      alert(`✓ Settings saved!\n${config.totalChapters} chapters\n${config.pagesPerChapter} pages per chapter\n\nClick Continue to proceed with novel generation.`);
+                    } else {
+                      const data = await response.json();
+                      alert(`✗ Failed to save: ${data.detail || 'Unknown error'}`);
+                    }
+                  } catch (error) {
+                    alert(`✗ Failed to save settings: ${error}`);
+                  }
+                }}
+              />
+            </div>
+          )}
+          
+          {/* Generation Controls - show when chapters exist and we can generate pages */}
+          {(workflow.currentStage === 'chapters' || workflow.currentStage === 'pages') && chapters.length > 0 && (
+            <div className="bg-[var(--paper)] border-2 border-[var(--ink)] rounded p-3 mb-4">
+              <GenerationControls
+                stage={workflow.currentStage}
+                disabled={false}
+                onRunChapters={handleRunChapters}
+                onRunPages={handleRunPages}
+              />
+            </div>
+          )}
           {(() => {
             // Get expected chapter count from novel (default 15)
             const expectedChapters = workflow?.screenplay ? 15 : 0;
@@ -562,7 +648,7 @@ export const WorkflowPage: React.FC = () => {
                     // Successful chapter
                     const totalPagesInChapter = chapter.pages || 0;
                     const pagesGenerated = workflow.pagesGenerated || [];
-                    const startPage = Array.from({ length: idx }).reduce((sum, _, i) => {
+                    const startPage = Array.from({ length: idx }).reduce((sum: number, _, i) => {
                       const ch = chapterMap.get(i + 1);
                       return sum + (ch?.pages || 0);
                     }, 0) + 1;

@@ -79,33 +79,10 @@ export const GenerationBar: React.FC<GenerationBarProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 text-xs">
-      <div className="inline-flex border-2 border-black rounded overflow-hidden">
-        <button
-          type="button"
-          onClick={() => onModeChange('chapters')}
-          className={`px-3 py-1 border-r-2 border-black transition-colors font-semibold ${
-            mode === 'chapters'
-              ? 'bg-black text-white'
-              : 'bg-white text-black hover:bg-gray-100'
-          }`}
-        >
-          Chapters
-        </button>
-        <button
-          type="button"
-          onClick={() => onModeChange('pages')}
-          className={`px-3 py-1 transition-colors font-semibold ${
-            mode === 'pages'
-              ? 'bg-black text-white'
-              : 'bg-white text-black hover:bg-gray-100'
-          }`}
-        >
-          Pages
-        </button>
-      </div>
-
-      {mode === 'chapters' ? (
+    <div className="flex flex-col gap-4 text-xs">
+      {/* Chapter Controls */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-bold uppercase text-[var(--ink)]">Chapter Generation</h4>
         <div className="flex items-center gap-2 flex-wrap">
           <select
             className="px-2 py-1 border-2 border-black rounded bg-white text-black"

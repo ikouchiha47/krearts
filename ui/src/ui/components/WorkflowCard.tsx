@@ -18,7 +18,7 @@ const GRADIENTS = [
 ];
 
 export const WorkflowCard: React.FC<WorkflowCardProps> = ({ workflow, index }) => {
-  const isGenerating = !workflow.storylineDone || !workflow.contentDone;
+  const isGenerating = workflow.currentStage === 'generating' || workflow.currentStage === 'planning' || workflow.chaptersGenerated === 0;
   const gradient = GRADIENTS[index % GRADIENTS.length];
 
   return (
@@ -26,10 +26,10 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({ workflow, index }) =
       to={`/workflow/${workflow.id}`}
       className="block transition-all hover:scale-105 hover:shadow-lg"
     >
-      {/* Card Container - White background like e-commerce */}
-      <div className="bg-white border-2 border-[var(--ink)] rounded-lg overflow-hidden shadow-md">
-        {/* Cover Image - Reduced height */}
-        <div className="aspect-[3/2] relative">
+      {/* Card Container - Min height, can grow */}
+      <div className="bg-white border-2 border-[var(--ink)] rounded-lg overflow-hidden shadow-md min-h-[200px] flex flex-col">
+        {/* Cover Image - Slightly taller */}
+        <div className="h-40 relative flex-shrink-0">
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
             <BookOpen className="w-12 h-12 text-white" strokeWidth={2.5} />
           </div>
@@ -42,15 +42,15 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({ workflow, index }) =
           )}
         </div>
 
-        {/* Metadata Section - Reduced padding */}
-        <div className="p-3 bg-white">
+        {/* Metadata Section - Min height, can grow */}
+        <div className="p-3 bg-white flex-1 flex flex-col justify-between min-h-[60px]">
           {/* Title */}
-          <h3 className="text-sm font-black uppercase leading-tight mb-2 line-clamp-1">
+          <h3 className="text-sm font-black uppercase leading-tight mb-2">
             {workflow.title}
           </h3>
 
           {/* Status and Stats in one row */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <span className={`inline-block px-2 py-1 text-[10px] font-bold uppercase rounded ${
               isGenerating 
                 ? 'bg-[var(--orange)] text-white' 
