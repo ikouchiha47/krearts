@@ -2,25 +2,15 @@
 set -e
 
 # Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+# if [ -f .env ]; then
+#     export $(cat .env | grep -v '^#' | xargs)
+# fi
 
 # Activate virtual environment
 source .venv/bin/activate
 
 # Create output directory if it doesn't exist
 mkdir -p /app/output
-
-# Initialize database if needed
-if [ ! -f cinema.db ]; then
-    echo "Initializing database..."
-    python -c "
-from cinema.db.database import init_db
-init_db()
-print('Database initialized')
-"
-fi
 
 # Start services based on command
 case "$1" in

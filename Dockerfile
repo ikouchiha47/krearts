@@ -21,8 +21,7 @@ RUN poetry config virtualenvs.in-project true && \
     poetry install --no-dev --no-interaction --no-ansi
 
 # Copy application code
-COPY cinema ./cinema
-COPY knowledge ./knowledge
+COPY . .
 COPY .env.example ./.env
 
 # Create output directory
@@ -31,27 +30,9 @@ RUN mkdir -p /app/output
 # Setup runit services
 RUN mkdir -p /etc/service/api /etc/service/worker /etc/service/frontend
 
-# API service
-RUN echo '#!/bin/sh\n\
-cd /app\n\
-source .venv/bin/activate\n\
-exec uvicorn cinema.server.app:app --host 0.0.0.0 --port 8000 2>&1' > /etc/service/api/run && \
-    chmod +x /etc/service/api/run
-
-# Worker service
-RUN echo '#!/bin/sh\n\
-cd /app\n\
-source .venv/bin/activate\n\
-exec python -m cinema.server.worker 2>&1' > /etc/service/worker/run && \
-    chmod +x /etc/service/worker/run
-
-# Frontend service (if exists)
-RUN if [ -d "frontend" ]; then \
-    echo '#!/bin/sh\n\
-cd /app/frontend\n\
-exec npm run dev -- --host 0.0.0.0 --port 5173 2>&1' > /etc/service/frontend/run && \
-    chmod +x /etc/service/frontend/run; \
-fi
+RUN cp /app/infra/frontend /etc/service/frontend/run && \
+    cp /app/infra/server /etc/service/api/run && \
+    cp /app/infra/worker /etc/service/worker/run
 
 # Expose ports
 EXPOSE 8000 5173
@@ -60,7 +41,6 @@ EXPOSE 8000 5173
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Copy entrypoint
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 

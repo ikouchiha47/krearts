@@ -35,12 +35,15 @@ evals/
 # Examples and docs
 examples/
 docs/
+landing/
+tmp_landing/
 *.md
 !README.md
 
 # Output and data
 output/
 dataset/
+releases/
 qdrant_storage/
 *.db
 *.db-shm
@@ -48,8 +51,7 @@ qdrant_storage/
 *.log
 logs
 logs_*
-logss
-logsss
+logs*
 
 # Temporary files
 tmp/
@@ -62,6 +64,7 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.next/
+ui/node_modules/
 
 # Development files
 .env.local
