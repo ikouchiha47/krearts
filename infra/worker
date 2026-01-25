@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd /app
-source .venv/bin/activate
+. .venv/bin/activate
 
-exec python -m cinema.server.worker > /app/output/worker.log 2>&1
+exec python -m cinema.server.worker 2>&1

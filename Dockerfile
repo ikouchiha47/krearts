@@ -1,10 +1,11 @@
 # Multi-stage build for Cinema AI Story Generator
-FROM python:3.12-slim as base
+FROM python:3.12-slim AS base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     runit \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install poetry
@@ -18,14 +19,39 @@ COPY pyproject.toml poetry.lock ./
 
 # Install dependencies (no dev dependencies)
 RUN poetry config virtualenvs.in-project true && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry install --no-interaction --no-ansi --no-root
+
+
+# Install nodejs
+
+ARG NODE_VERSION=23.11.0
+
+# install curl
+RUN apt update && apt install curl -y
+
+# install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+# set env
+ENV NVM_DIR=/root/.nvm
+ENV PATH="/root/.nvm:$PATH"
+
+# install node
+RUN bash -c "source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION"
 
 # Copy application code
 COPY . .
+
+# Install npm dependencies during build
+WORKDIR /app/ui
+RUN bash -c "source $NVM_DIR/nvm.sh && npm install"
+
+WORKDIR /app
 COPY .env.example ./.env
+COPY README.md /app/README.md
 
 # Create output directory
-RUN mkdir -p /app/output
+RUN mkdir -p /app/output && mkdir -p /app/datastore
 
 # Setup runit services
 RUN mkdir -p /etc/service/api /etc/service/worker /etc/service/frontend

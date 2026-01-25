@@ -42,9 +42,27 @@ class ArtStyleReferenceManager:
         Initialize the reference manager.
         
         Args:
-            base_dir: Base directory for the project (defaults to current working directory)
+            base_dir: Base directory for the project (defaults to CINEMA_ROOT env var or auto-detection)
         """
-        self.base_dir = base_dir or Path.cwd()
+        if base_dir is None:
+            import os
+            # Use CINEMA_ROOT environment variable if set
+            cinema_root = os.getenv('CINEMA_ROOT')
+            if cinema_root:
+                base_dir = Path(cinema_root)
+            else:
+                # Fallback: auto-detect project root by finding the directory containing 'knowledge'
+                current = Path(__file__).parent
+                while current != current.parent:
+                    if (current / "knowledge").exists():
+                        base_dir = current
+                        break
+                    current = current.parent
+                else:
+                    # Final fallback to current working directory
+                    base_dir = Path.cwd()
+        
+        self.base_dir = base_dir
         self.manifest = self._load_manifest()
     
     def _load_manifest(self) -> Dict[str, Any]:

@@ -29,6 +29,7 @@ from cinema.registry import (
     ModelConfig,
     OpenAiHerd,
 )
+from typing import TypedDict
 
 # Note: Character and RelationshipGraph are imported in detective.py
 # Removed DetectivePlotBuilderSchema as it's unused and causes Pydantic schema errors
@@ -669,7 +670,6 @@ class PlotGraphBuilder:
             external_memory=self.external_memory,
         )
 
-from typing import TypedDict
 
 class PlotBuilderOverrides(TypedDict):
     genre_roles: Optional[str]

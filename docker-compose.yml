@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   cinema:
     build: .
@@ -7,10 +5,12 @@ services:
       - "8000:8000"  # API
       - "5174:5173"  # Frontend
     volumes:
-      - ./output:/app/output  # Only mount output directory
+      - ./output:/app/output
+      - ./datastore:/app/datastore  # Only mount output directory
     environment:
       - PYTHONPATH=/app
       - ENVIRONMENT=production
+      - CINEMA_ROOT=/app
     env_file:
       - .env
     restart: unless-stopped

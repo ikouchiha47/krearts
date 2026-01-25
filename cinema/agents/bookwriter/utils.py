@@ -63,7 +63,17 @@ def get_allowed_art_styles() -> List[str]:
     Returns:
         List of art style names (e.g., ['sci-fi', 'cyberpunk', 'noir', ...])
     """
-    manifest_path = Path(__file__).parent.parent.parent / "knowledge" / "art-styles" / "references" / "reference_manifest.yaml"
+    import os
+    
+    # Use CINEMA_ROOT environment variable, fallback to project root detection
+    cinema_root = os.getenv('CINEMA_ROOT')
+    if cinema_root:
+        base_dir = Path(cinema_root)
+    else:
+        # Fallback: go up 4 levels from this file to project root
+        base_dir = Path(__file__).parent.parent.parent.parent
+    
+    manifest_path = base_dir / "knowledge" / "art-styles" / "references" / "reference_manifest.yaml"
     
     try:
         with open(manifest_path, 'r') as f:

@@ -262,8 +262,11 @@ OpenAiHerd = (
         ModelConfig(
             name="openai/gpt-5",  # chapterbuilder, gpt for better thinking
             # name="gemini/gemini-2.5-pro",
-            is_hosted=False,
+            # temp=1,
             temp=1,
+            # model="ollama/hf.co/mradermacher/Darkest-muse-v1-GGUF:latest",
+            # api_base="http://localhost:11434"
+            is_hosted=False,
             loader=LLM,
             max_tokens=128000,  # Increased for large chapter content
             reasoning_effort=None,

@@ -68,9 +68,13 @@ class SQLiteStorage(StorageBackend):
 
     def __init__(
         self,
-        db_path: str = "./cinema_server.db",
+        db_path: Optional[str] = None,
         job_repo: Optional["JobRepository"] = None,
     ) -> None:
+        # Use environment variable if db_path not provided
+        if db_path is None:
+            db_path = os.getenv("WORKFLOW_STATE_SQLITE_PATH", "./cinema_server.db")
+        
         self.db_path = db_path
         # Ensure schema is up-to-date before any access
         run_migrations(self.db_path)

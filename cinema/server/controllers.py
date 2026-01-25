@@ -1168,7 +1168,9 @@ async def regenerate_single_character(workflow_id: str, character_id: str):
     
     # Delete existing images for this character
     import sqlite3
-    conn = sqlite3.connect("cinema_server.db", timeout=30.0)
+    import os
+    db_path = os.getenv("COMIC_METADATA_SQLITE_PATH", "./cinema_server.db")
+    conn = sqlite3.connect(db_path, timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
     cursor = conn.cursor()
     

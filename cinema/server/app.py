@@ -13,6 +13,11 @@ from cinema.server.controllers import router as book_router, jobs_router, workfl
 
 app = FastAPI(title="Cinema Book Workflow API")
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for container orchestration and monitoring."""
+    return {"status": "healthy", "service": "cinema-api"}
+
 # CORS configuration: for now allow all origins so local web UIs can call
 # the API without additional setup. In production you may want to restrict
 # this via environment-driven configuration.

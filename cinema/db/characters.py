@@ -21,7 +21,11 @@ def generate_character_id(workflow_id: str, character_number: int) -> str:
 class CharacterStore:
     """Store and retrieve character details"""
     
-    def __init__(self, db_path: str = "cinema_server.db"):
+    def __init__(self, db_path: str = None):
+        # Use environment variable if db_path not provided
+        if db_path is None:
+            import os
+            db_path = os.getenv("COMIC_METADATA_SQLITE_PATH", "./cinema_server.db")
         self.db_path = db_path
         # Note: Table creation is handled by migrations (0005_add_characters_table.py)
     

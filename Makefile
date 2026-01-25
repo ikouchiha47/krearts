@@ -42,7 +42,7 @@ deploy: build up
 # Quick development setup
 dev:
 	@echo "Starting development environment..."
-	docker-compose up --build
+	docker-compose up --build -d
 
 # Production deployment
 prod:

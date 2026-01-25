@@ -12,7 +12,11 @@ from cinema.server.storage.interface import StorageBackend
 def get_storage() -> StorageBackend:
     """Get the storage backend instance."""
     from cinema.server.storage.sqlite import SQLiteStorage
-    return SQLiteStorage()
+    import os
+    
+    # Use the environment variable for database path
+    db_path = os.getenv("WORKFLOW_STATE_SQLITE_PATH", "./cinema_server.db")
+    return SQLiteStorage(db_path=db_path)
 
 
 def get_directors_context() -> DirectorsContext:

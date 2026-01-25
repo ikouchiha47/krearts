@@ -18,7 +18,11 @@ class StorylineIntegration:
     - Characters: stored in characters table for reuse
     """
     
-    def __init__(self, db_path: str = "cinema_server.db"):
+    def __init__(self, db_path: str = None):
+        # Use environment variable if db_path not provided
+        if db_path is None:
+            import os
+            db_path = os.getenv("STORYBUILDER_SQLITE_PATH", "./cinema_server.db")
         self.db_path = db_path
         self.char_store = CharacterStore(db_path)
         self._world_cache: Dict[str, str] = {}  # Cache world context text
@@ -260,7 +264,7 @@ def get_bookwriter_input(
     words_per_chapter: int = 150,
     total_pages: int = 50,
     examples: str = "",
-    db_path: str = "cinema_server.db",
+    db_path: str = None,
 ) -> Dict[str, Any]:
     """
     Quick function to get BookWriter input dict
@@ -281,7 +285,7 @@ def get_bookwriter_input(
 
 def get_character_prompts(
     workflow_id: str,
-    db_path: str = "cinema_server.db",
+    db_path: str = None,
 ) -> Dict[str, str]:
     """
     Quick function to get character image generation prompts
@@ -297,7 +301,7 @@ def get_character_prompts(
 
 def parse_workflow_storyline(
     workflow_id: str,
-    db_path: str = "cinema_server.db",
+    db_path: str = None,
 ) -> ParsedStoryline:
     """
     Quick function to parse and store a workflow's storyline characters

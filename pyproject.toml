@@ -2,6 +2,7 @@
 name = "cinema"
 version = "0.1.0"
 description = ""
+package-mode = false
 authors = [
     {name = "amitavaghosh2",email = "amitava@rendernet.ai"}
 ]
@@ -21,6 +22,7 @@ dependencies = [
     "pytesseract>=0.3.13",
     "pytest>=9.0.0",
     "pyyaml>=6.0.3",
+    "fastapi[standard] (>=0.127.0,<0.128.0)",
 ]
 
 
