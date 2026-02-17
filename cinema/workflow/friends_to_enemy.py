@@ -21,6 +21,26 @@ from narrative_graph import (
     RelationshipType,
 )
 
+@dataclass
+class Worldview:
+    core_beliefs: Dict[str, float]  # belief -> confidence
+    values_hierarchy: Dict[str, float]  # value -> importance
+    biases: List[str]
+
+@dataclass
+class Relationship:
+    trust: float
+    respect: float
+    shared_history: List[Event]
+    tensions: Dict[str, float]  # value_conflict -> magnitude
+
+@dataclass
+class Event:
+    participants: List[str]
+    context: str
+    outcomes: Dict[str, Any]
+    interpretations: Dict[str, str]  # char_id -> their take
+
 
 async def detailed_friends_to_enemies_walkthrough():
     """
